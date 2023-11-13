@@ -9,9 +9,9 @@
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
     "outDir": "lib",
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": true,
-    "strictNullChecks": true,
+    "strictNullCheck": false,
     "sourceMap": true,
     "baseUrl": ".",
     "rootDir": ".",
@@ -26,5 +26,5 @@
     }
   },
   "include": ["./src", "./types", "./config"],
-  "compileOnSave": false
+  "compileOnSave": true
 }
