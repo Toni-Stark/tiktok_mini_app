@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, CoverImage, Video } from "@tarojs/components";
+import { View, Text, ScrollView, Image, Video } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
@@ -15,33 +15,22 @@ export default function List() {
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
+    habit: 1,
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [btnList, setBtnList] = useState([
     {
-      title: "推荐",
+      title: "历史",
       id: 1,
     },
     {
-      title: "都市",
+      title: "点赞",
       id: 2,
     },
     {
-      title: "战神",
+      title: "收藏",
       id: 3,
-    },
-    {
-      title: "甜宠",
-      id: 4,
-    },
-    {
-      title: "玄幻",
-      id: 5,
-    },
-    {
-      title: "古装",
-      id: 6,
     },
   ]);
   const [newData, setNewData] = useState([
@@ -123,6 +112,12 @@ export default function List() {
     }
   };
 
+  const naviToCateOne = (type) => {
+    Taro.navigateTo({
+      url: "../index/search/index?type=" + type,
+    });
+  };
+
   return (
     <View className="index">
       <View
@@ -132,7 +127,12 @@ export default function List() {
           height: option.barHeight + "Px",
         }}
       >
-        <CoverImage className="index_header_img" src={search} />
+        <Image
+          mode="widthFix"
+          onClick={naviToCateOne}
+          className="index_header_img"
+          src={search}
+        />
         <View className="index_header_text">追剧</View>
       </View>
       <View className="index_zone">
@@ -158,7 +158,7 @@ export default function List() {
                   controls={false}
                   autoplay={true}
                   loop={true}
-                  muted={false}
+                  muted={true}
                   objectFit="cover"
                 />
                 <View className="components-video-large-content">
@@ -175,23 +175,26 @@ export default function List() {
               </View>
               <View className="components-video-list">
                 <View className="components-video-list-tabs">
-                  <View className="components-video-list-tabs-tab">
-                    历史
-                    <View className="components-video-list-tabs-tab-line" />
-                  </View>
-                  <View className="components-video-list-tabs-tab">
-                    点赞
-                    <View className="components-video-list-tabs-tab-line" />
-                  </View>
-                  <View className="components-video-list-tabs-tab">
-                    收藏
-                    <View className="components-video-list-tabs-tab-line" />
-                  </View>
+                  {btnList.map((item, index) => {
+                    return (
+                      <View
+                        className="components-video-list-tabs-tab"
+                        onClick={() => {
+                          setOption({ ...option, habit: item.id });
+                        }}
+                      >
+                        {item.title}
+                        {option.habit === item.id ? (
+                          <View className="components-video-list-tabs-tab-line" />
+                        ) : null}
+                      </View>
+                    );
+                  })}
                 </View>
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                     </View>
                   );
                 })}
@@ -201,7 +204,7 @@ export default function List() {
           </View>
         </ScrollView>
         <View className="scroll_top" style={{ opacity: scrollOpacity }}>
-          <CoverImage className="scroll_top_img" src={top} />
+          <Image mode="widthFix" className="scroll_top_img" src={top} />
         </View>
       </View>
       <View className="index_footer" />

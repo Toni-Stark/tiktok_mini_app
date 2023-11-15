@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, CoverImage, Video } from "@tarojs/components";
+import { View, Text, ScrollView, Image, Video } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
 import "taro-ui/dist/style/components/loading.scss";
@@ -127,7 +127,7 @@ export default function Index() {
     },
   ]);
   const handleScrollTop = () => {
-    setScrollTop(0);
+    setScrollTop(scrollTop ? 0 : 1);
   };
   useLoad(() => {
     let _option = option;
@@ -157,6 +157,18 @@ export default function Index() {
     }
   };
 
+  const naviToCateOne = (type) => {
+    Taro.navigateTo({
+      url: "./cate/index?type=" + type,
+    });
+  };
+
+  const naviToSearch = (type) => {
+    Taro.navigateTo({
+      url: "./search/index?type=" + type,
+    });
+  };
+
   return (
     <View className="index">
       <View className="index_zone">
@@ -164,6 +176,7 @@ export default function Index() {
           className="index_zone_view"
           scrollY
           scrollTop={scrollTop}
+          scrollWithAnimation={true}
           enhanced
           onScroll={onScroll}
         >
@@ -174,7 +187,12 @@ export default function Index() {
               height: option.barHeight + "Px",
             }}
           >
-            <CoverImage className="index_zone_view_header_img" src={search} />
+            <Image
+              mode="widthFix"
+              className="index_zone_view_header_img"
+              src={search}
+              onClick={naviToSearch}
+            />
           </View>
           <View className="index_zone_view_content">
             <View
@@ -190,15 +208,12 @@ export default function Index() {
                 controls={false}
                 autoplay={true}
                 loop={true}
-                muted={false}
+                muted={true}
                 objectFit="cover"
               />
               <View className="components-video-shadow" />
               <View className="components-video-card">
-                <CoverImage
-                  className="components-video-card-image"
-                  src={card}
-                />
+                <Image className="components-video-card-image" src={card} />
                 <View className="components-video-card-content">
                   <Text className="title">仙尊师傅太诱人</Text>
                   <Text className="text">甜宠古装仙侠巨制</Text>
@@ -206,9 +221,15 @@ export default function Index() {
               </View>
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">看你想看</Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(1);
+                  }}
+                >
                   更多分类
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -238,7 +259,8 @@ export default function Index() {
                     {reComm.map((item, index) => {
                       return (
                         <View key={index} className="scroll-list-item">
-                          <CoverImage
+                          <Image
+                            mode="widthFix"
                             src={item.img}
                             className="scroll-list-item-img"
                           />
@@ -256,7 +278,11 @@ export default function Index() {
                 </ScrollView>
               </View>
               <View className="components-video-bar">
-                <CoverImage src={bar1} className="components-video-bar-image" />
+                <Image
+                  mode="widthFix"
+                  src={bar1}
+                  className="components-video-bar-image"
+                />
               </View>
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
@@ -264,7 +290,8 @@ export default function Index() {
                 </Text>
                 <View className="components-video-lar-link">
                   热门独播
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -274,7 +301,7 @@ export default function Index() {
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                       <Text className="text">{item.text}</Text>
                       <Text className="eval">{item.eval}</Text>
                     </View>
@@ -302,9 +329,15 @@ export default function Index() {
                 <Text className="components-video-lar-text">
                   最新短剧速递 精彩内容抢先看
                 </Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(2);
+                  }}
+                >
                   热门独播
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -314,7 +347,7 @@ export default function Index() {
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                       <Text className="text">{item.text}</Text>
                       <Text className="eval">{item.eval}</Text>
                     </View>
@@ -342,9 +375,15 @@ export default function Index() {
                 <Text className="components-video-lar-text">
                   女生必看！高甜短剧让你心动
                 </Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(3);
+                  }}
+                >
                   热门独播
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -354,7 +393,7 @@ export default function Index() {
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                       <Text className="text">{item.text}</Text>
                       <Text className="eval">{item.eval}</Text>
                     </View>
@@ -365,9 +404,15 @@ export default function Index() {
                 <Text className="components-video-lar-text">
                   神秘异能再掀波澜，熬夜都要看完
                 </Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(4);
+                  }}
+                >
                   热门独播
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -377,7 +422,7 @@ export default function Index() {
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                       <Text className="text">{item.text}</Text>
                       <Text className="eval">{item.eval}</Text>
                     </View>
@@ -388,9 +433,15 @@ export default function Index() {
                 <Text className="components-video-lar-text">
                   全程高能，多重翻转，下饭最佳！
                 </Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(5);
+                  }}
+                >
                   热门独播
-                  <CoverImage
+                  <Image
+                    mode="widthFix"
                     className="components-video-lar-link-icon"
                     src={right}
                   />
@@ -400,7 +451,7 @@ export default function Index() {
                 {newData.map((item) => {
                   return (
                     <View className="components-video-list-item">
-                      <CoverImage className="image" src={item.img} />
+                      <Image mode="widthFix" className="image" src={item.img} />
                       <Text className="text">{item.text}</Text>
                       <Text className="eval">{item.eval}</Text>
                     </View>
@@ -411,8 +462,12 @@ export default function Index() {
             </View>
           </View>
         </ScrollView>
-        <View className="scroll_top" style={{ opacity: scrollOpacity }}>
-          <CoverImage className="scroll_top_img" src={top} />
+        <View
+          className="scroll_top"
+          style={{ opacity: scrollOpacity }}
+          onClick={handleScrollTop}
+        >
+          <Image mode="widthFix" className="scroll_top_img" src={top} />
         </View>
       </View>
       <View className="index_footer" />

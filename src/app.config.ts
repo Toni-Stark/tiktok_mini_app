@@ -1,6 +1,8 @@
 export default defineAppConfig({
   pages: [
     "pages/index/index",
+    "pages/index/cate/index",
+    "pages/index/search/index",
     "pages/list/index",
     "pages/mine/index",
     "pages/hot/index",
@@ -36,5 +38,6 @@ export default defineAppConfig({
     selectedColor: "#fbffff", // 选中状态下的文本颜色
     backgroundColor: "#1e212a", // 背景颜色
     borderStyle: "black", // 边框样式
+    selectFontSize: 16,
   },
 });
