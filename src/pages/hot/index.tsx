@@ -88,6 +88,17 @@ export default function Hot() {
     }
   };
 
+  const naviToCateOne = (type, title) => {
+    Taro.navigateTo({
+      url: "../index/cate/index?type=" + type + "&title=" + title,
+    });
+  };
+  const naviToTheater = (type) => {
+    Taro.navigateTo({
+      url: "./theater/index?type=" + type,
+    });
+  };
+
   return (
     <View className="index">
       <View
@@ -118,28 +129,27 @@ export default function Hot() {
                 indicatorColor="#999"
                 indicatorActiveColor="#333"
                 circular
-                indicatorDots
                 autoplay
               >
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image mode="widthFix" src={swiper} />
+                    <Image className="img" src={swiper} />
                   </View>
                 </SwiperItem>
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image mode="widthFix" src={swiper} />
+                    <Image className="img" src={swiper} />
                   </View>
                 </SwiperItem>
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image mode="widthFix" src={swiper} />
+                    <Image className="img" src={swiper} />
                   </View>
                 </SwiperItem>
               </Swiper>
             </View>
             <View className="navi-list">
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(0)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -147,7 +157,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(1)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -155,7 +165,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(2)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -163,7 +173,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(3)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -171,7 +181,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(4)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -179,7 +189,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
-              <View className="navi-list-item">
+              <View className="navi-list-item" onClick={() => naviToTheater(5)}>
                 <Image
                   mode="widthFix"
                   src={naviBar}
@@ -202,7 +212,12 @@ export default function Hot() {
                     <View className="card">
                       <View className="card-title">
                         男频热推
-                        <View className="card-title-catch">
+                        <View
+                          className="card-title-catch"
+                          onClick={() => {
+                            naviToCateOne(2, "男频热推");
+                          }}
+                        >
                           查看全部
                           <Image
                             mode="widthFix"
@@ -276,8 +291,13 @@ export default function Hot() {
                   <SwiperItem className="swiper-items">
                     <View className="card">
                       <View className="card-title">
-                        男频热推
-                        <View className="card-title-catch">
+                        古装精品
+                        <View
+                          className="card-title-catch"
+                          onClick={() => {
+                            naviToCateOne(2, "古装精品");
+                          }}
+                        >
                           查看全部
                           <Image
                             mode="widthFix"
@@ -351,8 +371,13 @@ export default function Hot() {
                   <SwiperItem className="swiper-items">
                     <View className="card">
                       <View className="card-title">
-                        男频热推
-                        <View className="card-title-catch">
+                        现代都市
+                        <View
+                          className="card-title-catch"
+                          onClick={() => {
+                            naviToCateOne(2, "现代都市");
+                          }}
+                        >
                           查看全部
                           <Image
                             mode="widthFix"
@@ -632,7 +657,7 @@ export default function Hot() {
           style={{ opacity: scrollOpacity }}
           onClick={handleScrollTop}
         >
-          <Image mode="widthFix" className="scroll_top_img" src={top} />
+          <Image className="scroll_top_img" src={top} />
         </View>
       </View>
       <View className="index_footer" />

@@ -22,51 +22,29 @@
     }
     &_text {
       width: 70Px;
-      font-size: 15Px;
+      font-size: 16Px;
       color: #ffffff;
       position: absolute;
       left: 50%;
       margin-left: -35Px;
     }
   }
-  &_buttons {
+  &_main {
     display: flex;
-    width: 100%;
-    overflow-x: scroll;
-    box-sizing: border-box;
-    padding: 4Px 0 8Px;
-    .at-button {
-      background: #272935;
-      border-color: #272935;
-      padding: 0;
-      min-width: 61Px;
-      height: 27Px;
+    align-items: center;
+    margin: 0 10Px 10Px;
+    padding: 10Px 0;
+    border-bottom: 1Px solid #585858;
+    &_img {
+      width: 70Px;
+      height: 70Px;
+      border-radius: 50%;
+    }
+    &_text {
+      margin-left: 15PX;
+      color: #ffffff;
       font-size: 14Px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      .at-button__text {
-        font-size: 12Px;
-        display: flex;
-        width: 100%;
-        line-height: 27Px;
-        height: 100%;
-        align-items: center;
-        justify-content: center;
-      }
     }
-    .at-button:not(:first-child) {
-      margin-left: 6Px;
-    }
-    .at-button:first-child {
-      margin-left: 10Px;
-    }
-    .active {
-      background: linear-gradient(to right, #a829e8, #3c6fef);
-    }
-  }
-  &_buttons::-webkit-scrollbar {
-    display: none; /* 隐藏滚动条 */
   }
   &_zone {
     flex: 1;
@@ -145,7 +123,6 @@
       }
     }
   }
-
 }
 .scroll_top {
   position: fixed;

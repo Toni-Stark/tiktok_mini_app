@@ -5,7 +5,12 @@ export default defineAppConfig({
     "pages/index/search/index",
     "pages/list/index",
     "pages/mine/index",
+    "pages/mine/wallet/index",
+    "pages/mine/wallet/recharge/index",
+    "pages/mine/code/index",
     "pages/hot/index",
+    "pages/hot/theater/index",
+    "pages/video/index",
   ],
   window: {
     navigationStyle: "custom",

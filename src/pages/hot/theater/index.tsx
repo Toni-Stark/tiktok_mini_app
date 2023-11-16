@@ -1,15 +1,40 @@
-import { View, ScrollView, Image } from "@tarojs/components";
+import {
+  View,
+  ScrollView,
+  Image,
+  Video,
+  Swiper,
+  SwiperItem,
+  Text,
+} from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../static/icon/left.png";
+import search from "../../../static/icon/search.png";
 import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
+import swiper from "../../../static/source/swiper1.png";
+import naviBar from "../../../static/source/naviBar.png";
+import right from "../../../static/icon/right.png";
+import refresh from "../../../static/icon/refresh.png";
 import { AtButton } from "taro-ui";
-
-export default function Search() {
+import left from "@/static/icon/left.png";
+let routerList = [
+  { title: "真得鹿剧场", icon: card },
+  { title: "星星剧场", icon: card },
+  { title: "日新阅益", icon: card },
+  { title: "德明剧场", icon: card },
+  { title: "亮亮剧场", icon: card },
+  { title: "智彩剧场", icon: card },
+  { title: "山有木兮剧场", icon: card },
+  { title: "方土剧场", icon: card },
+  { title: "踏歌行剧场", icon: card },
+  { title: "巨星团剧场", icon: card },
+];
+export default function Theater() {
   const router = useRouter();
+  const [rouOption, setRouOption] = useState<any>({});
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
@@ -19,45 +44,16 @@ export default function Search() {
     screenHeight: 0,
     more: false,
     refresh: false,
-    title: "",
-    type: "",
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
-  const [btnList, setBtnList] = useState([
-    {
-      title: "推荐",
-      id: 1,
-    },
-    {
-      title: "都市",
-      id: 2,
-    },
-    {
-      title: "战神",
-      id: 3,
-    },
-    {
-      title: "甜宠",
-      id: 4,
-    },
-    {
-      title: "玄幻",
-      id: 5,
-    },
-    {
-      title: "古装",
-      id: 6,
-    },
-  ]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
   useLoad(() => {
     const params = router.params;
+    setRouOption(routerList[params.type]);
     let _option = option;
-    _option.title = params.title;
-    _option.type = params.type;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.height;
     _option.statusBarHeight = rect.top;
@@ -83,12 +79,14 @@ export default function Search() {
       setScrollOpacity(0);
     }
   };
+
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
     setTimeout(() => {
       setOption({ ...option, refresh: false });
     }, 1500);
   };
+
   const naviBack = () => {
     Taro.navigateBack();
   };
@@ -107,29 +105,12 @@ export default function Search() {
           src={left}
           onClick={naviBack}
         />
-        <View className="index_header_text">{option.title}</View>
+        <View className="index_header_text" />
       </View>
-      {option.type == "1" ? (
-        <View className="index_buttons">
-          {btnList.map((item, index) => {
-            return (
-              <AtButton
-                className={item.id === option.active ? "active" : ""}
-                key={index}
-                type="primary"
-                size="normal"
-                onClick={() => {
-                  setActive(item.id);
-                }}
-              >
-                {item.title}
-              </AtButton>
-            );
-          })}
-          <View className="button-pad" />
-        </View>
-      ) : null}
-
+      <View className="index_main">
+        <Image className="index_main_img" src={rouOption.icon} />
+        <View className="index_main_text">{rouOption.title}</View>
+      </View>
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"

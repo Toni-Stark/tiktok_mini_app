@@ -4,7 +4,7 @@ import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
 import header from "../../static/source/header.png";
-import bar1 from "../../static/source/bar1.png";
+import mon from "../../static/icon/mon.png";
 import code from "../../static/icon/code.png";
 
 export default function Mine() {
@@ -19,11 +19,13 @@ export default function Mine() {
   const [list, setList] = useState([
     {
       title: "我的钱包",
-      icon: code,
+      icon: mon,
+      url: "./wallet/index",
     },
     {
       title: "我要推广",
       icon: code,
+      url: "./code/index",
     },
     {
       title: "内容偏好",
@@ -54,6 +56,12 @@ export default function Mine() {
 
     setOption({ ..._option });
   });
+
+  const naviTo = (item) => {
+    Taro.navigateTo({
+      url: item.url,
+    });
+  };
 
   return (
     <View className="index">
@@ -107,17 +115,13 @@ export default function Mine() {
                 </View>
               </View>
             </View>
-            <View className="content-wel-bar">
-              <Image
-                mode="widthFix"
-                src={bar1}
-                className="content-wel-bar-image"
-              />
-            </View>
             <View className="content-wel-list">
               {list.map((item) => {
                 return (
-                  <View className="content-wel-list-item">
+                  <View
+                    className="content-wel-list-item"
+                    onClick={() => naviTo(item)}
+                  >
                     <Image
                       mode="widthFix"
                       src={item.icon}

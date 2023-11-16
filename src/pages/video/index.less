@@ -1,0 +1,46 @@
+.index {
+  width: 100%;
+  background: #1e212a;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  &_header {
+    margin-top: 23Px;
+    margin-bottom: 5Px;
+    height: 34Px;
+    width: 100%;
+    padding: 0 13Px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    &_img {
+      height: 22Px;
+      width: 22Px;
+      z-index: 1000;
+    }
+    &_text {
+      width: 70Px;
+      font-size: 15Px;
+      color: #ffffff;
+      position: absolute;
+      left: 50%;
+      margin-left: -35Px;
+    }
+  }
+
+}
+.scroll_top {
+  position: fixed;
+  right: 12Px;
+  bottom: 80Px;
+  display: flex;
+  padding: 7Px;
+  border-radius: 50%;
+  background: #00000087;
+  transition: all 1s;
+  &_img {
+    width: 20Px;
+    height: 20Px;
+  }
+}

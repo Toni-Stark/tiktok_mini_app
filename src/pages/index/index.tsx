@@ -157,15 +157,20 @@ export default function Index() {
     }
   };
 
-  const naviToCateOne = (type) => {
+  const naviToCateOne = (type, title) => {
     Taro.navigateTo({
-      url: "./cate/index?type=" + type,
+      url: "./cate/index?type=" + type + "&title=" + title,
     });
   };
 
   const naviToSearch = (type) => {
     Taro.navigateTo({
       url: "./search/index?type=" + type,
+    });
+  };
+  const naviToVideo = () => {
+    Taro.navigateTo({
+      url: "../video/index",
     });
   };
 
@@ -224,7 +229,7 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(1);
+                    naviToCateOne(1, "更多分类");
                   }}
                 >
                   更多分类
@@ -258,7 +263,11 @@ export default function Index() {
                   <View className="scroll-list">
                     {reComm.map((item, index) => {
                       return (
-                        <View key={index} className="scroll-list-item">
+                        <View
+                          key={index}
+                          className="scroll-list-item"
+                          onClick={naviToVideo}
+                        >
                           <Image
                             mode="widthFix"
                             src={item.img}
@@ -277,18 +286,23 @@ export default function Index() {
                   </View>
                 </ScrollView>
               </View>
-              <View className="components-video-bar">
-                <Image
-                  mode="widthFix"
-                  src={bar1}
-                  className="components-video-bar-image"
-                />
-              </View>
+              {/*<View className="components-video-bar">*/}
+              {/*  <Image*/}
+              {/*    mode="widthFix"*/}
+              {/*    src={bar1}*/}
+              {/*    className="components-video-bar-image"*/}
+              {/*  />*/}
+              {/*</View>*/}
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
                   N剧刷不腻！宝藏热剧爆款出圈
                 </Text>
-                <View className="components-video-lar-link">
+                <View
+                  className="components-video-lar-link"
+                  onClick={() => {
+                    naviToCateOne(2, "热门独播");
+                  }}
+                >
                   热门独播
                   <Image
                     mode="widthFix"
@@ -332,7 +346,7 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(2);
+                    naviToCateOne(2, "热门独播");
                   }}
                 >
                   热门独播
@@ -378,7 +392,7 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(3);
+                    naviToCateOne(2, "热门独播");
                   }}
                 >
                   热门独播
@@ -407,7 +421,7 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(4);
+                    naviToCateOne(2, "热门独播");
                   }}
                 >
                   热门独播
@@ -436,7 +450,7 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(5);
+                    naviToCateOne(2, "热门独播");
                   }}
                 >
                   热门独播
@@ -467,7 +481,7 @@ export default function Index() {
           style={{ opacity: scrollOpacity }}
           onClick={handleScrollTop}
         >
-          <Image mode="widthFix" className="scroll_top_img" src={top} />
+          <Image className="scroll_top_img" src={top} />
         </View>
       </View>
       <View className="index_footer" />

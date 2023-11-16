@@ -21,15 +21,15 @@ export default function List() {
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [btnList, setBtnList] = useState([
     {
-      title: "历史",
+      title: "历史15",
       id: 1,
     },
     {
-      title: "点赞",
+      title: "点赞12",
       id: 2,
     },
     {
-      title: "收藏",
+      title: "收藏9",
       id: 3,
     },
   ]);
@@ -199,12 +199,14 @@ export default function List() {
                   );
                 })}
               </View>
-              <View className="components-video-more">暂无更多</View>
+              <View c lassName="components-video-more">
+                暂无更多
+              </View>
             </View>
           </View>
         </ScrollView>
         <View className="scroll_top" style={{ opacity: scrollOpacity }}>
-          <Image mode="widthFix" className="scroll_top_img" src={top} />
+          <Image className="scroll_top_img" src={top} />
         </View>
       </View>
       <View className="index_footer" />
