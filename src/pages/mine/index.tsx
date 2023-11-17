@@ -6,6 +6,9 @@ import { useState } from "react";
 import header from "../../static/source/header.png";
 import mon from "../../static/icon/mon.png";
 import code from "../../static/icon/code.png";
+import kefu from "../../static/icon/kefu.png";
+import search from "../../static/icon/text_search.png";
+import meun from "../../static/icon/meun.png";
 
 export default function Mine() {
   const [option, setOption] = useState({
@@ -29,15 +32,15 @@ export default function Mine() {
     },
     {
       title: "内容偏好",
-      icon: code,
+      icon: search,
     },
     {
       title: "我的客服",
-      icon: code,
+      icon: kefu,
     },
     {
       title: "系统服务",
-      icon: code,
+      icon: meun,
     },
   ]);
 

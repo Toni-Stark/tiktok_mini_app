@@ -7,7 +7,6 @@ import { useState } from "react";
 import search from "../../static/icon/search.png";
 import card from "../../static/source/info.png";
 import right from "../../static/icon/right.png";
-import bar1 from "../../static/source/bar1.png";
 import top from "../../static/icon/top.png";
 import { AtButton } from "taro-ui";
 
@@ -207,8 +206,8 @@ export default function Index() {
               <Video
                 id="video"
                 className="components-video-video"
-                src="http://231110002.ldcvh.china-yun.net/video_h.mp4"
-                poster="http://231110002.ldcvh.china-yun.net/video_p.png"
+                src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
+                poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
                 initialTime={0}
                 controls={false}
                 autoplay={true}
@@ -326,8 +325,8 @@ export default function Index() {
                 <Video
                   className="components-video-large-video"
                   style={{ height: option.screenWidth + "px" }}
-                  src="http://231110002.ldcvh.china-yun.net/video_h.mp4"
-                  poster="http://231110002.ldcvh.china-yun.net/video_p.png"
+                  src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
+                  poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
                   initialTime={0}
                   controls={false}
                   autoplay={true}
@@ -372,8 +371,8 @@ export default function Index() {
                 <Video
                   className="components-video-large-video"
                   style={{ height: option.screenWidth + "px" }}
-                  src="http://231110002.ldcvh.china-yun.net/video_h.mp4"
-                  poster="http://231110002.ldcvh.china-yun.net/video_p.png"
+                  src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
+                  poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
                   initialTime={0}
                   controls={false}
                   autoplay={true}

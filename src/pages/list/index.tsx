@@ -152,8 +152,8 @@ export default function List() {
                 <Video
                   className="components-video-large-video"
                   style={{ height: option.screenWidth + "px" }}
-                  src="http://231110002.ldcvh.china-yun.net/video_h.mp4"
-                  poster="http://231110002.ldcvh.china-yun.net/video_p.png"
+                  src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
+                  poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
                   initialTime={0}
                   controls={false}
                   autoplay={true}
