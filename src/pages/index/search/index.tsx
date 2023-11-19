@@ -109,6 +109,7 @@ export default function Cate() {
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [dataList, setDataList] = useState([]);
+  const [value, setValue] = useState('');
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
@@ -151,6 +152,12 @@ export default function Cate() {
   const getCurrentList = (e) => {
     console.log(e);
     setDataList(list);
+  };
+  const setInputValue = (e) => {
+    setValue(e.detail.value);
+  }
+  const addSearch = (title) => {
+    setValue(title);
   };
   const currentContext = useMemo(() => {
     if (dataList.length > 0) {
@@ -221,9 +228,9 @@ export default function Cate() {
         <View className="history">
           <View className="history-title">历史搜索</View>
           <View className="history-list">
-            <View className="history-list-item">大</View>
-            <View className="history-list-item">还不是</View>
-            <View className="history-list-item">其他</View>
+            <View className="history-list-item" onClick={()=>addSearch('大')}>大</View>
+            <View className="history-list-item" onClick={()=>addSearch('还不是')}>还不是</View>
+            <View className="history-list-item" onClick={()=>addSearch('其他')}>其他</View>
           </View>
         </View>
       );
@@ -252,6 +259,8 @@ export default function Cate() {
           <Input
             className="index_search_input_value"
             placeholder="在此处搜索"
+            value={value}
+            onInput={setInputValue}
             onConfirm={getCurrentList}
           />
         </View>
