@@ -8,6 +8,9 @@ export default defineAppConfig({
     "pages/mine/wallet/index",
     "pages/mine/wallet/recharge/index",
     "pages/mine/code/index",
+    "pages/mine/hobby/index",
+    "pages/mine/system/index",
+    "pages/mine/info/index",
     "pages/hot/index",
     "pages/hot/theater/index",
     "pages/video/index",
@@ -43,6 +46,5 @@ export default defineAppConfig({
     selectedColor: "#fbffff", // 选中状态下的文本颜色
     backgroundColor: "#1e212a", // 背景颜色
     borderStyle: "black", // 边框样式
-    selectFontSize: 16,
   },
 });

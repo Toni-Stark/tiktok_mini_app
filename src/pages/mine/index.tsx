@@ -33,14 +33,17 @@ export default function Mine() {
     {
       title: "内容偏好",
       icon: search,
+      url: "./hobby/index",
     },
     {
       title: "我的客服",
       icon: kefu,
+      url: 'ke'
     },
     {
       title: "系统服务",
       icon: meun,
+      url: "./system/index",
     },
   ]);
 
@@ -61,17 +64,25 @@ export default function Mine() {
   });
 
   const naviTo = (item) => {
+    if(item.url == "ke") {
+      return;
+    }
     Taro.navigateTo({
       url: item.url,
     });
   };
-
+  const naviToInfo = () => {
+    Taro.navigateTo({
+      url: './info/index',
+    });
+  }
   return (
     <View className="index">
       <View className="index_body">
         <View className="index_body_header">
           <Image
             mode="widthFix"
+            onClick={naviToInfo}
             className="index_body_header_img"
             src={header}
           />
