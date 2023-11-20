@@ -1,4 +1,11 @@
-import { View, Image, CoverView, Video, ScrollView } from "@tarojs/components";
+import {
+  View,
+  Image,
+  CoverView,
+  Video,
+  ScrollView,
+  CoverImage,
+} from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
@@ -180,33 +187,35 @@ export default function VideoView() {
           height: option.barHeight + "Px",
         }}
       >
-        <View className="index_header_view">
-          <Image
+        <CoverView className="index_header_view">
+          <CoverImage
             mode="widthFix"
             className="index_header_view_img"
             src={left}
             onClick={naviBack}
           />
-          <View className="index_header_view_text">{option.title}</View>
-        </View>
+          <CoverView className="index_header_view_text">
+            {option.title}
+          </CoverView>
+        </CoverView>
       </CoverView>
       <CoverView className="index_footer" onClick={openLayout}>
-        <View className="index_footer_text">
+        <CoverView className="index_footer_text">
           《踹了渣男后，我嫁入了豪门》·共92集
-        </View>
-        <Image mode="heightFix" className="index_footer_img" src={top} />
+        </CoverView>
+        <CoverImage mode="heightFix" className="index_footer_img" src={top} />
       </CoverView>
       <CoverView className="index_label">
         {dataList.map((res, index) => {
           let item: any = res;
           return (
-            <View
+            <CoverView
               className="index_label_view"
               onClick={() => clickItemValue(index, item.check)}
               hoverClass="index_label_active"
             >
-              <View className="view">
-                <Image
+              <CoverView className="view">
+                <CoverImage
                   className="img"
                   src={
                     item.check
@@ -216,9 +225,9 @@ export default function VideoView() {
                       : item.icon
                   }
                 />
-              </View>
-              <View className="text">{item.value}</View>
-            </View>
+              </CoverView>
+              <CoverView className="text">{item.value}</CoverView>
+            </CoverView>
           );
         })}
       </CoverView>
@@ -234,7 +243,12 @@ export default function VideoView() {
           onScroll={scrollIng}
           onTouchEnd={scrollEnd}
         >
-          <View className="before" />
+          <View className="before">
+            <Image
+              className="before_image"
+              src="http://231110002.ldcvh.china-yun.net/wximg/video_n.jpg"
+            />
+          </View>
           <View id="targetPosition" />
           <View className="center">
             <View className="center_video">
@@ -257,14 +271,24 @@ export default function VideoView() {
             </View>
             <View className="center_footer" />
           </View>
-          <View className="after" />
+          <View className="after">
+            <Image
+              className="after_image"
+              src="http://231110002.ldcvh.china-yun.net/wximg/video_n.jpg"
+            />
+          </View>
         </ScrollView>
       </View>
       <AtFloatLayout isOpened={show} onClose={handleClose}>
         <View className="layout">
           <View className="layout_header">
             《沈爷 您失宠了》 · 共99集
-            <Image mode="widthFix" className="layout_header_img" src={down} />
+            <Image
+              mode="widthFix"
+              onClick={handleClose}
+              className="layout_header_img"
+              src={down}
+            />
           </View>
           <View className="layout_button">
             {btnList.map((item, index) => {

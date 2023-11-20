@@ -2,7 +2,6 @@ import {
   View,
   ScrollView,
   Image,
-  Video,
   Swiper,
   SwiperItem,
   Text,
@@ -10,11 +9,10 @@ import {
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import search from "../../static/icon/search.png";
 import card from "../../static/source/info.png";
 import top from "../../static/icon/top.png";
-import swiper from "../../static/source/swiper1.png";
 import naviBar from "../../static/source/naviBar.png";
 import right from "../../static/icon/right.png";
 import refresh from "../../static/icon/refresh.png";
@@ -133,17 +131,26 @@ export default function Hot() {
               >
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image className="img" src={swiper} />
+                    <Image
+                      className="img"
+                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
+                    />
                   </View>
                 </SwiperItem>
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image className="img" src={swiper} />
+                    <Image
+                      className="img"
+                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
+                    />
                   </View>
                 </SwiperItem>
                 <SwiperItem>
                   <View className="swiper-view-views-item">
-                    <Image className="img" src={swiper} />
+                    <Image
+                      className="img"
+                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
+                    />
                   </View>
                 </SwiperItem>
               </Swiper>

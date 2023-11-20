@@ -14,7 +14,6 @@ import { useState } from "react";
 import search from "../../../static/icon/search.png";
 import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
-import swiper from "../../../static/source/swiper1.png";
 import naviBar from "../../../static/source/naviBar.png";
 import right from "../../../static/icon/right.png";
 import refresh from "../../../static/icon/refresh.png";
