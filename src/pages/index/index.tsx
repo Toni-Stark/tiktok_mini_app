@@ -211,8 +211,8 @@ export default function Index() {
                 initialTime={0}
                 controls={false}
                 autoplay={true}
-                loop={true}
                 muted={true}
+                loop={true}
                 objectFit="cover"
               />
               <View className="components-video-shadow" />
@@ -331,7 +331,7 @@ export default function Index() {
                   controls={false}
                   autoplay={true}
                   loop={true}
-                  muted={false}
+                  muted={true}
                   objectFit="cover"
                 />
                 <text className="components-video-large-desc">
@@ -377,7 +377,7 @@ export default function Index() {
                   controls={false}
                   autoplay={true}
                   loop={true}
-                  muted={false}
+                  muted={true}
                   objectFit="cover"
                 />
                 <text className="components-video-large-desc">

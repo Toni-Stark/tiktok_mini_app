@@ -17,7 +17,7 @@ import down from "../../../static/icon/down_load.png";
 import share from "../../../static/icon/share.png";
 import code from "../../../static/icon/e_code.png";
 
-export default function Wallet() {
+export default function Code() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,

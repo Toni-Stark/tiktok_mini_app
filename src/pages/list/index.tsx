@@ -175,7 +175,7 @@ export default function List() {
               </View>
               <View className="components-video-list">
                 <View className="components-video-list-tabs">
-                  {btnList.map((item, index) => {
+                  {btnList.map((item) => {
                     return (
                       <View
                         className="components-video-list-tabs-tab"
@@ -199,7 +199,7 @@ export default function List() {
                   );
                 })}
               </View>
-              <View c lassName="components-video-more">
+              <View className="components-video-more">
                 暂无更多
               </View>
             </View>
