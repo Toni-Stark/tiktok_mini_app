@@ -63,22 +63,18 @@ export default function Info() {
         <View className="index_content_card">
           <View className="index_content_card_item">
             昵称
-            <View className="value">
-              匿名用户
-            </View>
+            <View className="value">匿名用户</View>
           </View>
           <View className="index_content_card_item">
             性别
             <View className="value">
               男
-              <Image className="value_image" src={right} />
+              <Image mode="widthFix" className="value_image" src={right} />
             </View>
           </View>
           <View className="index_content_card_item">
             手机号
-            <View className="value">
-              未知
-            </View>
+            <View className="value">未知</View>
           </View>
         </View>
       </View>

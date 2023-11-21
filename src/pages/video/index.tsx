@@ -180,42 +180,40 @@ export default function VideoView() {
 
   return (
     <View className="index">
-      <CoverView
+      <View
         className="index_header"
         style={{
           top: option.statusBarHeight + "Px",
           height: option.barHeight + "Px",
         }}
       >
-        <CoverView className="index_header_view">
-          <CoverImage
+        <View className="index_header_view">
+          <Image
             mode="widthFix"
             className="index_header_view_img"
             src={left}
             onClick={naviBack}
           />
-          <CoverView className="index_header_view_text">
-            {option.title}
-          </CoverView>
-        </CoverView>
-      </CoverView>
-      <CoverView className="index_footer" onClick={openLayout}>
-        <CoverView className="index_footer_text">
+          <View className="index_header_view_text">{option.title}</View>
+        </View>
+      </View>
+      <View className="index_footer" onClick={openLayout}>
+        <View className="index_footer_text">
           《踹了渣男后，我嫁入了豪门》·共92集
-        </CoverView>
-        <CoverImage mode="heightFix" className="index_footer_img" src={top} />
-      </CoverView>
-      <CoverView className="index_label">
+        </View>
+        <Image mode="heightFix" className="index_footer_img" src={top} />
+      </View>
+      <View className="index_label">
         {dataList.map((res, index) => {
           let item: any = res;
           return (
-            <CoverView
+            <View
               className="index_label_view"
               onClick={() => clickItemValue(index, item.check)}
               hoverClass="index_label_active"
             >
-              <CoverView className="view">
-                <CoverImage
+              <View className="view">
+                <Image
                   className="img"
                   src={
                     item.check
@@ -225,12 +223,12 @@ export default function VideoView() {
                       : item.icon
                   }
                 />
-              </CoverView>
-              <CoverView className="text">{item.value}</CoverView>
-            </CoverView>
+              </View>
+              <View className="text">{item.value}</View>
+            </View>
           );
         })}
-      </CoverView>
+      </View>
       <View className="index_content">
         <ScrollView
           className="index_content_view"

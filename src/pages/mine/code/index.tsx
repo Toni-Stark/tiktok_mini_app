@@ -106,6 +106,8 @@ export default function Code() {
             indicatorActiveColor="#333"
             circular
             autoplay
+            previousMargin="15px"
+            nextMargin="15px"
           >
             {list.map((res) => {
               let item: any = res;

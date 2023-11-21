@@ -179,6 +179,10 @@ export default function List() {
                     return (
                       <View
                         className="components-video-list-tabs-tab"
+                        style={{
+                          color:
+                            option.habit === item.id ? "#ffffff" : "#888888",
+                        }}
                         onClick={() => {
                           setOption({ ...option, habit: item.id });
                         }}
@@ -199,9 +203,7 @@ export default function List() {
                   );
                 })}
               </View>
-              <View className="components-video-more">
-                暂无更多
-              </View>
+              <View className="components-video-more">暂无更多</View>
             </View>
           </View>
         </ScrollView>

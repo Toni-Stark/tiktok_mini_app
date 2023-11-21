@@ -9,6 +9,7 @@ import code from "../../static/icon/code.png";
 import kefu from "../../static/icon/kefu.png";
 import search from "../../static/icon/text_search.png";
 import meun from "../../static/icon/meun.png";
+import emo from "../../static/icon/e_mo.png";
 
 export default function Mine() {
   const [option, setOption] = useState({
@@ -38,7 +39,7 @@ export default function Mine() {
     {
       title: "我的客服",
       icon: kefu,
-      url: 'ke'
+      url: "ke",
     },
     {
       title: "系统服务",
@@ -64,7 +65,7 @@ export default function Mine() {
   });
 
   const naviTo = (item) => {
-    if(item.url == "ke") {
+    if (item.url == "ke") {
       return;
     }
     Taro.navigateTo({
@@ -73,9 +74,14 @@ export default function Mine() {
   };
   const naviToInfo = () => {
     Taro.navigateTo({
-      url: './info/index',
+      url: "./info/index",
     });
-  }
+  };
+  const naviToRecharge = () => {
+    Taro.navigateTo({
+      url: "./wallet/recharge/index",
+    });
+  };
   return (
     <View className="index">
       <View className="index_body">
@@ -112,7 +118,12 @@ export default function Mine() {
                     </View>
                   </View>
                 </View>
-                <View className="content-wel-mon-coin-into">充值</View>
+                <View
+                  className="content-wel-mon-coin-into"
+                  onClick={naviToRecharge}
+                >
+                  充值
+                </View>
               </View>
               <View className="content-wel-mon-people">
                 <View className="content-wel-mon-people-value">
@@ -127,6 +138,16 @@ export default function Mine() {
                     邀请人数
                   </View>
                 </View>
+              </View>
+            </View>
+            <View className="content-wel-integral">
+              <View className="e_text">
+                签到领积分
+                <Image className="e_come" src={emo} />
+              </View>
+              <View className="content-wel-integral-btn">
+                <Image className="e_come" src={emo} />
+                签到
               </View>
             </View>
             <View className="content-wel-list">

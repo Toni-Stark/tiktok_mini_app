@@ -22,7 +22,7 @@
     }
     &_text {
       width: 70Px;
-      font-size: 16Px;
+      font-size: 18Px;
       color: #ffffff;
       position: absolute;
       left: 50%;
@@ -55,7 +55,7 @@
         .large-content-main {
           &-title {
             color: #ffffff;
-            font-size: 13Px;
+            font-size: 14Px;
           }
           &-eval {
             color: #999999;
@@ -106,20 +106,23 @@
         height: 25Px;
         font-size: 12Px;
         color: #ffffff;
-
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         &-line {
           bottom: 5Px;
           background: #ffffff;
           height: 1Px;
           margin-top: 6Px;
           width: 100%;
+          max-width: 27Px;
           display: flex;
         }
       }
     }
   }
   &-large {
-    margin: 10Px 10Px 20Px;
+    margin: 10Px 12Px 20Px;
     border-radius: 5Px;
     box-sizing: border-box;
     background: #3136444a;

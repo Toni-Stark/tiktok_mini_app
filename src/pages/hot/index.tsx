@@ -156,6 +156,7 @@ export default function Hot() {
               </Swiper>
             </View>
             <View className="navi-list">
+              <View className="button-pad" />
               <View className="navi-list-item" onClick={() => naviToTheater(0)}>
                 <Image
                   mode="widthFix"
@@ -204,6 +205,7 @@ export default function Hot() {
                 />
                 <Text className="navi-list-item-text">真得鹿剧场</Text>
               </View>
+              <View className="button-pad" />
             </View>
             <View className="hot-res">
               <View className="hot-res-title">热门推荐</View>
@@ -332,7 +334,7 @@ export default function Hot() {
                             316人正在看 更新至第78集
                           </View>
                         </View>
-                      </View>{" "}
+                      </View>
                       <View className="card-item">
                         <Image
                           mode="widthFix"
@@ -412,7 +414,7 @@ export default function Hot() {
                             316人正在看 更新至第78集
                           </View>
                         </View>
-                      </View>{" "}
+                      </View>
                       <View className="card-item">
                         <Image
                           mode="widthFix"
@@ -658,6 +660,7 @@ export default function Hot() {
               </View>
             </View>
           </View>
+          <View className=".button-pad" />
         </ScrollView>
         <View
           className="scroll_top"
