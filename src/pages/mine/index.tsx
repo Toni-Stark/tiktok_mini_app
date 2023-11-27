@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Image, Video } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro, { useDidShow, useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
@@ -10,14 +10,21 @@ import kefu from "../../static/icon/kefu.png";
 import search from "../../static/icon/text_search.png";
 import meun from "../../static/icon/meun.png";
 import emo from "../../static/icon/e_mo.png";
+import { getMemberInfo, getMemberSign } from "@/common/interface";
 
 export default function Mine() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     screenWidth: 0,
     screenHeight: 0,
+    nickname: "匿名用户",
+    spread_level_desc: "",
+    score: 0,
+    expire_days: 0,
+    spread: 0,
+    is_signed: 0,
+    id: "123456",
   });
 
   const [list, setList] = useState([
@@ -31,11 +38,11 @@ export default function Mine() {
       icon: code,
       url: "./code/index",
     },
-    {
-      title: "内容偏好",
-      icon: search,
-      url: "./hobby/index",
-    },
+    // {
+    //   title: "内容偏好",
+    //   icon: search,
+    //   url: "./hobby/index",
+    // },
     {
       title: "我的客服",
       icon: kefu,
@@ -57,11 +64,19 @@ export default function Mine() {
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
 
     setOption({ ..._option });
+  });
+
+  useDidShow(() => {
+    getMemberInfo().then((res) => {
+      setOption({
+        ...option,
+        ...res.data,
+      });
+    });
   });
 
   const naviTo = (item) => {
@@ -82,6 +97,17 @@ export default function Mine() {
       url: "./wallet/recharge/index",
     });
   };
+  const currentLocat = () => {
+    getMemberSign().then((res) => {
+      console.log(res);
+      if (res.code === 200) {
+        setOption({
+          ...option,
+          is_signed: 1,
+        });
+      }
+    });
+  };
   return (
     <View className="index">
       <View className="index_body">
@@ -96,23 +122,29 @@ export default function Mine() {
         <View className="index_body_content">
           <View className="content-wel">
             <View className="content-wel-main">
-              <View className="content-wel-main-title">欢迎回来，匿名用户</View>
+              <View className="content-wel-main-title">
+                欢迎回来，{option.nickname}
+              </View>
               <View className="content-wel-main-list">
-                <View className="content-wel-main-list-title">ID:129151</View>
-                <View className="content-wel-main-list-title">普通会员</View>
+                <View className="content-wel-main-list-title">
+                  ID:{option.id}
+                </View>
+                <View className="content-wel-main-list-title">
+                  {option.spread_level_desc}
+                </View>
               </View>
             </View>
             <View className="content-wel-mon">
               <View className="content-wel-mon-coin">
                 <View className="content-wel-mon-coin-content">
                   <View className="content-wel-mon-coin-content-value">
-                    0
+                    {option.score}
                     <View className="content-wel-mon-coin-content-value-text">
                       蚂蚁券
                     </View>
                   </View>
                   <View className="content-wel-mon-coin-content-value">
-                    0
+                    {option?.expire_days}
                     <View className="content-wel-mon-coin-content-value-text">
                       会员时长(天)
                     </View>
@@ -133,7 +165,7 @@ export default function Mine() {
                   </View>
                 </View>
                 <View className="content-wel-mon-people-value">
-                  0
+                  {option.spread}
                   <View className="content-wel-mon-coin-content-value-text">
                     邀请人数
                   </View>
@@ -145,10 +177,17 @@ export default function Mine() {
                 签到领积分
                 <Image className="e_come" src={emo} />
               </View>
-              <View className="content-wel-integral-btn">
-                <Image className="e_come" src={emo} />
-                签到
-              </View>
+              {!option.is_signed ? (
+                <View
+                  hoverClass="hover_view"
+                  className="content-wel-integral-btn active"
+                  onClick={currentLocat}
+                >
+                  签到
+                </View>
+              ) : (
+                <View className="content-wel-integral-btn">已签到</View>
+              )}
             </View>
             <View className="content-wel-list">
               {list.map((item) => {

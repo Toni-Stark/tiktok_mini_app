@@ -11,6 +11,7 @@ export default defineAppConfig({
     "pages/mine/hobby/index",
     "pages/mine/system/index",
     "pages/mine/info/index",
+    "pages/mine/info/edit/index",
     "pages/hot/index",
     "pages/hot/theater/index",
     "pages/video/index",

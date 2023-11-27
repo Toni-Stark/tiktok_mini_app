@@ -9,24 +9,21 @@
     margin-top: 23Px;
     margin-bottom: 5Px;
     height: 34Px;
-    width: 100%;
     padding: 0 13Px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     position: relative;
     &_img {
       height: 22Px;
       width: 22Px;
       z-index: 1000;
+      position: absolute;
+      left: 20Px;
     }
     &_text {
       font-size: 18Px;
       color: #ffffff;
-      position: absolute;
-      margin-left: -35Px;
-      width: 100%;
-      text-align: center;
     }
   }
   &_content {
@@ -93,4 +90,28 @@
       }
     }
   }
+  .float {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    font-size: 17Px;
+    &_lay {
+      padding: 5Px;
+    }
+    .com {
+      color: #3c6fef;
+    }
+  }
+  .lay_view {
+    height: 50Px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    font-size: 16Px;
+    align-items: center;
+  }
+  .at-float-layout__container {
+    border-radius: 12Px 12Px 0 0;
+  }
 }
+

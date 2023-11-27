@@ -4,6 +4,7 @@ import "./app.less";
 import "taro-ui/dist/style/index.scss";
 import "taro-ui/dist/style/components/tab-bar.scss";
 import "taro-ui/dist/style/components/badge.scss";
+import "taro-ui/dist/style/components/list.scss";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {

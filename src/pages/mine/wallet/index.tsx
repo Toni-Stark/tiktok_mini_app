@@ -5,6 +5,7 @@ import "./index.less";
 import { useState } from "react";
 import left from "../../../static/icon/left.png";
 import right from "../../../static/icon/right.png";
+import { getWalletProducts } from "@/common/interface";
 
 export default function Wallet() {
   const [option, setOption] = useState({
@@ -29,7 +30,7 @@ export default function Wallet() {
         _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-
+    getWalletProducts().then((res) => {});
     setOption({ ..._option });
   });
   const naviToDetail = () => {

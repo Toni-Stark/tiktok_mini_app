@@ -17,6 +17,7 @@ import naviBar from "../../static/source/naviBar.png";
 import right from "../../static/icon/right.png";
 import refresh from "../../static/icon/refresh.png";
 import { AtButton } from "taro-ui";
+import { getIndexBanner, getVideoHistory } from "@/common/interface";
 
 export default function Hot() {
   const [option, setOption] = useState({
@@ -55,6 +56,7 @@ export default function Hot() {
       id: 6,
     },
   ]);
+  const [bannerList, setBannerList] = useState([]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
@@ -70,7 +72,11 @@ export default function Hot() {
         _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-
+    getIndexBanner().then((res) => {
+      if (res.code === 200) {
+        setBannerList(res.data);
+      }
+    });
     setOption({ ..._option });
   });
 
@@ -129,30 +135,15 @@ export default function Hot() {
                 circular
                 autoplay
               >
-                <SwiperItem>
-                  <View className="swiper-view-views-item">
-                    <Image
-                      className="img"
-                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
-                    />
-                  </View>
-                </SwiperItem>
-                <SwiperItem>
-                  <View className="swiper-view-views-item">
-                    <Image
-                      className="img"
-                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
-                    />
-                  </View>
-                </SwiperItem>
-                <SwiperItem>
-                  <View className="swiper-view-views-item">
-                    <Image
-                      className="img"
-                      src="http://231110002.ldcvh.china-yun.net/wximg/swiper1.png"
-                    />
-                  </View>
-                </SwiperItem>
+                {bannerList.map((item, index) => {
+                  return (
+                    <SwiperItem>
+                      <View className="swiper-view-views-item">
+                        <Image className="img" src={item.img} />
+                      </View>
+                    </SwiperItem>
+                  );
+                })}
               </Swiper>
             </View>
             <View className="navi-list">

@@ -9,24 +9,21 @@
     margin-top: 23Px;
     margin-bottom: 5Px;
     height: 34Px;
-    width: 100%;
     padding: 0 13Px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     position: relative;
     &_img {
       height: 22Px;
       width: 22Px;
       z-index: 1000;
+      position: absolute;
+      left: 20Px;
     }
     &_text {
-      width: 70Px;
       font-size: 18Px;
       color: #ffffff;
-      position: absolute;
-      left: 50%;
-      margin-left: -35Px;
     }
   }
   &_zone {
@@ -83,10 +80,10 @@
     width: 100%;
     padding: 0 2% 5Px;
     flex-wrap: wrap;
-    justify-content: center;
     box-sizing: border-box;
     &-item {
-      width: 33%;
+      width: 33vw;
+      height: 43vw;
       display: flex;
       flex-direction: column;
       box-sizing: border-box;

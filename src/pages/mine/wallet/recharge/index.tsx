@@ -9,6 +9,7 @@ import image from "../../../../static/icon/dou.png";
 import wxPay from "../../../../static/icon/wx_pay.png";
 import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
+import { getWalletProducts } from "@/common/interface";
 
 export default function Search() {
   const [option, setOption] = useState({
@@ -93,7 +94,7 @@ export default function Search() {
         _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-
+    getWalletProducts().then((res) => {});
     setOption({ ..._option });
   });
 

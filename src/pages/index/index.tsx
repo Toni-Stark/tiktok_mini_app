@@ -9,6 +9,7 @@ import card from "../../static/source/info.png";
 import right from "../../static/icon/right.png";
 import top from "../../static/icon/top.png";
 import { AtButton } from "taro-ui";
+import { getIndexClassify, getIndexRecommend } from "@/common/interface";
 
 export default function Index() {
   const [option, setOption] = useState({
@@ -140,8 +141,13 @@ export default function Index() {
         _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-
     setOption({ ..._option });
+    getIndexRecommend().then((res) => {
+      console.log(res, "3242343");
+    });
+    getIndexClassify().then((res) => {
+      console.log(res);
+    });
   });
 
   const setActive = (id) => {
