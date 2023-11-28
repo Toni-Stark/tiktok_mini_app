@@ -1,11 +1,4 @@
-import {
-  View,
-  Image,
-  CoverView,
-  Video,
-  ScrollView,
-  CoverImage,
-} from "@tarojs/components";
+import { View, Image, Video, ScrollView } from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
@@ -22,6 +15,7 @@ import getg from "../../static/icon/get_g.png";
 import share_g from "../../static/icon/share-arrow.png";
 import down from "../../static/icon/down.png";
 import yuan from "../../static/icon/yuan.png";
+import { getVideoFavorite, getVideoIndex } from "@/common/interface";
 
 export default function VideoView() {
   const router = useRouter();
@@ -39,15 +33,16 @@ export default function VideoView() {
   });
   const [scrollTop, setScrollTop] = useState(option.screenHeight);
   const [rBool, setRBool] = useState(false);
+  const [dataInfo, setDataInfo] = useState<any>(undefined);
   const [dataList, setDataList] = useState([
     {
-      value: 3423,
+      value: 0,
       icon: heart,
       icon_g: heart_g,
       check: 1,
     },
     {
-      value: 534,
+      value: 0,
       icon: getg,
       icon_g: gets,
       check: 1,
@@ -57,36 +52,18 @@ export default function VideoView() {
       icon: share_g,
     },
   ]);
-
   const [show, setShow] = useState(false);
-  const [btnList, setBtnList] = useState([
-    {
-      id: 1,
-      title: "1-30",
-    },
-    {
-      id: 2,
-      title: "31-60",
-    },
-    {
-      id: 3,
-      title: "61-90",
-    },
-    {
-      id: 4,
-      title: "91-99",
-    },
-  ]);
+  const [btnList, setBtnList] = useState([]);
   const [current, setCurrent] = useState({
     page: 1,
-    val: 1,
-    url: "http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4",
-    png: "http://231110002.ldcvh.china-yun.net/wximg/video_p.png",
-    data: [],
+    v_id: 1,
   });
+  const [currentInfo, setCurrentInfo] = useState(undefined);
+  const [allList, setAllList] = useState([]);
 
   useLoad(() => {
     const params = router.params;
+    getVideoList({ v_id: params.id });
     let _option = option;
     _option.title = "第一集";
     _option.type = 3;
@@ -104,6 +81,33 @@ export default function VideoView() {
     setOption({ ..._option });
   });
 
+  const getVideoList = (params) => {
+    getVideoIndex(params).then((res) => {
+      let btnArr: any = [...dataList];
+      const { info, list } = res.data;
+      btnArr[0].value = info.like;
+      btnArr[1].value = info.collect;
+      btnArr[0].check = info?.is_liked ? 2 : 1;
+      btnArr[1].check = info.is_collected ? 2 : 1;
+      setDataInfo(info);
+      setDataList([...btnArr]);
+      let arr = [];
+      let resData = [];
+      for (let key in list) {
+        arr.push({
+          title: key,
+          id: arr.length + 1,
+        });
+        for (let i in list[key]) {
+          resData.push(list[key][i]);
+        }
+      }
+      setBtnList(arr);
+      setAllList(resData);
+      setCurrentInfo(resData[0]);
+    });
+  };
+
   const positionTo = () => {
     // 获取目标元素的位置信息
     const query = Taro.createSelectorQuery();
@@ -117,8 +121,25 @@ export default function VideoView() {
         });
         setScrollTop(keyPosition);
         setRBool(!rBool);
+        console.log(res, "res");
+        chooseCurVideo(res[0].bottom);
       }
     });
+  };
+
+  const chooseCurVideo = (bm) => {
+    let curInfo = currentInfo;
+    let index = allList.findIndex((item) => item.id === curInfo.id);
+    if (bm < 50) {
+      if (index < allList.length - 1) {
+        setCurrentInfo(allList[index + 1]);
+      }
+    } else if (bm > 50) {
+      if (index > 0) {
+        setCurrentInfo(allList[index - 1]);
+      }
+    }
+    setShow(false);
   };
 
   const scrollEnd = () => {
@@ -140,10 +161,12 @@ export default function VideoView() {
 
   const clickItemValue = (index, value) => {
     let list: any = dataList;
+    let bool = value == 1 ? 2 : 1;
     if (value) {
-      list[index].check = value === 1 ? 2 : 1;
+      list[index].check = bool;
       setDataList([...list]);
     }
+    currentVideoFavorite(index, bool);
   };
 
   const openLayout = () => {
@@ -175,9 +198,22 @@ export default function VideoView() {
     setCurrent({ ...current, page: id, data: list });
   };
   const chooseCurrent = (val) => {
-    setCurrent({ ...current, val });
+    let info = allList.find((item) => item.id === val);
+    if (info) {
+      setCurrentInfo(info);
+    }
+    setShow(false);
   };
 
+  const currentVideoFavorite = (ind, val) => {
+    let act = ["", "del", "add"];
+    let types = ["like", "collect"];
+    getVideoFavorite({
+      type: types[ind],
+      act: act[val],
+      v_id: current.v_id,
+    }).then((res) => {});
+  };
   return (
     <View className="index">
       <View
@@ -194,12 +230,12 @@ export default function VideoView() {
             src={left}
             onClick={naviBack}
           />
-          <View className="index_header_view_text">{option.title}</View>
+          <View className="index_header_view_text">{currentInfo?.name}</View>
         </View>
       </View>
       <View className="index_footer" onClick={openLayout}>
         <View className="index_footer_text">
-          《踹了渣男后，我嫁入了豪门》·共92集
+          《{dataInfo?.name}》·共{dataInfo?.episode}集
         </View>
         <Image mode="heightFix" className="index_footer_img" src={top} />
       </View>
@@ -242,18 +278,15 @@ export default function VideoView() {
           onTouchEnd={scrollEnd}
         >
           <View className="before">
-            <Image
-              className="before_image"
-              src="http://231110002.ldcvh.china-yun.net/wximg/video_n.jpg"
-            />
+            <Image className="before_image" src={dataInfo?.img} />
           </View>
           <View id="targetPosition" />
           <View className="center">
             <View className="center_video">
               <Video
                 className="center_video_large"
-                src={current.url}
-                poster={current.png}
+                src={currentInfo?.url}
+                poster={dataInfo?.img}
                 initialTime={0}
                 controls={true}
                 showPlayBtn={true}
@@ -270,17 +303,14 @@ export default function VideoView() {
             <View className="center_footer" />
           </View>
           <View className="after">
-            <Image
-              className="after_image"
-              src="http://231110002.ldcvh.china-yun.net/wximg/video_n.jpg"
-            />
+            <Image className="after_image" src={dataInfo?.img} />
           </View>
         </ScrollView>
       </View>
       <AtFloatLayout isOpened={show} onClose={handleClose}>
         <View className="layout">
           <View className="layout_header">
-            《沈爷 您失宠了》 · 共99集
+            《{dataInfo?.name}》 · 共{dataInfo?.episode}集
             <Image
               mode="widthFix"
               onClick={handleClose}
@@ -307,20 +337,22 @@ export default function VideoView() {
             <View className="button-pad" />
           </View>
           <View className="layout_list">
-            {current.data.map((item) => {
+            {allList.map((item) => {
               return (
                 <View
                   className="layout_list_item"
                   style={{
                     background:
-                      item.val === current.val
+                      item.id === currentInfo.id
                         ? "linear-gradient(to right, #a829e8, #3c6fef);"
                         : "#3e4150",
                   }}
-                  onClick={() => chooseCurrent(item.val)}
+                  onClick={() => chooseCurrent(item.id)}
                 >
-                  {item.val}
-                  <Image className="layout_list_item_img" src={yuan} />
+                  {item.id}
+                  {!item?.is_pay ? (
+                    <Image className="layout_list_item_img" src={yuan} />
+                  ) : null}
                 </View>
               );
             })}

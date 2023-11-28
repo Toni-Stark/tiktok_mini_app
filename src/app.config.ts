@@ -2,6 +2,9 @@ export default defineAppConfig({
   pages: [
     "pages/index/index",
     "pages/index/cate/index",
+    "pages/index/hot/index",
+    "pages/index/new/index",
+    "pages/index/popular/index",
     "pages/index/search/index",
     "pages/list/index",
     "pages/mine/index",
@@ -12,6 +15,7 @@ export default defineAppConfig({
     "pages/mine/system/index",
     "pages/mine/info/index",
     "pages/mine/info/edit/index",
+    "pages/mine/wallet/wllt/index",
     "pages/hot/index",
     "pages/hot/theater/index",
     "pages/video/index",

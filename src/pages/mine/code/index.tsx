@@ -15,19 +15,20 @@ import two from "../../../static/icon/two.png";
 import three from "../../../static/icon/three.png";
 import down from "../../../static/icon/down_load.png";
 import share from "../../../static/icon/share.png";
-import code from "../../../static/icon/e_code.png";
+import { getMemberInfo } from "@/common/interface";
+import { TShow } from "@/common/common";
 
 export default function Code() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
     more: false,
     refresh: false,
   });
+  const [info, setInfo] = useState(undefined);
   const [list, setList] = useState([
     {
       title: "普通会员",
@@ -72,14 +73,46 @@ export default function Code() {
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-
+    getMemberInfo().then((res) => {
+      setInfo(res.data);
+    });
     setOption({ ..._option });
   });
   const naviBack = () => {
     Taro.navigateBack();
+  };
+  const saveImage = () => {
+    Taro.saveImageToPhotosAlbum({
+      filePath: info.spread_qrcode,
+      success: function (res) {
+        TShow("保存成功");
+      },
+      fail: function (err) {
+        TShow("保存失败");
+      },
+    });
+  };
+  const shareImage = () => {
+    Taro.updateShareMenu({
+      isUpdatableMessage: true,
+      activityId: "fasfasdffadsf",
+      templateInfo: {
+        parameterList: [
+          {
+            name: "imageUrl.png",
+            value: info.spread_qrcode,
+          },
+        ],
+      },
+      success: function () {
+        console.log("updateShareMenu success");
+      },
+      fail: function (res) {
+        console.log("updateShareMenu fail", res);
+      },
+    });
   };
   return (
     <View className="index">
@@ -166,15 +199,15 @@ export default function Code() {
           <View className="content">
             <View className="content_title">剧推码</View>
             <View className="content_code">
-              <Image className="content_code_img" src={code} />
+              <Image className="content_code_img" src={info?.spread_qrcode} />
             </View>
           </View>
           <View className="control">
-            <View className="control_view">
+            <View className="control_view" onClick={saveImage}>
               <Image className="control_view_img" src={down} />
               保存图片
             </View>
-            <View className="control_view">
+            <View className="control_view" onClick={shareImage}>
               <Image className="control_view_img" src={share} />
               分享好友
             </View>

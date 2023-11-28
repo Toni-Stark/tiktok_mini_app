@@ -5,32 +5,24 @@ import "./index.less";
 import { useState } from "react";
 import left from "../../../static/icon/left.png";
 import right from "../../../static/icon/right.png";
-import { getWalletProducts } from "@/common/interface";
+import { getMemberInfo, getWalletProducts } from "@/common/interface";
 
 export default function Wallet() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
-    active: 1,
-    screenWidth: 0,
-    screenHeight: 0,
-    more: false,
-    refresh: false,
   });
+  const [info, setInfo] = useState(undefined);
+
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.height;
     _option.statusBarHeight = rect.top;
-    Taro.getSystemInfo({
-      success: (res) => {
-        _option.screenWidth = res.screenWidth;
-        _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
-      },
+
+    getMemberInfo().then((res) => {
+      setInfo(res.data);
     });
-    getWalletProducts().then((res) => {});
     setOption({ ..._option });
   });
   const naviToDetail = () => {
@@ -41,6 +33,24 @@ export default function Wallet() {
   const naviBack = () => {
     Taro.navigateBack();
   };
+
+  const naviToList = (num) => {
+    let arr = [
+      {
+        title: "充值记录",
+        id: 1,
+      },
+      {
+        title: "积分记录",
+        id: 2,
+      },
+    ];
+    let val = "./wllt/index?id=" + arr[num].id + "&title=" + arr[num].title;
+    Taro.navigateTo({
+      url: val,
+    });
+  };
+
   return (
     <View className="index">
       <View
@@ -64,13 +74,15 @@ export default function Wallet() {
             <View className="text_main">
               <View className="text_main_title">蚂蚁券余额</View>
               <View className="text_main_eval">
-                0 <View className="text_main_eval_text">蚂蚁券</View>
+                {info?.score}
+                <View className="text_main_eval_text">蚂蚁券</View>
               </View>
             </View>
             <View className="text_main">
               <View className="text_main_title">会员时长</View>
               <View className="text_main_eval">
-                0 <View className="text_main_eval_text">天</View>
+                {info?.expire_days}{" "}
+                <View className="text_main_eval_text">天</View>
               </View>
             </View>
           </View>
@@ -83,16 +95,12 @@ export default function Wallet() {
           <View className="value">0.00</View>
         </View>
         <View className="index_content_list">
-          <View className="index_item">
-            充值记录
+          <View className="index_item" onClick={() => naviToList(0)}>
+            充值记录,
             <Image className="index_item_image" src={right} />
           </View>
-          <View className="index_item">
-            消费记录
-            <Image className="index_item_image" src={right} />
-          </View>
-          <View className="index_item">
-            蚂蚁豆记录
+          <View className="index_item" onClick={() => naviToList(1)}>
+            积分记录
             <Image className="index_item_image" src={right} />
           </View>
         </View>

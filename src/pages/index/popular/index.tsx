@@ -6,17 +6,15 @@ import { useState } from "react";
 import left from "../../../static/icon/left.png";
 import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
-import { AtButton } from "taro-ui";
-import { getIndexClassify, getIndexClassifyList } from "@/common/interface";
+import { getIndexPopular } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
 
-export default function Search() {
+export default function Hot() {
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
     videoHeight: 0,
-    active: 1,
     screenWidth: 0,
     screenHeight: 0,
     more: false,
@@ -27,7 +25,6 @@ export default function Search() {
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
-  const [btnList, setBtnList] = useState([]);
   const [dataList, setDataList] = useState([]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
@@ -52,16 +49,10 @@ export default function Search() {
     getIndexClassList();
   });
   const getIndexClassList = () => {
-    getIndexClassifyList().then((res) => {
-      setBtnList(res.data);
-      if (res.data?.length > 0) {
-        setActive(res.data[0].id);
-        getDataList(res.data[0].id, 1);
-      }
-    });
+    getDataList(1);
   };
-  const getDataList = (id, p) => {
-    getIndexClassify({ class_id: id, p }).then((res) => {
+  const getDataList = (p) => {
+    getIndexPopular({ p }).then((res) => {
       let list = [...dataList];
       if (p == 1) {
         list = res.data.list;
@@ -69,11 +60,8 @@ export default function Search() {
         list = list.concat(res.data.list);
       }
       setDataList(list);
-      setOption({ ...option, active: id, p, refresh: false });
+      setOption({ ...option, p, refresh: false });
     });
-  };
-  const setActive = (id) => {
-    getDataList(id, 1);
   };
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
@@ -84,16 +72,15 @@ export default function Search() {
     }
   };
   const addScrollList = () => {
-    getDataList(option.active, option.p + 1);
+    getDataList(option.p + 1);
   };
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
-    getDataList(option.active, 1);
+    getDataList(1);
   };
   const naviBack = () => {
     Taro.navigateBack();
   };
-
   const naviToVideo = (id) => {
     Taro.navigateTo({
       url: "../../video/index?id=" + id,
@@ -114,29 +101,8 @@ export default function Search() {
           src={left}
           onClick={naviBack}
         />
-        <View className="index_header_text">{option.title}</View>
+        <View className="index_header_text">最近流行</View>
       </View>
-      {option.type == "1" ? (
-        <View className="index_buttons">
-          {btnList.map((item, index) => {
-            return (
-              <AtButton
-                className={item.id === option.active ? "active" : ""}
-                key={index}
-                type="primary"
-                size="normal"
-                onClick={() => {
-                  setActive(item.id);
-                }}
-              >
-                {item.name}
-              </AtButton>
-            );
-          })}
-          <View className="button-pad" />
-        </View>
-      ) : null}
-
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"

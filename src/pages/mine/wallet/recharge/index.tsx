@@ -4,18 +4,16 @@ import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
 import left from "../../../../static/icon/left.png";
-import right from "../../../../static/icon/right.png";
 import image from "../../../../static/icon/dou.png";
 import wxPay from "../../../../static/icon/wx_pay.png";
 import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
-import { getWalletProducts } from "@/common/interface";
+import { getMemberInfo, getWalletProducts } from "@/common/interface";
 
 export default function Search() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     screenWidth: 0,
     screenHeight: 0,
     active: 1,
@@ -81,6 +79,8 @@ export default function Search() {
       pup: "item",
     },
   ]);
+  const [inList, setInList] = useState([]);
+  const [info, setInfo] = useState(undefined);
 
   useLoad(() => {
     let _option = option;
@@ -91,12 +91,20 @@ export default function Search() {
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-    getWalletProducts().then((res) => {});
+    getProList();
     setOption({ ..._option });
   });
+
+  const getProList = () => {
+    getMemberInfo().then((res) => {
+      setInfo(res.data);
+    });
+    getWalletProducts().then((res) => {
+      setInList(res.data.product_list);
+    });
+  };
 
   const naviBack = () => {
     Taro.navigateBack();
@@ -132,33 +140,61 @@ export default function Search() {
             <View className="text_main">
               <View className="text_main_title">蚂蚁券余额</View>
               <View className="text_main_eval">
-                0 <View className="text_main_eval_text">蚂蚁券</View>
+                {info?.score}
+                <View className="text_main_eval_text">蚂蚁券</View>
               </View>
             </View>
             <View className="text_main">
               <View className="text_main_title">会员时长</View>
               <View className="text_main_eval">
-                0 <View className="text_main_eval_text">天</View>
+                {info?.expire_days}
+                <View className="text_main_eval_text">天</View>
               </View>
             </View>
           </View>
         </View>
         <View className="index_content_list">
-          {barList.map((res) => {
+          {inList.map((res) => {
             let item: any = { ...res };
+            let cName = "item";
+            if (item.intro) {
+              cName = cName + " super";
+            }
             if (item.id === option.bar) {
-              item.pup = item.pup + " active";
+              cName = cName + " active";
             }
             return (
-              <View className={item.pup} onClick={() => checkTab(item.id)}>
-                {item?.tips ? (
-                  <View className="item_tips">{item.tips}</View>
+              <View className={cName} onClick={() => checkTab(item.id)}>
+                {item?.intro ? (
+                  <View className="item_tips">{item.intro}</View>
                 ) : null}
                 <View className="item_value">
-                  {item.title}
-                  <View className="item_value_text">{item.title_eval}</View>
+                  <View>
+                    {item.expire_days > 0 ? (
+                      <View className="item_value_score_day">
+                        {item.expire_days}
+                        <View className="day">天</View>
+                      </View>
+                    ) : null}
+                    {item.type == 2 ? (
+                      <View className="item_value_score_day">
+                        {item.score}
+                        <View className="day">积分</View>
+                      </View>
+                    ) : null}
+                  </View>
+                  <View className="item_value_score">
+                    {item.gift_score > 0 ? (
+                      <View className="item_value_score_text">
+                        （送{item.gift_score}积分）
+                      </View>
+                    ) : null}
+                  </View>
                 </View>
-                <View className="item_desc">{item.desc}</View>
+                <View className="item_desc">
+                  {item.name}
+                  <View className="item_desc_price">{item.price}</View>
+                </View>
               </View>
             );
           })}

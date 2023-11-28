@@ -1,12 +1,4 @@
-import {
-  View,
-  ScrollView,
-  Image,
-  Swiper,
-  SwiperItem,
-  Text,
-  Input,
-} from "@tarojs/components";
+import { View, ScrollView, Image, Input } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
@@ -15,101 +7,26 @@ import left from "../../../static/icon/left.png";
 import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
 import search from "../../../static/icon/search_gray.png";
+import { getIndexSearch } from "@/common/interface";
+import { GetStorageSync, SetStorageSync } from "@/store/storage";
+import { NoneView } from "@/components/noneView";
 
-let list = [
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-  {
-    title: "仙尊太诱人",
-    img: card,
-    desc: "互换身份身陷阴谋",
-    current: "356",
-    now: "78",
-  },
-];
 export default function Cate() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
-    active: 1,
     screenWidth: 0,
     screenHeight: 0,
     more: false,
     refresh: false,
+    p: 1,
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [dataList, setDataList] = useState([]);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState("");
+  const [kwList, setKwList] = useState([]);
+
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
@@ -122,16 +39,17 @@ export default function Cate() {
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
 
+    let list = GetStorageSync("kw");
+    if (!list) {
+      list = [];
+    }
+    setKwList(list);
     setOption({ ..._option });
   });
 
-  const setActive = (id) => {
-    setOption({ ...option, active: id });
-  };
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
       setScrollOpacity(1);
@@ -142,22 +60,40 @@ export default function Cate() {
   };
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
-    setTimeout(() => {
-      setOption({ ...option, refresh: false });
-    }, 1500);
+    getCurrentList({ kw: value, p: 1 });
   };
   const naviBack = () => {
     Taro.navigateBack();
   };
-  const getCurrentList = (e) => {
-    console.log(e);
-    setDataList(list);
+  const getCurrentList = () => {
+    let list = GetStorageSync("kw");
+    if (!list) {
+      list = [];
+    }
+    list.push(value);
+    SetStorageSync("kw", list);
+    setKwList(list);
+    getCurrentSearch({ kw: value, p: 1 });
+  };
+  const getCurrentSearch = (params) => {
+    getIndexSearch(params).then((res) => {
+      setDataList(res.data.list);
+      setOption({ ...option, refresh: false, p: params.p });
+    });
+  };
+  const addScrollList = () => {
+    getCurrentSearch({ kw: value, p: option.p + 1 });
   };
   const setInputValue = (e) => {
     setValue(e.detail.value);
-  }
+  };
   const addSearch = (title) => {
     setValue(title);
+  };
+  const naviToVideo = (id) => {
+    Taro.navigateTo({
+      url: "../../video/index?id=" + id,
+    });
   };
   const currentContext = useMemo(() => {
     if (dataList.length > 0) {
@@ -174,6 +110,8 @@ export default function Cate() {
             refresherBackground="#1e212a"
             onRefresherRefresh={refreshChange}
             enhanced
+            lowerThreshold={30}
+            onScrollToLower={addScrollList}
             onScroll={onScroll}
           >
             <View id="top" />
@@ -181,7 +119,12 @@ export default function Cate() {
               <View className="navi-data">
                 {dataList.map((item) => {
                   return (
-                    <View className="navi-data-item">
+                    <View
+                      className="navi-data-item"
+                      onClick={() => {
+                        naviToVideo(item.id);
+                      }}
+                    >
                       <Image
                         mode="widthFix"
                         src={card}
@@ -223,19 +166,32 @@ export default function Cate() {
           </View>
         </View>
       );
-    } else {
+    } else if (kwList.length > 0) {
       return (
         <View className="history">
           <View className="history-title">历史搜索</View>
           <View className="history-list">
-            <View className="history-list-item" onClick={()=>addSearch('大')}>大</View>
-            <View className="history-list-item" onClick={()=>addSearch('还不是')}>还不是</View>
-            <View className="history-list-item" onClick={()=>addSearch('其他')}>其他</View>
+            {kwList.map((item) => {
+              return (
+                <View
+                  className="history-list-item"
+                  onClick={() => addSearch(item)}
+                >
+                  {item}
+                </View>
+              );
+            })}
           </View>
         </View>
       );
+    } else {
+      return (
+        <View className="placeholder">
+          <NoneView />
+        </View>
+      );
     }
-  }, [dataList]);
+  }, [dataList, kwList]);
   return (
     <View className="index">
       <View

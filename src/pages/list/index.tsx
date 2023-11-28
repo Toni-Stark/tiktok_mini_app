@@ -6,7 +6,7 @@ import { useState } from "react";
 import search from "../../static/icon/search.png";
 import card from "../../static/source/info.png";
 import top from "../../static/icon/top.png";
-import { getVideoFavorite, getVideoHistory } from "@/common/interface";
+import { getFavorite, getVideoHistory } from "@/common/interface";
 
 export default function List() {
   const [option, setOption] = useState({
@@ -43,54 +43,7 @@ export default function List() {
       count: 0,
     },
   ]);
-  const [newData, setNewData] = useState<any>([
-    {
-      img: card,
-      text: "仙尊师傅太诱人",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "天降龙医生",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "我老公不是一个人老公不是一个人",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "灶神出世",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "总裁大人的秋裤",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世神医",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世赘婿之仙人跳",
-      eval: "甜宠古装仙侠巨制",
-    },
-    ,
-    {
-      img: card,
-      text: "绝世神医",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世赘婿之仙人跳",
-      eval: "甜宠古装仙侠巨制",
-    },
-  ]);
+  const [newData, setNewData] = useState<any>([]);
   const [videoDefault, setVideoDefault] = useState(undefined);
   useLoad(async () => {
     let _option = option;
@@ -110,7 +63,7 @@ export default function List() {
 
   const videoFavorite = (params) => {
     return new Promise((resolve) => {
-      getVideoFavorite(params).then((res) => {
+      getFavorite(params).then((res) => {
         if (res.code === 200) {
           resolve({ list: res.data.favorite_list, count: res.data.count });
         }
@@ -196,6 +149,11 @@ export default function List() {
       url: "../index/search/index?type=" + type,
     });
   };
+  const naviToVideo = (id) => {
+    Taro.navigateTo({
+      url: "../video/index?id=" + id,
+    });
+  };
   return (
     <View className="index">
       <View
@@ -233,7 +191,12 @@ export default function List() {
               style={{ height: option.videoHeight + "Px" }}
             >
               {videoDefault ? (
-                <View className="components-video-large">
+                <View
+                  className="components-video-large"
+                  onClick={() => {
+                    naviToVideo(videoDefault.id);
+                  }}
+                >
                   <Video
                     className="components-video-large-video"
                     style={{ height: option.screenWidth + "px" }}
@@ -283,7 +246,12 @@ export default function List() {
                 </View>
                 {newData.map((item) => {
                   return (
-                    <View className="components-video-list-item">
+                    <View
+                      className="components-video-list-item"
+                      onClick={() => {
+                        naviToVideo(item.id);
+                      }}
+                    >
                       <Image className="image" src={item.video_img} />
                     </View>
                   );

@@ -9,7 +9,14 @@ import card from "../../static/source/info.png";
 import right from "../../static/icon/right.png";
 import top from "../../static/icon/top.png";
 import { AtButton } from "taro-ui";
-import { getIndexClassify, getIndexRecommend } from "@/common/interface";
+import {
+  getIndexClassify,
+  getIndexClassifyList,
+  getIndexHot,
+  getIndexNews,
+  getIndexPopular,
+  getIndexRecommend,
+} from "@/common/interface";
 
 export default function Index() {
   const [option, setOption] = useState({
@@ -22,110 +29,13 @@ export default function Index() {
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
-  const [btnList, setBtnList] = useState([
-    {
-      title: "推荐",
-      id: 1,
-    },
-    {
-      title: "都市",
-      id: 2,
-    },
-    {
-      title: "战神",
-      id: 3,
-    },
-    {
-      title: "甜宠",
-      id: 4,
-    },
-    {
-      title: "玄幻",
-      id: 5,
-    },
-    {
-      title: "古装",
-      id: 6,
-    },
-  ]);
-  const [reComm, setReCmm] = useState([
-    {
-      img: card,
-      text: "仙尊师傅太诱人",
-    },
-    {
-      img: card,
-      text: "天降龙医生",
-    },
-    {
-      img: card,
-      text: "我老公不是一个人老公不是一个人",
-    },
-    {
-      img: card,
-      text: "灶神出世",
-    },
-    {
-      img: card,
-      text: "总裁大人的秋裤",
-    },
-    {
-      img: card,
-      text: "绝世神医",
-    },
-    {
-      img: card,
-      text: "绝世赘婿之仙人跳",
-    },
-  ]);
-  const [newData, setNewData] = useState([
-    {
-      img: card,
-      text: "仙尊师傅太诱人",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "天降龙医生",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "我老公不是一个人老公不是一个人",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "灶神出世",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "总裁大人的秋裤",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世神医",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世赘婿之仙人跳",
-      eval: "甜宠古装仙侠巨制",
-    },
-    ,
-    {
-      img: card,
-      text: "绝世神医",
-      eval: "甜宠古装仙侠巨制",
-    },
-    {
-      img: card,
-      text: "绝世赘婿之仙人跳",
-      eval: "甜宠古装仙侠巨制",
-    },
-  ]);
+  const [recommend, setRecommend] = useState([]);
+  const [headerVideo, setHeaderVideo] = useState<any>({});
+  const [btnList, setBtnList] = useState([]);
+  const [reComm, setReCmm] = useState([]);
+  const [newData, setNewData] = useState([]);
+  const [hotData, setHotData] = useState([]);
+  const [popData, setPopData] = useState([]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
@@ -143,15 +53,35 @@ export default function Index() {
     });
     setOption({ ..._option });
     getIndexRecommend().then((res) => {
-      console.log(res, "3242343");
+      setRecommend(res.data);
+      if (res.data.length > 0) {
+        setHeaderVideo(res.data[0]);
+      }
     });
-    getIndexClassify().then((res) => {
-      console.log(res);
+    getIndexClassifyList().then((res) => {
+      setBtnList(res.data);
+      if (res.data.length > 0) {
+        currentList({ classify: res.data[0].id, p: 1 });
+      }
+    });
+    getIndexNews({ p: 1 }).then((res) => {
+      setNewData(res.data.list);
+    });
+    getIndexHot({ p: 1 }).then((res) => {
+      setHotData(res.data.list);
+    });
+    getIndexPopular({ p: 1 }).then((res) => {
+      setPopData(res.data.list);
     });
   });
 
+  const currentList = async ({ classify, p }) => {
+    let result = await getIndexClassify({ class_id: classify, p });
+    setReCmm(result.data.list);
+    setOption({ ...option, active: classify });
+  };
   const setActive = (id) => {
-    setOption({ ...option, active: id });
+    currentList({ classify: id, p: 1 });
   };
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
@@ -167,15 +97,31 @@ export default function Index() {
       url: "./cate/index?type=" + type + "&title=" + title,
     });
   };
+  const naviToPopuOne = (type, title) => {
+    Taro.navigateTo({
+      url: "./popular/index?type=" + type + "&title=" + title,
+    });
+  };
+  const naviToHotOne = () => {
+    Taro.navigateTo({
+      url: "./hot/index",
+    });
+  };
+
+  const naviToNewOne = () => {
+    Taro.navigateTo({
+      url: "./new/index",
+    });
+  };
 
   const naviToSearch = (type) => {
     Taro.navigateTo({
       url: "./search/index?type=" + type,
     });
   };
-  const naviToVideo = () => {
+  const naviToVideo = (id) => {
     Taro.navigateTo({
-      url: "../video/index",
+      url: "../video/index?id=" + id,
     });
   };
 
@@ -212,8 +158,8 @@ export default function Index() {
               <Video
                 id="video"
                 className="components-video-video"
-                src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
-                poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
+                src={headerVideo.url}
+                poster={headerVideo.img}
                 initialTime={0}
                 controls={false}
                 autoplay={true}
@@ -222,11 +168,17 @@ export default function Index() {
                 objectFit="cover"
               />
               <View className="components-video-shadow" />
-              <View className="components-video-card">
-                <Image className="components-video-card-image" src={card} />
+              <View
+                className="components-video-card"
+                onClick={() => naviToVideo(headerVideo.id)}
+              >
+                <Image
+                  className="components-video-card-image"
+                  src={headerVideo.img}
+                />
                 <View className="components-video-card-content">
-                  <Text className="title">仙尊师傅太诱人</Text>
-                  <Text className="text">甜宠古装仙侠巨制</Text>
+                  <Text className="title">{headerVideo.name}</Text>
+                  <Text className="text">{headerVideo.describe}</Text>
                 </View>
               </View>
               <View className="components-video-lar">
@@ -257,47 +209,43 @@ export default function Index() {
                         setActive(item.id);
                       }}
                     >
-                      {item.title}
+                      {item.name}
                     </AtButton>
                   );
                 })}
                 <View className="button-pad" />
               </View>
-              <View className="components-video-scroll">
-                <ScrollView scrollX>
-                  <View className="scroll-list">
-                    {reComm.map((item, index) => {
-                      return (
-                        <View
-                          key={index}
-                          className="scroll-list-item"
-                          onClick={naviToVideo}
-                        >
-                          <Image
-                            mode="widthFix"
-                            src={item.img}
-                            className="scroll-list-item-img"
-                          />
-                          <Text
-                            numberOfLines={1}
-                            className="scroll-list-item-text"
+              {reComm.length > 0 ? (
+                <View className="components-video-scroll">
+                  <ScrollView scrollX>
+                    <View className="scroll-list">
+                      {reComm.map((item, index) => {
+                        return (
+                          <View
+                            key={index}
+                            className="scroll-list-item"
+                            onClick={() => {
+                              naviToVideo(item.id);
+                            }}
                           >
-                            {item.text}
-                          </Text>
-                        </View>
-                      );
-                    })}
-                    <View className="button-pad" />
-                  </View>
-                </ScrollView>
-              </View>
-              {/*<View className="components-video-bar">*/}
-              {/*  <Image*/}
-              {/*    mode="widthFix"*/}
-              {/*    src={bar1}*/}
-              {/*    className="components-video-bar-image"*/}
-              {/*  />*/}
-              {/*</View>*/}
+                            <Image
+                              src={item.img}
+                              className="scroll-list-item-img"
+                            />
+                            <Text
+                              numberOfLines={1}
+                              className="scroll-list-item-text"
+                            >
+                              {item.name}
+                            </Text>
+                          </View>
+                        );
+                      })}
+                      <View className="button-pad" />
+                    </View>
+                  </ScrollView>
+                </View>
+              ) : null}
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
                   N剧刷不腻！宝藏热剧爆款出圈
@@ -305,10 +253,10 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(2, "热门独播");
+                    naviToPopuOne();
                   }}
                 >
-                  热门独播
+                  最近流行
                   <Image
                     mode="widthFix"
                     className="components-video-lar-link-icon"
@@ -317,33 +265,42 @@ export default function Index() {
                 </View>
               </View>
               <View className="components-video-list">
-                {newData.map((item) => {
+                {popData.map((item) => {
                   return (
-                    <View className="components-video-list-item">
-                      <Image mode="widthFix" className="image" src={item.img} />
-                      <Text className="text">{item.text}</Text>
-                      <Text className="eval">{item.eval}</Text>
+                    <View
+                      className="components-video-list-item"
+                      onClick={() => naviToVideo(item.id)}
+                    >
+                      <Image className="image" src={item.img} />
+                      <Text className="text">{item.name}</Text>
+                      <Text className="eval">{item.describe}</Text>
                     </View>
                   );
                 })}
               </View>
-              <View className="components-video-large">
-                <Video
-                  className="components-video-large-video"
-                  style={{ height: option.screenWidth + "px" }}
-                  src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
-                  poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
-                  initialTime={0}
-                  controls={false}
-                  autoplay={true}
-                  loop={true}
-                  muted={true}
-                  objectFit="cover"
-                />
-                <text className="components-video-large-desc">
-                  穷小子钓鱼钓到了金鱼，然后发生了什么奇怪的事呢？
-                </text>
-              </View>
+              {recommend.length >= 2 ? (
+                <View
+                  className="components-video-large"
+                  onClick={() => naviToVideo(recommend[1].id)}
+                >
+                  <Video
+                    className="components-video-large-video"
+                    style={{ height: option.screenWidth + "px" }}
+                    src={recommend[1].url}
+                    poster={recommend[1].img}
+                    initialTime={0}
+                    controls={false}
+                    autoplay={true}
+                    loop={true}
+                    muted={true}
+                    objectFit="cover"
+                  />
+                  <text className="components-video-large-desc">
+                    {recommend[1].describe}
+                  </text>
+                </View>
+              ) : null}
+
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
                   最新短剧速递 精彩内容抢先看
@@ -351,10 +308,10 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(2, "热门独播");
+                    naviToHotOne();
                   }}
                 >
-                  热门独播
+                  热播新剧
                   <Image
                     mode="widthFix"
                     className="components-video-lar-link-icon"
@@ -365,31 +322,39 @@ export default function Index() {
               <View className="components-video-list">
                 {newData.map((item) => {
                   return (
-                    <View className="components-video-list-item">
-                      <Image mode="widthFix" className="image" src={item.img} />
-                      <Text className="text">{item.text}</Text>
-                      <Text className="eval">{item.eval}</Text>
+                    <View
+                      className="components-video-list-item"
+                      onClick={() => naviToVideo(item.id)}
+                    >
+                      <Image className="image" src={item.img} />
+                      <Text className="text">{item.name}</Text>
+                      <Text className="eval">{item.describe}</Text>
                     </View>
                   );
                 })}
               </View>
-              <View className="components-video-large">
-                <Video
-                  className="components-video-large-video"
-                  style={{ height: option.screenWidth + "px" }}
-                  src="http://231110002.ldcvh.china-yun.net/wximg/video_h.mp4"
-                  poster="http://231110002.ldcvh.china-yun.net/wximg/video_p.png"
-                  initialTime={0}
-                  controls={false}
-                  autoplay={true}
-                  loop={true}
-                  muted={true}
-                  objectFit="cover"
-                />
-                <text className="components-video-large-desc">
-                  穷小子钓鱼钓到了金鱼，然后发生了什么奇怪的事呢？
-                </text>
-              </View>
+              {recommend.length >= 3 ? (
+                <View
+                  className="components-video-large"
+                  onClick={() => naviToVideo(recommend[2].id)}
+                >
+                  <Video
+                    className="components-video-large-video"
+                    style={{ height: option.screenWidth + "px" }}
+                    src={recommend[2].url}
+                    poster={recommend[2].img}
+                    initialTime={0}
+                    controls={false}
+                    autoplay={true}
+                    loop={true}
+                    muted={true}
+                    objectFit="cover"
+                  />
+                  <text className="components-video-large-desc">
+                    {recommend[2].describe}
+                  </text>
+                </View>
+              ) : null}
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
                   女生必看！高甜短剧让你心动
@@ -397,10 +362,10 @@ export default function Index() {
                 <View
                   className="components-video-lar-link"
                   onClick={() => {
-                    naviToCateOne(2, "热门独播");
+                    naviToNewOne();
                   }}
                 >
-                  热门独播
+                  最新更新
                   <Image
                     mode="widthFix"
                     className="components-video-lar-link-icon"
@@ -409,70 +374,15 @@ export default function Index() {
                 </View>
               </View>
               <View className="components-video-list">
-                {newData.map((item) => {
+                {hotData.map((item) => {
                   return (
-                    <View className="components-video-list-item">
-                      <Image mode="widthFix" className="image" src={item.img} />
-                      <Text className="text">{item.text}</Text>
-                      <Text className="eval">{item.eval}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-              <View className="components-video-lar">
-                <Text className="components-video-lar-text">
-                  神秘异能再掀波澜，熬夜都要看完
-                </Text>
-                <View
-                  className="components-video-lar-link"
-                  onClick={() => {
-                    naviToCateOne(2, "热门独播");
-                  }}
-                >
-                  热门独播
-                  <Image
-                    mode="widthFix"
-                    className="components-video-lar-link-icon"
-                    src={right}
-                  />
-                </View>
-              </View>
-              <View className="components-video-list">
-                {newData.map((item) => {
-                  return (
-                    <View className="components-video-list-item">
-                      <Image mode="widthFix" className="image" src={item.img} />
-                      <Text className="text">{item.text}</Text>
-                      <Text className="eval">{item.eval}</Text>
-                    </View>
-                  );
-                })}
-              </View>
-              <View className="components-video-lar">
-                <Text className="components-video-lar-text">
-                  全程高能，多重翻转，下饭最佳！
-                </Text>
-                <View
-                  className="components-video-lar-link"
-                  onClick={() => {
-                    naviToCateOne(2, "热门独播");
-                  }}
-                >
-                  热门独播
-                  <Image
-                    mode="widthFix"
-                    className="components-video-lar-link-icon"
-                    src={right}
-                  />
-                </View>
-              </View>
-              <View className="components-video-list">
-                {newData.map((item) => {
-                  return (
-                    <View className="components-video-list-item">
-                      <Image mode="widthFix" className="image" src={item.img} />
-                      <Text className="text">{item.text}</Text>
-                      <Text className="eval">{item.eval}</Text>
+                    <View
+                      className="components-video-list-item"
+                      onClick={() => naviToVideo(item.id)}
+                    >
+                      <Image className="image" src={item.img} />
+                      <Text className="text">{item.name}</Text>
+                      <Text className="eval">{item.describe}</Text>
                     </View>
                   );
                 })}

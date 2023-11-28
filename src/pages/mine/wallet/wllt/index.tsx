@@ -3,31 +3,25 @@ import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../static/icon/left.png";
-import card from "../../../static/source/info.png";
-import top from "../../../static/icon/top.png";
-import { AtButton } from "taro-ui";
-import { getIndexClassify, getIndexClassifyList } from "@/common/interface";
+import left from "../../../../static/icon/left.png";
+import { getScoreList, getWalletList } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
 
-export default function Search() {
+export default function Hot() {
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
-    active: 1,
     screenWidth: 0,
     screenHeight: 0,
     more: false,
     refresh: false,
     title: "",
-    type: "",
+    id: "",
     p: 1,
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
-  const [btnList, setBtnList] = useState([]);
   const [dataList, setDataList] = useState([]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
@@ -36,45 +30,57 @@ export default function Search() {
     const params = router.params;
     let _option = option;
     _option.title = params.title;
-    _option.type = params.type;
+    _option.id = params.id;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.height;
     _option.statusBarHeight = rect.top;
-    Taro.getSystemInfo({
-      success: (res) => {
-        _option.screenWidth = res.screenWidth;
-        _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
-      },
-    });
-
     setOption({ ..._option });
     getIndexClassList();
   });
   const getIndexClassList = () => {
-    getIndexClassifyList().then((res) => {
-      setBtnList(res.data);
-      if (res.data?.length > 0) {
-        setActive(res.data[0].id);
-        getDataList(res.data[0].id, 1);
-      }
+    getDataList(1);
+  };
+  const getDataList = (p) => {
+    if (option.id == 1) {
+      getPayList(p).then((res) => {
+        let list = [...dataList];
+        if (p == 1) {
+          list = res.data.score_list;
+        } else {
+          list = list.concat(res.data.score_list);
+        }
+        setDataList(list);
+        setOption({ ...option, p, refresh: false });
+      });
+    } else if (option.id == 2) {
+      getScore(p).then((res) => {
+        let list = [...dataList];
+        if (p == 1) {
+          list = res.data.score_list;
+        } else {
+          list = list.concat(res.data.score_list);
+        }
+        setDataList(list);
+        setOption({ ...option, p, refresh: false });
+      });
+    }
+  };
+
+  const getPayList = (p) => {
+    return new Promise((resolve) => {
+      getWalletList({ p }).then((res) => {
+        resolve(res.data.list);
+      });
     });
   };
-  const getDataList = (id, p) => {
-    getIndexClassify({ class_id: id, p }).then((res) => {
-      let list = [...dataList];
-      if (p == 1) {
-        list = res.data.list;
-      } else {
-        list = list.concat(res.data.list);
-      }
-      setDataList(list);
-      setOption({ ...option, active: id, p, refresh: false });
+  const getScore = (p) => {
+    return new Promise((resolve) => {
+      getScoreList({ p }).then((res) => {
+        resolve(res.data.list);
+      });
     });
   };
-  const setActive = (id) => {
-    getDataList(id, 1);
-  };
+
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
       setScrollOpacity(1);
@@ -84,20 +90,14 @@ export default function Search() {
     }
   };
   const addScrollList = () => {
-    getDataList(option.active, option.p + 1);
+    getDataList(option.p + 1);
   };
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
-    getDataList(option.active, 1);
+    getDataList(1);
   };
   const naviBack = () => {
     Taro.navigateBack();
-  };
-
-  const naviToVideo = (id) => {
-    Taro.navigateTo({
-      url: "../../video/index?id=" + id,
-    });
   };
   return (
     <View className="index">
@@ -116,27 +116,6 @@ export default function Search() {
         />
         <View className="index_header_text">{option.title}</View>
       </View>
-      {option.type == "1" ? (
-        <View className="index_buttons">
-          {btnList.map((item, index) => {
-            return (
-              <AtButton
-                className={item.id === option.active ? "active" : ""}
-                key={index}
-                type="primary"
-                size="normal"
-                onClick={() => {
-                  setActive(item.id);
-                }}
-              >
-                {item.name}
-              </AtButton>
-            );
-          })}
-          <View className="button-pad" />
-        </View>
-      ) : null}
-
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"
@@ -158,27 +137,8 @@ export default function Search() {
             <View className="navi-data">
               {dataList.map((item) => {
                 return (
-                  <View
-                    className="navi-data-item"
-                    onClick={() => {
-                      naviToVideo(item.id);
-                    }}
-                  >
-                    <Image src={card} className="navi-data-item-img" />
-                    <View className="navi-data-item-view">
-                      <View className="navi-data-item-view-content">
-                        <View className="navi-data-item-view-content-main">
-                          {item.name}
-                        </View>
-                        <View className="navi-data-item-view-content-eval">
-                          {item.describe}
-                        </View>
-                      </View>
-                      <View className="navi-data-item-view-eval">
-                        <View>{item.watching}人正在看</View>
-                        <View>更新至第{item.episode}集</View>
-                      </View>
-                    </View>
+                  <View className="navi-data-item">
+                    <View className="navi-data-item-view"></View>
                   </View>
                 );
               })}

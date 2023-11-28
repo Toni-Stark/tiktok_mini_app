@@ -11,13 +11,8 @@ import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import search from "../../../static/icon/search.png";
 import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
-import naviBar from "../../../static/source/naviBar.png";
-import right from "../../../static/icon/right.png";
-import refresh from "../../../static/icon/refresh.png";
-import { AtButton } from "taro-ui";
 import left from "@/static/icon/left.png";
 let routerList = [
   { title: "真得鹿剧场", icon: card },
