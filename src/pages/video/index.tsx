@@ -1,4 +1,12 @@
-import { View, Image, Video, ScrollView, Button } from "@tarojs/components";
+import {
+  View,
+  Image,
+  Video,
+  ScrollView,
+  Button,
+  MovableArea,
+  MovableView,
+} from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
@@ -133,9 +141,9 @@ export default function VideoView() {
           scrollTop: keyPosition,
           duration: 300,
         });
+        chooseCurVideo(res[0].bottom);
         setScrollTop(keyPosition);
         setRBool(!rBool);
-        chooseCurVideo(res[0].bottom);
       }
     });
   };
@@ -160,12 +168,12 @@ export default function VideoView() {
   };
   let timer = undefined;
   const scrollIng = (e) => {
-    clearTimeout(timer);
-    timer = null;
-    timer = setTimeout(() => {
-      positionTo();
-    }, 200);
-    return true;
+    // clearTimeout(timer);
+    // timer = null;
+    // timer = setTimeout(() => {
+    //   positionTo();
+    // }, 200);
+    // return true;
   };
 
   const naviBack = () => {
@@ -353,48 +361,51 @@ export default function VideoView() {
         </Button>
       </View>
       <View className="index_content">
-        <ScrollView
-          className="index_content_view"
-          scrollY
-          showScrollbar={false}
-          scrollTop={scrollTop}
-          scrollWithAnimation={false}
-          disableScroll={true}
-          enhanced
-          onScroll={scrollIng}
-          onTouchEnd={scrollEnd}
-        >
-          <View className="before">
-            <Image className="before_image" src={dataInfo?.img} />
-          </View>
-          <View id="targetPosition" />
-          <View className="center">
-            <View className="center_video">
-              <Video
-                className="center_video_large"
-                src={currentInfo?.url}
-                poster={dataInfo?.img}
-                initialTime={0}
-                controls={true}
-                onPlay={startPlay}
-                onPause={stopPlay}
-                showPlayBtn={true}
-                showFullscreenBtn={false}
-                autoplay={true}
-                enablePlayGesture={true}
-                showCenterPlayBtn={true}
-                playBtnPosition="center"
-                loop={true}
-                muted={true}
-                objectFit="cover"
-              />
+        {/*<ScrollView*/}
+        {/*  className="index_content_view"*/}
+        {/*  scrollY*/}
+        {/*  showScrollbar={false}*/}
+        {/*  scrollTop={scrollTop}*/}
+        {/*  scrollWithAnimation={false}*/}
+        {/*  disableScroll={true}*/}
+        {/*  enhanced*/}
+        {/*  onScroll={scrollIng}*/}
+        {/*  onTouchEnd={scrollEnd}*/}
+        {/*>*/}
+        <MovableArea>
+          <MovableView direction="vertical" onDragEnd={scrollEnd}>
+            <View className="before">
+              <Image className="before_image" src={dataInfo?.img} />
             </View>
-            <View className="center_footer" />
-          </View>
-          <View className="after">
-            <Image className="after_image" src={dataInfo?.img} />
-          </View>
-        </ScrollView>
+            <View id="targetPosition" />
+            <View className="center">
+              <View className="center_video">
+                <Video
+                  className="center_video_large"
+                  src={currentInfo?.url}
+                  poster={dataInfo?.img}
+                  initialTime={0}
+                  controls={true}
+                  onPlay={startPlay}
+                  onPause={stopPlay}
+                  showPlayBtn={true}
+                  showFullscreenBtn={false}
+                  autoplay={true}
+                  enablePlayGesture={true}
+                  showCenterPlayBtn={true}
+                  playBtnPosition="center"
+                  loop={true}
+                  objectFit="cover"
+                />
+              </View>
+              <View className="center_footer" />
+            </View>
+            <View className="after">
+              <Image className="after_image" src={dataInfo?.img} />
+            </View>
+          </MovableView>
+          {/*</ScrollView>*/}
+        </MovableArea>
       </View>
       <AtFloatLayout isOpened={show} onClose={handleClose}>
         <View className="layout">

@@ -26,6 +26,9 @@ export default function Index() {
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
+    loading1: true,
+    loading2: true,
+    loading3: true,
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
@@ -58,15 +61,18 @@ export default function Index() {
       if (res.data.length > 0) {
         setHeaderVideo(res.data[0]);
       }
+      setOption({ ..._option, loading1: false });
     });
     getIndexClassifyList().then((res) => {
       setBtnList(res.data);
       if (res.data.length > 0) {
         currentList({ classify: res.data[0].id, p: 1 });
       }
+      setOption({ ..._option, loading2: false });
     });
     getIndexNews({ p: 1 }).then((res) => {
       setNewData(res.data.list);
+      setOption({ ..._option, loading3: false });
     });
     getIndexHot({ p: 1 }).then((res) => {
       setHotData(res.data.list);
@@ -126,7 +132,7 @@ export default function Index() {
     });
   };
   const currentHeader = useMemo(() => {
-    if (!headerVideo) {
+    if (!option.loading1) {
       return (
         <View className="loading_pla">
           <Loading size={80} />
@@ -164,9 +170,9 @@ export default function Index() {
         </>
       );
     }
-  }, [headerVideo]);
+  }, [headerVideo, option]);
   const currentLarContent = useMemo(() => {
-    if (!headerVideo) {
+    if (!option.loading2) {
       return (
         <View className="loading_lar">
           <Loading size={40} />
@@ -197,6 +203,44 @@ export default function Index() {
       );
     }
   }, [btnList, option]);
+
+  const currentTeTContent = useMemo(() => {
+    if (!option.loading3) {
+      return (
+        <View className="loading_lar">
+          <Loading size={40} />
+        </View>
+      );
+    } else {
+      return (
+        <>
+          <View className="components-video-scroll">
+            <ScrollView scrollX>
+              <View className="scroll-list">
+                {reComm.map((item, index) => {
+                  return (
+                    <View
+                      key={index}
+                      className="scroll-list-item"
+                      onClick={() => {
+                        naviToVideo(item.id);
+                      }}
+                    >
+                      <Image src={item.img} className="scroll-list-item-img" />
+                      <Text numberOfLines={1} className="scroll-list-item-text">
+                        {item.name}
+                      </Text>
+                    </View>
+                  );
+                })}
+                <View className="button-pad" />
+              </View>
+            </ScrollView>
+          </View>
+        </>
+      );
+    }
+  }, [reComm, option]);
   return (
     <View className="index">
       <View className="index_zone">
@@ -245,37 +289,7 @@ export default function Index() {
                 </View>
               </View>
               {currentLarContent}
-              {reComm.length > 0 ? (
-                <View className="components-video-scroll">
-                  <ScrollView scrollX>
-                    <View className="scroll-list">
-                      {reComm.map((item, index) => {
-                        return (
-                          <View
-                            key={index}
-                            className="scroll-list-item"
-                            onClick={() => {
-                              naviToVideo(item.id);
-                            }}
-                          >
-                            <Image
-                              src={item.img}
-                              className="scroll-list-item-img"
-                            />
-                            <Text
-                              numberOfLines={1}
-                              className="scroll-list-item-text"
-                            >
-                              {item.name}
-                            </Text>
-                          </View>
-                        );
-                      })}
-                      <View className="button-pad" />
-                    </View>
-                  </ScrollView>
-                </View>
-              ) : null}
+              {currentTeTContent}
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">
                   N剧刷不腻！宝藏热剧爆款出圈

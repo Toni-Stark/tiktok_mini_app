@@ -81,16 +81,17 @@ export default function Search() {
         }
         let data = res.data.json_params;
         Taro.requestPayment({
-          timeStamp: new Date().getTime(),
-          nonceStr: data.nonceStr,
-          package: data.prepay_id,
+          timeStamp: data.time.toString(),
+          nonceStr: data.nonce_str,
+          package: data.package,
           signType: "RSA",
-          paySign: data.paySign,
+          paySign: data.sign,
           success: function (res) {
             TShow("充值成功");
             getProList();
           },
-          fail: function (res) {
+          fail: function (err) {
+            console.log(err);
             TShow("充值失败");
           },
         });
