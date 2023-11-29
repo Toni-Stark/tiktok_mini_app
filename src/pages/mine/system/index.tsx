@@ -5,6 +5,7 @@ import "./index.less";
 import { useState } from "react";
 import left from "../../../static/icon/left.png";
 import right from "../../../static/icon/right.png";
+import { HeaderView } from "@/components/headerView";
 
 export default function System() {
   const [option, setOption] = useState({
@@ -17,28 +18,28 @@ export default function System() {
   });
   const [dataList, setDataList] = useState([
     {
-      title: '服务协议',
-      url: './service /index',
+      title: "服务协议",
+      url: "./service /index",
     },
     {
-      title: '隐私协议',
-      url: './privacy/index',
+      title: "隐私协议",
+      url: "./privacy/index",
     },
     {
-      title: '注销账号',
-      url: './log_off/index',
+      title: "注销账号",
+      url: "./log_off/index",
     },
     {
-      title: '关于蚂蚁看看 3.0.4',
-      url: './about/index',
+      title: "关于蚂蚁看看 3.0.4",
+      url: "./about/index",
     },
   ]);
 
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -55,33 +56,21 @@ export default function System() {
 
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">系统服务</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="系统服务"
+      />
       <View className="index_content">
         <View className="index_content_card">
-          {
-            dataList.map((item)=> {
-              return (
-                <View className="index_content_card_item">
-                  {item.title}
-                  <Image className="index_content_card_item_image" src={right} />
-                </View>
-              )
-            })
-          }
+          {dataList.map((item) => {
+            return (
+              <View className="index_content_card_item">
+                {item.title}
+                <Image className="index_content_card_item_image" src={right} />
+              </View>
+            );
+          })}
         </View>
       </View>
     </View>

@@ -3,9 +3,10 @@ import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../../static/icon/left.png";
 import { getScoreList, getWalletList } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
+import { HeaderView } from "@/components/headerView";
+import top from "../../../../static/icon/top.png";
 
 export default function Hot() {
   const router = useRouter();
@@ -32,33 +33,33 @@ export default function Hot() {
     _option.title = params.title;
     _option.id = params.id;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    console.log(rect, "123");
+
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
+
     setOption({ ..._option });
-    getIndexClassList();
+    getDataList(1, params.id);
   });
-  const getIndexClassList = () => {
-    getDataList(1);
-  };
-  const getDataList = (p) => {
-    if (option.id == 1) {
+  const getDataList = (p, id) => {
+    if (id == 1) {
       getPayList(p).then((res) => {
         let list = [...dataList];
         if (p == 1) {
-          list = res.data.score_list;
+          list = res;
         } else {
-          list = list.concat(res.data.score_list);
+          list = list.concat(res);
         }
         setDataList(list);
         setOption({ ...option, p, refresh: false });
       });
-    } else if (option.id == 2) {
+    } else if (id == 2) {
       getScore(p).then((res) => {
         let list = [...dataList];
         if (p == 1) {
-          list = res.data.score_list;
+          list = res;
         } else {
-          list = list.concat(res.data.score_list);
+          list = list.concat(res);
         }
         setDataList(list);
         setOption({ ...option, p, refresh: false });
@@ -69,14 +70,14 @@ export default function Hot() {
   const getPayList = (p) => {
     return new Promise((resolve) => {
       getWalletList({ p }).then((res) => {
-        resolve(res.data.list);
+        resolve(res.data.score_list);
       });
     });
   };
   const getScore = (p) => {
     return new Promise((resolve) => {
       getScoreList({ p }).then((res) => {
-        resolve(res.data.list);
+        resolve(res.data.score_list);
       });
     });
   };
@@ -90,32 +91,19 @@ export default function Hot() {
     }
   };
   const addScrollList = () => {
-    getDataList(option.p + 1);
+    getDataList(option.p + 1, option.id);
   };
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
-    getDataList(1);
-  };
-  const naviBack = () => {
-    Taro.navigateBack();
+    getDataList(option.id, 1, option.id);
   };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">{option.title}</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text={option.title}
+      />
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"
@@ -135,15 +123,35 @@ export default function Hot() {
           <View id="top" />
           <View className="index_zone_view_content">
             <View className="navi-data">
-              {dataList.map((item) => {
+              {dataList?.map((item) => {
+                let count = 0;
+                if (item.flow_type == 1) {
+                  count = Number(item.after_score) + Number(item.score);
+                } else {
+                  count = Number(item.after_score) - Number(item.score);
+                }
                 return (
                   <View className="navi-data-item">
-                    <View className="navi-data-item-view"></View>
+                    <View className="conte">
+                      <View className="text">
+                        {item.flow_type_desc}：
+                        <View className="coin">{item.score}</View>
+                      </View>
+                      <View className="time">{item.created_time}</View>
+                    </View>
+                    <View className="share">
+                      <View className="value">
+                        总数：<View className="eval">{count}</View>
+                      </View>
+                      <View className="value">
+                        余额：<View className="eval">{item.type_desc}</View>
+                      </View>
+                    </View>
                   </View>
                 );
               })}
             </View>
-            {dataList.length > 0 ? (
+            {dataList?.length > 0 ? (
               <View className="index-footer">
                 {option.more ? (
                   <View className="index-footer-view">加载中...</View>

@@ -1,38 +1,28 @@
-import {
-  View,
-  ScrollView,
-  Image,
-  Video,
-  Swiper,
-  SwiperItem,
-  Text,
-} from "@tarojs/components";
+import { View, ScrollView, Image } from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import card from "../../../static/source/info.png";
-import top from "../../../static/icon/top.png";
-import left from "@/static/icon/left.png";
-let routerList = [
-  { title: "真得鹿剧场", icon: card },
-  { title: "星星剧场", icon: card },
-  { title: "日新阅益", icon: card },
-  { title: "德明剧场", icon: card },
-  { title: "亮亮剧场", icon: card },
-  { title: "智彩剧场", icon: card },
-  { title: "山有木兮剧场", icon: card },
-  { title: "方土剧场", icon: card },
-  { title: "踏歌行剧场", icon: card },
-  { title: "巨星团剧场", icon: card },
-];
+
+import { HeaderView } from "@/components/headerView";
+// let routerList = [
+//   { title: "真得鹿剧场", icon: card },
+//   { title: "星星剧场", icon: card },
+//   { title: "日新阅益", icon: card },
+//   { title: "德明剧场", icon: card },
+//   { title: "亮亮剧场", icon: card },
+//   { title: "智彩剧场", icon: card },
+//   { title: "山有木兮剧场", icon: card },
+//   { title: "方土剧场", icon: card },
+//   { title: "踏歌行剧场", icon: card },
+//   { title: "巨星团剧场", icon: card },
+// ];
 export default function Theater() {
   const router = useRouter();
   const [rouOption, setRouOption] = useState<any>({});
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
@@ -46,25 +36,21 @@ export default function Theater() {
   };
   useLoad(() => {
     const params = router.params;
-    setRouOption(routerList[params.type]);
+    // setRouOption(routerList[params.type]);
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
 
     setOption({ ..._option });
   });
 
-  const setActive = (id) => {
-    setOption({ ...option, active: id });
-  };
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
       setScrollOpacity(1);
@@ -81,26 +67,13 @@ export default function Theater() {
     }, 1500);
   };
 
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text" />
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text=""
+      />
       <View className="index_main">
         <Image className="index_main_img" src={rouOption.icon} />
         <View className="index_main_text">{rouOption.title}</View>
@@ -123,158 +96,11 @@ export default function Theater() {
           <View className="index_zone_view_content">
             <View className="navi-data">
               <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      替身的诱惑
-                    </View>
-                    <View className="navi-data-item-view-content-eval">
-                      互换身份身陷阴谋
-                    </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>316人正在看</View>
-                    <View>更新至第78集</View>
-                  </View>
-                </View>
-              </View>
-              <View className="navi-data-item">
-                <Image
-                  mode="widthFix"
-                  src={card}
-                  className="navi-data-item-img"
-                />
+                {/*<Image*/}
+                {/*  mode="widthFix"*/}
+                {/*  src={card}*/}
+                {/*  className="navi-data-item-img"*/}
+                {/*/>*/}
                 <View className="navi-data-item-view">
                   <View className="navi-data-item-view-content">
                     <View className="navi-data-item-view-content-main">

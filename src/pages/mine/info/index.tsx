@@ -15,6 +15,7 @@ import { getMemberInfo, setMember } from "@/common/interface";
 import { getSex } from "@/common/tools";
 import { AtFloatLayout, AtList, AtListItem } from "taro-ui";
 import { TShow } from "@/common/common";
+import { HeaderView } from "@/components/headerView";
 const selector = ["男", "女"];
 
 export default function Info() {
@@ -32,8 +33,8 @@ export default function Info() {
   useEffect(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -97,21 +98,11 @@ export default function Info() {
   };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">个人资料</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="个人资料"
+      />
       <View className="index_content">
         <View className="index_content_header">
           <View className="header_view">

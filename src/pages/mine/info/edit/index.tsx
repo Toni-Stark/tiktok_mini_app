@@ -6,6 +6,7 @@ import { useState } from "react";
 import left from "../../../../static/icon/left.png";
 import { setMember } from "@/common/interface";
 import { TShow } from "@/common/common";
+import { HeaderView } from "@/components/headerView";
 
 export default function Edit() {
   const [option, setOption] = useState({
@@ -19,8 +20,8 @@ export default function Edit() {
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -48,21 +49,11 @@ export default function Edit() {
 
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">个人资料</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="个人资料"
+      />
       <View className="index_content">
         <View className="index_content_text">
           <View style={{ paddingLeft: 10 }}>修改昵称</View>

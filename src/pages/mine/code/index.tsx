@@ -9,7 +9,6 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../static/icon/left.png";
 import one from "../../../static/icon/one.png";
 import two from "../../../static/icon/two.png";
 import three from "../../../static/icon/three.png";
@@ -17,6 +16,7 @@ import down from "../../../static/icon/down_load.png";
 import share from "../../../static/icon/share.png";
 import { getMemberInfo } from "@/common/interface";
 import { TShow } from "@/common/common";
+import { HeaderView } from "@/components/headerView";
 
 export default function Code() {
   const [option, setOption] = useState({
@@ -67,8 +67,8 @@ export default function Code() {
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -80,57 +80,63 @@ export default function Code() {
     });
     setOption({ ..._option });
   });
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
   const saveImage = () => {
+    console.log(info);
     Taro.saveImageToPhotosAlbum({
-      filePath: info.spread_qrcode,
-      success: function (res) {
+      url: info.spread_qrcode,
+      success: (res) => {
         TShow("保存成功");
       },
-      fail: function (err) {
+      fail: (res) => {
         TShow("保存失败");
       },
     });
+    // Taro.saveImageToPhotosAlbum({
+    //   filePath: info.spread_qrcode,
+    //   success: function (res) {
+    //     TShow("保存成功");
+    //   },
+    //   fail: function (err) {
+    //     TShow("保存失败");
+    //   },
+    // });
   };
   const shareImage = () => {
-    Taro.updateShareMenu({
-      isUpdatableMessage: true,
-      activityId: "fasfasdffadsf",
-      templateInfo: {
-        parameterList: [
-          {
-            name: "imageUrl.png",
-            value: info.spread_qrcode,
-          },
-        ],
-      },
-      success: function () {
-        console.log("updateShareMenu success");
-      },
-      fail: function (res) {
-        console.log("updateShareMenu fail", res);
+    console.log(info);
+    Taro.downloadFile({
+      url: info.spread_qrcode,
+      success: (res) => {
+        Taro.showShareImageMenu({
+          path: res.tempFilePath,
+        });
       },
     });
+    // Taro.updateShareMenu({
+    //   isUpdatableMessage: true,
+    //   activityId: "fasfasdffadsf",
+    //   templateInfo: {
+    //     parameterList: [
+    //       {
+    //         name: "imageUrl.png",
+    //         value: info.spread_qrcode,
+    //       },
+    //     ],
+    //   },
+    //   success: function () {
+    //     console.log("updateShareMenu success");
+    //   },
+    //   fail: function (res) {
+    //     console.log("updateShareMenu fail", res);
+    //   },
+    // });
   };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">我要推广</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="我要推广"
+      />
       <View className="index_content">
         <View className="index_content_header">
           <Swiper

@@ -1,12 +1,13 @@
-import { Image, ScrollView, Video, View } from "@tarojs/components";
+import { Image, ScrollView, Text, Video, View } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
-import { useState } from "react";
-import search from "../../static/icon/search.png";
-import card from "../../static/source/info.png";
+import { useMemo, useState } from "react";
 import top from "../../static/icon/top.png";
 import { getFavorite, getVideoHistory } from "@/common/interface";
+import { Loading } from "@/components/loading";
+import { HeaderView } from "@/components/headerView";
+import { NoneView } from "@/components/noneView";
 
 export default function List() {
   const [option, setOption] = useState({
@@ -18,6 +19,7 @@ export default function List() {
     screenHeight: 0,
     habit: 1,
     refresh: false,
+    loading: false,
   });
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [btnList, setBtnList] = useState([
@@ -48,8 +50,8 @@ export default function List() {
   useLoad(async () => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -90,6 +92,8 @@ export default function List() {
     if (arr[0].list.length > 0) {
       setVideoDefault(arr[0].list[0]);
     }
+    console.log("加载");
+    setOption({ ...option, loading: true });
   };
 
   const currentList = async (params) => {
@@ -154,23 +158,88 @@ export default function List() {
       url: "../video/index?id=" + id,
     });
   };
+
+  const currentHeader = useMemo(() => {
+    if (!option.loading) {
+      return (
+        <View className="loading_pla">
+          <Loading size={80} />
+        </View>
+      );
+    } else {
+      return (
+        <>
+          <View
+            className="components-video-large"
+            onClick={() => {
+              naviToVideo(videoDefault?.video_id);
+            }}
+          >
+            <Video
+              className="components-video-large-video"
+              style={{ height: option.screenWidth + "px" }}
+              src={videoDefault?.video_url}
+              poster={videoDefault?.video_img}
+              initialTime={0}
+              controls={false}
+              autoplay={true}
+              loop={true}
+              muted={true}
+              objectFit="cover"
+            />
+            <View className="components-video-large-content">
+              <View className="large-content-main">
+                <View className="large-content-main-title">
+                  {videoDefault?.class_name}
+                </View>
+                <View className="large-content-main-eval">
+                  {videoDefault?.video_name}
+                </View>
+              </View>
+              <text className="large-content-count">
+                {videoDefault?.watching || 0}人正在看
+              </text>
+            </View>
+          </View>
+        </>
+      );
+    }
+  }, [videoDefault, option]);
+  const currentContent = useMemo(() => {
+    if (!option.loading) {
+      return (
+        <View className="loading_con">
+          <Loading size={40} />
+        </View>
+      );
+    } else {
+      return (
+        <>
+          {newData.map((item) => {
+            return (
+              <View
+                className="components-video-list-item"
+                onClick={() => {
+                  naviToVideo(item.video_id);
+                }}
+              >
+                <Image className="image" src={item.video_img} />
+              </View>
+            );
+          })}
+        </>
+      );
+    }
+  }, [newData, option]);
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          onClick={naviToCateOne}
-          className="index_header_img"
-          src={search}
-        />
-        <View className="index_header_text">追剧</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        search={true}
+        text="追剧"
+        url="../index/search/index"
+      />
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"
@@ -190,39 +259,7 @@ export default function List() {
               className="components-video"
               style={{ height: option.videoHeight + "Px" }}
             >
-              {videoDefault ? (
-                <View
-                  className="components-video-large"
-                  onClick={() => {
-                    naviToVideo(videoDefault.id);
-                  }}
-                >
-                  <Video
-                    className="components-video-large-video"
-                    style={{ height: option.screenWidth + "px" }}
-                    src={videoDefault.video_url}
-                    poster={videoDefault.video_img}
-                    initialTime={0}
-                    controls={false}
-                    autoplay={true}
-                    loop={true}
-                    muted={true}
-                    objectFit="cover"
-                  />
-                  <View className="components-video-large-content">
-                    <View className="large-content-main">
-                      <View className="large-content-main-title">
-                        {videoDefault.class_name}
-                      </View>
-                      <View className="large-content-main-eval">
-                        {videoDefault.video_name}
-                      </View>
-                    </View>
-                    <text className="large-content-count">378人正在看</text>
-                  </View>
-                </View>
-              ) : null}
-
+              {currentHeader}
               <View className="components-video-list">
                 <View className="components-video-list-tabs">
                   {btnList.map((item) => {
@@ -244,20 +281,22 @@ export default function List() {
                     );
                   })}
                 </View>
-                {newData.map((item) => {
-                  return (
-                    <View
-                      className="components-video-list-item"
-                      onClick={() => {
-                        naviToVideo(item.id);
-                      }}
-                    >
-                      <Image className="image" src={item.video_img} />
-                    </View>
-                  );
-                })}
+                {currentContent}
               </View>
-              <View className="components-video-more">暂无更多</View>
+              {newData.length > 0 ? (
+                <View className="components-video-more">暂无更多</View>
+              ) : (
+                <View
+                  style={{
+                    height: "20Vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <NoneView />
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>

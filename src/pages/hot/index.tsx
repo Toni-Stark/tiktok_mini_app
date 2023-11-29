@@ -9,12 +9,8 @@ import {
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
-import { useState } from "react";
-import search from "../../static/icon/search.png";
-import card from "../../static/source/info.png";
+import { useMemo, useState } from "react";
 import top from "../../static/icon/top.png";
-import naviBar from "../../static/source/naviBar.png";
-import right from "../../static/icon/right.png";
 import refresh from "../../static/icon/refresh.png";
 import { AtButton } from "taro-ui";
 import {
@@ -22,6 +18,8 @@ import {
   getIndexClassify,
   getIndexClassifyList,
 } from "@/common/interface";
+import { HeaderView } from "@/components/headerView";
+import { NoneView } from "@/components/noneView";
 
 export default function Hot() {
   const [option, setOption] = useState({
@@ -43,8 +41,8 @@ export default function Hot() {
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -110,18 +108,41 @@ export default function Hot() {
   const refreshList = () => {
     currentList({ classify: option.active, p: 1 });
   };
+  const currentSwiper = useMemo(() => {
+    if (bannerList.length <= 0) {
+      return null;
+    }
+    return (
+      <View className="swiper-view">
+        <Swiper
+          className="swiper-view-views"
+          indicatorColor="#999"
+          indicatorActiveColor="#333"
+          circular
+          autoplay
+        >
+          {bannerList.map((item, index) => {
+            return (
+              <SwiperItem>
+                <View className="swiper-view-views-item">
+                  <Image className="img" src={item.img} />
+                </View>
+              </SwiperItem>
+            );
+          })}
+        </Swiper>
+      </View>
+    );
+  }, [bannerList]);
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image mode="widthFix" className="index_header_img" src={search} />
-        <View className="index_header_text">热播</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        search={true}
+        text="热播剧"
+        url="../index/search/index"
+      />
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"
@@ -136,25 +157,7 @@ export default function Hot() {
         >
           <View id="top" />
           <View className="index_zone_view_content">
-            <View className="swiper-view">
-              <Swiper
-                className="swiper-view-views"
-                indicatorColor="#999"
-                indicatorActiveColor="#333"
-                circular
-                autoplay
-              >
-                {bannerList.map((item, index) => {
-                  return (
-                    <SwiperItem>
-                      <View className="swiper-view-views-item">
-                        <Image className="img" src={item.img} />
-                      </View>
-                    </SwiperItem>
-                  );
-                })}
-              </Swiper>
-            </View>
+            {currentSwiper}
             {/*<View className="navi-list">*/}
             {/*  <View className="button-pad" />*/}
             {/*  <View className="navi-list-item" onClick={() => naviToTheater(0)}>*/}
@@ -490,7 +493,7 @@ export default function Hot() {
               <View className="button-pad" />
             </View>
             <View className="navi-data">
-              {currentData.map((item) => {
+              {currentData?.map((item) => {
                 return (
                   <View
                     className="navi-data-item"
@@ -498,11 +501,7 @@ export default function Hot() {
                       naviToVideo(item.id);
                     }}
                   >
-                    <Image
-                      mode="widthFix"
-                      src={card}
-                      className="navi-data-item-img"
-                    />
+                    <Image src={item.img} className="navi-data-item-img" />
                     <View className="navi-data-item-view">
                       <View className="navi-data-item-view-content">
                         <View className="navi-data-item-view-content-main">
@@ -521,6 +520,19 @@ export default function Hot() {
                 );
               })}
             </View>
+
+            {currentData?.length <= 0 ? (
+              <View
+                style={{
+                  height: "50Vh",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <NoneView />
+              </View>
+            ) : null}
           </View>
           <View className=".button-pad" />
         </ScrollView>

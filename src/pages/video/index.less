@@ -113,6 +113,13 @@
       flex-direction: column;
       justify-content: center;
       margin-top: 13Px;
+      padding: 0;
+      border: 0;
+      line-height: 1;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      outline: none;
       .view {
         display: flex;
         align-items: center;
@@ -128,6 +135,9 @@
         color: #ffffff;
         margin-top: 3Px;
       }
+    }
+    &_view:after {
+      border: none;
     }
     &_active {
       .view {

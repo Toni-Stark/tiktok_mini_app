@@ -1,8 +1,8 @@
 import { defineConfig, UserConfigExport } from "@tarojs/cli";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
+const TerserPlugin = require("terser-webpack-plugin");
 import devConfig from "./dev";
 import prodConfig from "./prod";
-
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig(async (merge, { command, mode }) => {
   const baseConfig: UserConfigExport = {
@@ -28,6 +28,21 @@ export default defineConfig(async (merge, { command, mode }) => {
     cache: {
       enable: false, // Webpack 持久化缓存配置，建议开启。默认配置请参考：https://docs.taro.zone/docs/config-detail#cache
     },
+    optimization: {
+      minimize: true, // 启用代码压缩
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            ecma: 6, // 设置 ECMAScript 版本
+            mangle: true, // 开启代码混淆
+            compress: {
+              drop_console: true, // 去除 console.* 函数调用
+            },
+          },
+        }),
+      ],
+    },
+
     mini: {
       postcss: {
         pxtransform: {

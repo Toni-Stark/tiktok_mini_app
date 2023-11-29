@@ -8,7 +8,14 @@ import image from "../../../../static/icon/dou.png";
 import wxPay from "../../../../static/icon/wx_pay.png";
 import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
-import { getMemberInfo, getWalletProducts } from "@/common/interface";
+import {
+  getMemberInfo,
+  getPayOrder,
+  getWalletProducts,
+} from "@/common/interface";
+import { GetStorageSync } from "@/store/storage";
+import { HeaderView } from "@/components/headerView";
+import { TShow } from "@/common/common";
 
 export default function Search() {
   const [option, setOption] = useState({
@@ -31,62 +38,14 @@ export default function Search() {
       checked: 2,
     },
   ]);
-  const [barList, setBarList] = useState([
-    {
-      id: 1,
-      title: "19.9",
-      title_eval: "元(多送5元)",
-      tips: "91%的用户选择",
-      desc: "1990+多送500蚂蚁券",
-      pup: "item super",
-    },
-    {
-      id: 2,
-      title: "39.9",
-      title_eval: "元(多送15元)",
-      tips: false,
-      desc: "3990+多送1500蚂蚁券",
-      pup: "item",
-    },
-    {
-      id: 3,
-      title: "59.9",
-      title_eval: "元(多送30元)",
-      tips: "超值",
-      desc: "5990+多送3000蚂蚁券",
-      pup: "item super",
-    },
-    {
-      id: 4,
-      title: "99.9",
-      title_eval: "元(多送100元)",
-      tips: "超值",
-      desc: "9990+多送10000蚂蚁券",
-      pup: "item super",
-    },
-    {
-      id: 5,
-      title: "9.9",
-      title_eval: "元(多送2元)",
-      desc: "990+多送200蚂蚁券",
-      pup: "item",
-    },
-    {
-      id: 6,
-      title: "299.9",
-      title_eval: "元(年卡会员)",
-      desc: "限时抢购，再送7天",
-      pup: "item",
-    },
-  ]);
   const [inList, setInList] = useState([]);
   const [info, setInfo] = useState(undefined);
 
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -103,36 +62,49 @@ export default function Search() {
     });
     getWalletProducts().then((res) => {
       setInList(res.data.product_list);
+      setOption({ ...option, bar: res.data.product_list[0].id });
     });
   };
 
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
   const checkType = (e) => {
     setOption({ ...option, active: e });
   };
   const checkTab = (e) => {
-    console.log(option);
     setOption({ ...option, bar: e });
+  };
+  const payOrder = () => {
+    let allJson = GetStorageSync("allJson");
+    getPayOrder({ openid: allJson.openid, product_id: option.bar }).then(
+      (res) => {
+        if (res.code !== 200) {
+          return TShow(res.msg);
+        }
+        let data = res.data.json_params;
+        Taro.requestPayment({
+          timeStamp: new Date().getTime(),
+          nonceStr: data.nonceStr,
+          package: data.prepay_id,
+          signType: "RSA",
+          paySign: data.paySign,
+          success: function (res) {
+            TShow("充值成功");
+            getProList();
+          },
+          fail: function (res) {
+            TShow("充值失败");
+          },
+        });
+      }
+    );
+    // Taro.requestPayment({})
   };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">充值</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="充值"
+      />
       <View className="index_content">
         <View className="index_content_banner">创作不易，感谢您的支持</View>
         <View className="index_content_icon">
@@ -232,7 +204,11 @@ export default function Search() {
             <View>4、遇到问题可在“我的”页面联系客服</View>
           </View>
         </View>
-        <View className="index_content_btn" hoverClass="index_content_active">
+        <View
+          className="index_content_btn"
+          hoverClass="index_content_active"
+          onClick={payOrder}
+        >
           确认支付
         </View>
       </View>

@@ -3,13 +3,12 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useMemo, useState } from "react";
-import left from "../../../static/icon/left.png";
-import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
 import search from "../../../static/icon/search_gray.png";
 import { getIndexSearch } from "@/common/interface";
 import { GetStorageSync, SetStorageSync } from "@/store/storage";
 import { NoneView } from "@/components/noneView";
+import { HeaderView } from "@/components/headerView";
 
 export default function Cate() {
   const [option, setOption] = useState({
@@ -33,8 +32,8 @@ export default function Cate() {
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -66,13 +65,16 @@ export default function Cate() {
     Taro.navigateBack();
   };
   const getCurrentList = () => {
-    let list = GetStorageSync("kw");
-    if (!list) {
-      list = [];
+    if (value?.length > 0) {
+      let list = GetStorageSync("kw");
+      if (!list) {
+        list = [];
+      }
+      list.push(value);
+      SetStorageSync("kw", list);
+      setKwList(list);
     }
-    list.push(value);
-    SetStorageSync("kw", list);
-    setKwList(list);
+
     getCurrentSearch({ kw: value, p: 1 });
   };
   const getCurrentSearch = (params) => {
@@ -125,23 +127,19 @@ export default function Cate() {
                         naviToVideo(item.id);
                       }}
                     >
-                      <Image
-                        mode="widthFix"
-                        src={card}
-                        className="navi-data-item-img"
-                      />
+                      <Image src={item.img} className="navi-data-item-img" />
                       <View className="navi-data-item-view">
                         <View className="navi-data-item-view-content">
                           <View className="navi-data-item-view-content-main">
-                            替身的诱惑
+                            {item.name}
                           </View>
                           <View className="navi-data-item-view-content-eval">
-                            互换身份身陷阴谋
+                            {item.describe}
                           </View>
                         </View>
                         <View className="navi-data-item-view-eval">
-                          <View>316人正在看</View>
-                          <View>更新至第78集</View>
+                          <View>{item.watching}人正在看</View>
+                          <View>更新至第{item.updated_eps}集</View>
                         </View>
                       </View>
                     </View>
@@ -194,21 +192,11 @@ export default function Cate() {
   }, [dataList, kwList]);
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">搜索</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="搜索"
+      />
       <View className="index_search">
         <Image mode="widthFix" src={search} className="index_search_img" />
         <View className="index_search_input">

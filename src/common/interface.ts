@@ -55,6 +55,18 @@ export const getWalletList = async (params) => {
 export const getScoreList = async (params) => {
   return await cloudPost("wallet/score-list", params);
 };
+export const getPayOrder = async (params) => {
+  return await cloudPost("pay/add-order", params);
+};
+export const getVideoUpdate = async (params) => {
+  return await cloudPost("video/watching", params);
+};
+export const getVideoPay = async (params) => {
+  return await cloudPost("video/pay", params);
+};
+export const getMemberShare = async (params) => {
+  return await cloudPost("member/share", params);
+};
 
 // type 1 // 购买会员时长 expire_days gift_score（赠送的
 //  type 2 // 购买积分 score(积分数）

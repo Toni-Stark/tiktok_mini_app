@@ -3,9 +3,8 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import search from "../../static/icon/search.png";
-import card from "../../static/source/info.png";
 import right from "../../static/icon/right.png";
 import top from "../../static/icon/top.png";
 import { AtButton } from "taro-ui";
@@ -17,6 +16,7 @@ import {
   getIndexPopular,
   getIndexRecommend,
 } from "@/common/interface";
+import { Loading } from "@/components/loading";
 
 export default function Index() {
   const [option, setOption] = useState({
@@ -30,20 +30,21 @@ export default function Index() {
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [recommend, setRecommend] = useState([]);
-  const [headerVideo, setHeaderVideo] = useState<any>({});
+  const [headerVideo, setHeaderVideo] = useState<any>(undefined);
   const [btnList, setBtnList] = useState([]);
   const [reComm, setReCmm] = useState([]);
   const [newData, setNewData] = useState([]);
   const [hotData, setHotData] = useState([]);
   const [popData, setPopData] = useState([]);
+
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
   };
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -124,7 +125,78 @@ export default function Index() {
       url: "../video/index?id=" + id,
     });
   };
-
+  const currentHeader = useMemo(() => {
+    if (!headerVideo) {
+      return (
+        <View className="loading_pla">
+          <Loading size={80} />
+        </View>
+      );
+    } else {
+      return (
+        <>
+          <Video
+            id="video"
+            className="components-video-video"
+            src={headerVideo?.url}
+            poster={headerVideo?.img}
+            initialTime={0}
+            controls={false}
+            autoplay={true}
+            muted={true}
+            loop={true}
+            objectFit="cover"
+          />
+          <View className="components-video-shadow" />
+          <View
+            className="components-video-card"
+            onClick={() => naviToVideo(headerVideo?.id)}
+          >
+            <Image
+              className="components-video-card-image"
+              src={headerVideo?.img}
+            />
+            <View className="components-video-card-content">
+              <Text className="title">{headerVideo?.name}</Text>
+              <Text className="text">{headerVideo?.describe}</Text>
+            </View>
+          </View>
+        </>
+      );
+    }
+  }, [headerVideo]);
+  const currentLarContent = useMemo(() => {
+    if (!headerVideo) {
+      return (
+        <View className="loading_lar">
+          <Loading size={40} />
+        </View>
+      );
+    } else {
+      return (
+        <>
+          <View className="components-video-buttons">
+            {btnList.map((item, index) => {
+              return (
+                <AtButton
+                  className={item.id === option.active ? "active" : ""}
+                  key={index}
+                  type="primary"
+                  size="normal"
+                  onClick={() => {
+                    setActive(item.id);
+                  }}
+                >
+                  {item.name}
+                </AtButton>
+              );
+            })}
+            <View className="button-pad" />
+          </View>
+        </>
+      );
+    }
+  }, [btnList, option]);
   return (
     <View className="index">
       <View className="index_zone">
@@ -155,32 +227,7 @@ export default function Index() {
               className="components-video"
               style={{ height: option.videoHeight + "Px" }}
             >
-              <Video
-                id="video"
-                className="components-video-video"
-                src={headerVideo.url}
-                poster={headerVideo.img}
-                initialTime={0}
-                controls={false}
-                autoplay={true}
-                muted={true}
-                loop={true}
-                objectFit="cover"
-              />
-              <View className="components-video-shadow" />
-              <View
-                className="components-video-card"
-                onClick={() => naviToVideo(headerVideo.id)}
-              >
-                <Image
-                  className="components-video-card-image"
-                  src={headerVideo.img}
-                />
-                <View className="components-video-card-content">
-                  <Text className="title">{headerVideo.name}</Text>
-                  <Text className="text">{headerVideo.describe}</Text>
-                </View>
-              </View>
+              {currentHeader}
               <View className="components-video-lar">
                 <Text className="components-video-lar-text">看你想看</Text>
                 <View
@@ -197,24 +244,7 @@ export default function Index() {
                   />
                 </View>
               </View>
-              <View className="components-video-buttons">
-                {btnList.map((item, index) => {
-                  return (
-                    <AtButton
-                      className={item.id === option.active ? "active" : ""}
-                      key={index}
-                      type="primary"
-                      size="normal"
-                      onClick={() => {
-                        setActive(item.id);
-                      }}
-                    >
-                      {item.name}
-                    </AtButton>
-                  );
-                })}
-                <View className="button-pad" />
-              </View>
+              {currentLarContent}
               {reComm.length > 0 ? (
                 <View className="components-video-scroll">
                   <ScrollView scrollX>

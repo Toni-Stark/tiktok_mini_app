@@ -4,6 +4,7 @@ import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
 import left from "../../../static/icon/left.png";
+import { HeaderView } from "@/components/headerView";
 
 export default function Hobby() {
   const [option, setOption] = useState({
@@ -99,8 +100,8 @@ export default function Hobby() {
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
@@ -131,21 +132,11 @@ export default function Hobby() {
 
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">选择您的兴趣爱好</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="选择您的兴趣爱好"
+      />
       <View className="index_content">
         <View className="index_content_main">
           {dataList.map((item, index) => {

@@ -1,4 +1,4 @@
-import { View, Image, Video, ScrollView } from "@tarojs/components";
+import { View, Image, Video, ScrollView, Button } from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
@@ -15,9 +15,18 @@ import getg from "../../static/icon/get_g.png";
 import share_g from "../../static/icon/share-arrow.png";
 import down from "../../static/icon/down.png";
 import yuan from "../../static/icon/yuan.png";
-import { getVideoFavorite, getVideoIndex } from "@/common/interface";
+import {
+  getMemberShare,
+  getVideoFavorite,
+  getVideoIndex,
+  getVideoPay,
+  getVideoUpdate,
+} from "@/common/interface";
+import { TShow } from "@/common/common";
+import home from "@/static/icon/home.png";
 
 export default function VideoView() {
+  const pages = Taro.getCurrentPages();
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
@@ -47,10 +56,6 @@ export default function VideoView() {
       icon_g: gets,
       check: 1,
     },
-    {
-      value: "分享",
-      icon: share_g,
-    },
   ]);
   const [show, setShow] = useState(false);
   const [btnList, setBtnList] = useState([]);
@@ -60,9 +65,9 @@ export default function VideoView() {
   });
   const [currentInfo, setCurrentInfo] = useState(undefined);
   const [allList, setAllList] = useState([]);
-
   useLoad(() => {
     const params = router.params;
+    const pages = Taro.getCurrentPages();
     getVideoList({ v_id: params.id });
     let _option = option;
     _option.title = "第一集";
@@ -80,7 +85,6 @@ export default function VideoView() {
     setScrollTop(_option.screenHeight);
     setOption({ ..._option });
   });
-
   const getVideoList = (params) => {
     getVideoIndex(params).then((res) => {
       let btnArr: any = [...dataList];
@@ -105,6 +109,16 @@ export default function VideoView() {
       setBtnList(arr);
       setAllList(resData);
       setCurrentInfo(resData[0]);
+
+      Taro.useShareAppMessage((res) => {
+        if (res.from === "button") {
+          console.log(res.target);
+        }
+        return {
+          title: info.name,
+          path: "/pages/video/index",
+        };
+      });
     });
   };
 
@@ -121,7 +135,6 @@ export default function VideoView() {
         });
         setScrollTop(keyPosition);
         setRBool(!rBool);
-        console.log(res, "res");
         chooseCurVideo(res[0].bottom);
       }
     });
@@ -158,17 +171,32 @@ export default function VideoView() {
   const naviBack = () => {
     Taro.navigateBack();
   };
+  const naviHome = () => {
+    Taro.switchTab({
+      url: "/pages/index/index",
+    });
+  };
 
   const clickItemValue = (index, value) => {
     let list: any = dataList;
     let bool = value == 1 ? 2 : 1;
     if (value) {
       list[index].check = bool;
+      if (value == 1) {
+        list[index].value = Number(list[index].value) + 1;
+      } else {
+        list[index].value = Number(list[index].value) - 1;
+      }
       setDataList([...list]);
     }
     currentVideoFavorite(index, bool);
   };
-
+  const shareView = () => {
+    getMemberShare({
+      v_id: dataInfo.id,
+      v_s_id: currentInfo.id,
+    }).then((res) => {});
+  };
   const openLayout = () => {
     let list = [];
     let info = btnList.find((item) => item.id === current.page);
@@ -197,12 +225,31 @@ export default function VideoView() {
     }
     setCurrent({ ...current, page: id, data: list });
   };
+  const naviToHotOne = () => {
+    Taro.navigateTo({
+      url: "../mine/wallet/recharge/index",
+    });
+  };
+
   const chooseCurrent = (val) => {
     let info = allList.find((item) => item.id === val);
+    if (!info.is_pay) {
+      getVideoPay({ v_s_id: info.id }).then((res) => {
+        if (res.code !== 200) {
+          TShow(res.code);
+        } else if (res.code == 101) {
+          naviToHotOne();
+        }
+        TShow("购买成功");
+        getVideoList({ v_id: dataInfo.id });
+      });
+      return;
+    }
     if (info) {
       setCurrentInfo(info);
     }
     setShow(false);
+    timePlay = 0;
   };
 
   const currentVideoFavorite = (ind, val) => {
@@ -211,9 +258,29 @@ export default function VideoView() {
     getVideoFavorite({
       type: types[ind],
       act: act[val],
-      v_id: current.v_id,
+      v_id: dataInfo.id,
+      v_s_id: currentInfo.id,
     }).then((res) => {});
   };
+  let timePlay = 0;
+  let timerPlay = null;
+  const startPlay = () => {
+    clearInterval(timePlay);
+    timerPlay = null;
+    timerPlay = setInterval(() => {
+      timePlay += 1;
+      if (timePlay >= 30) {
+        getVideoUpdate({ v_s_id: currentInfo.id });
+        clearInterval(timerPlay);
+        timePlay = 1;
+      }
+    }, 1000);
+  };
+  const stopPlay = () => {
+    clearInterval(timerPlay);
+    timerPlay = null;
+  };
+
   return (
     <View className="index">
       <View
@@ -224,12 +291,21 @@ export default function VideoView() {
         }}
       >
         <View className="index_header_view">
-          <Image
-            mode="widthFix"
-            className="index_header_view_img"
-            src={left}
-            onClick={naviBack}
-          />
+          {pages.length > 1 ? (
+            <Image
+              mode="widthFix"
+              className="index_header_view_img"
+              src={left}
+              onClick={naviBack}
+            />
+          ) : (
+            <Image
+              mode="widthFix"
+              className="index_header_view_img"
+              src={home}
+              onClick={naviHome}
+            />
+          )}
           <View className="index_header_view_text">{currentInfo?.name}</View>
         </View>
       </View>
@@ -264,6 +340,17 @@ export default function VideoView() {
             </View>
           );
         })}
+        <Button
+          className="index_label_view"
+          openType="share"
+          onClick={() => shareView()}
+          hoverClass="index_label_active"
+        >
+          <View className="view">
+            <Image className="img" src={share_g} />
+          </View>
+          <View className="text">分享</View>
+        </Button>
       </View>
       <View className="index_content">
         <ScrollView
@@ -289,6 +376,8 @@ export default function VideoView() {
                 poster={dataInfo?.img}
                 initialTime={0}
                 controls={true}
+                onPlay={startPlay}
+                onPause={stopPlay}
                 showPlayBtn={true}
                 showFullscreenBtn={false}
                 autoplay={true}

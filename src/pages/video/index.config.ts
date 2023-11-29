@@ -1,3 +1,4 @@
 export default definePageConfig({
-  navigationBarTitleText: "",
+  navigationBarTitleText: "小程序",
+  enableShareAppMessage: true,
 });

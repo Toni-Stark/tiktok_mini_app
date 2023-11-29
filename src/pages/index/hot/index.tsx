@@ -3,18 +3,16 @@ import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../static/icon/left.png";
-import card from "../../../static/source/info.png";
 import top from "../../../static/icon/top.png";
 import { getIndexHot } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
+import { HeaderView } from "@/components/headerView";
 
 export default function Hot() {
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     screenWidth: 0,
     screenHeight: 0,
     more: false,
@@ -25,7 +23,6 @@ export default function Hot() {
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
-  const [btnList, setBtnList] = useState([]);
   const [dataList, setDataList] = useState([]);
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
@@ -36,13 +33,12 @@ export default function Hot() {
     _option.title = params.title;
     _option.type = params.type;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    _option.barHeight = rect.height;
-    _option.statusBarHeight = rect.top;
+    _option.barHeight = rect.top;
+    _option.statusBarHeight = rect.height;
     Taro.getSystemInfo({
       success: (res) => {
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
       },
     });
 
@@ -90,21 +86,11 @@ export default function Hot() {
   };
   return (
     <View className="index">
-      <View
-        className="index_header"
-        style={{
-          marginTop: option.statusBarHeight + "Px",
-          height: option.barHeight + "Px",
-        }}
-      >
-        <Image
-          mode="widthFix"
-          className="index_header_img"
-          src={left}
-          onClick={naviBack}
-        />
-        <View className="index_header_text">热播新剧</View>
-      </View>
+      <HeaderView
+        barHeight={option.barHeight}
+        height={option.statusBarHeight}
+        text="热播新剧"
+      />
       <View className="index_zone">
         <ScrollView
           className="index_zone_view"
@@ -132,7 +118,7 @@ export default function Hot() {
                       naviToVideo(item.id);
                     }}
                   >
-                    <Image src={card} className="navi-data-item-img" />
+                    <Image src={item.img} className="navi-data-item-img" />
                     <View className="navi-data-item-view">
                       <View className="navi-data-item-view-content">
                         <View className="navi-data-item-view-content-main">
