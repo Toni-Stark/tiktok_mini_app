@@ -59,10 +59,10 @@ export default function Wallet() {
         <View className="index_content_icon">
           <View className="index_content_icon_text">
             <View className="text_main">
-              <View className="text_main_title">蚂蚁券余额</View>
+              <View className="text_main_title">积分余额</View>
               <View className="text_main_eval">
                 {info?.score}
-                <View className="text_main_eval_text">蚂蚁券</View>
+                <View className="text_main_eval_text">积分</View>
               </View>
             </View>
             <View className="text_main">
@@ -78,7 +78,7 @@ export default function Wallet() {
           </View>
         </View>
         <View className="index_content_bug">
-          <View className="title">蚂蚁豆余额</View>
+          <View className="title">余额</View>
           <View className="value">0.00</View>
         </View>
         <View className="index_content_list">

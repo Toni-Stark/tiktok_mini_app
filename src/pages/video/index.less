@@ -30,53 +30,6 @@
       }
     }
   }
-  &_content {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    &_view {
-      height: 100%;
-      .before {
-        background: green;
-        height: 100vh;
-        width: 100%;
-        &_image {
-          height: 100%;
-          width: 100%;
-        }
-      }
-      .after {
-        background: orange;
-        height: 100vh;
-        width: 100%;
-        &_image {
-          height: 100%;
-          width: 100%;
-        }
-      }
-      .center {
-        width: 100%;
-        height: 100vh;
-        flex-direction: column;
-        display: flex;
-        padding-top: 2Px;
-        &_video {
-          display: flex;
-          flex: 1;
-          background: #282b32;
-          &_large {
-            width: 100%;
-            height: 100%;
-          }
-        }
-        &_footer {
-          height: 73Px;
-        }
-      }
-    }
-  }
   &_footer {
     position: fixed;
     bottom: 26Px;
@@ -236,4 +189,52 @@
 }
 .at-float-layout__container {
   background: #272a33;
+}
+
+.mova {
+  width: 100%;
+  height: 100vh;
+  &-view {
+    width: 100%;
+    height: 300vh;
+    background: linear-gradient(to bottom, #a829e8, #3c6fef, #a829e8, #3c6fef, #a829e8, #3c6fef, #a829e8, #3c6fef, #a829e8, #3c6fef);
+    .before {
+      background: green;
+      height: 100vh;
+      width: 100%;
+      &_image {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .after {
+      background: orange;
+      height: 100vh;
+      width: 100%;
+      &_image {
+        height: 100%;
+        width: 100%;
+      }
+    }
+    .center {
+      width: 100%;
+      height: 100vh;
+      flex-direction: column;
+      display: flex;
+      padding-top: 2Px;
+      &_video {
+        display: flex;
+        flex: 1;
+        background: #282b32;
+        &_large {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      &_footer {
+        height: 73Px;
+        background: #282b32;
+      }
+    }
+  }
 }

@@ -3,8 +3,6 @@ import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
-import left from "../../../../static/icon/left.png";
-import image from "../../../../static/icon/dou.png";
 import wxPay from "../../../../static/icon/wx_pay.png";
 import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
@@ -32,11 +30,11 @@ export default function Search() {
       icon: wxPay,
       checked: 1,
     },
-    {
-      title: "蚂蚁豆支付",
-      icon: image,
-      checked: 2,
-    },
+    // {
+    //   title: "蚂蚁豆支付",
+    //   icon: image,
+    //   checked: 2,
+    // },
   ]);
   const [inList, setInList] = useState([]);
   const [info, setInfo] = useState(undefined);
@@ -111,10 +109,10 @@ export default function Search() {
         <View className="index_content_icon">
           <View className="index_content_icon_text">
             <View className="text_main">
-              <View className="text_main_title">蚂蚁券余额</View>
+              <View className="text_main_title">积分</View>
               <View className="text_main_eval">
                 {info?.score}
-                <View className="text_main_eval_text">蚂蚁券</View>
+                {/*<View className="text_main_eval_text">蚂蚁券</View>*/}
               </View>
             </View>
             <View className="text_main">

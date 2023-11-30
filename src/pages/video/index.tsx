@@ -2,7 +2,6 @@ import {
   View,
   Image,
   Video,
-  ScrollView,
   Button,
   MovableArea,
   MovableView,
@@ -25,6 +24,7 @@ import down from "../../static/icon/down.png";
 import yuan from "../../static/icon/yuan.png";
 import {
   getMemberShare,
+  getMemberView,
   getVideoFavorite,
   getVideoIndex,
   getVideoPay,
@@ -33,6 +33,8 @@ import {
 import { TShow } from "@/common/common";
 import home from "@/static/icon/home.png";
 
+let timePlay = 0;
+let timerPlay = null;
 export default function VideoView() {
   const pages = Taro.getCurrentPages();
   const router = useRouter();
@@ -48,8 +50,6 @@ export default function VideoView() {
     title: "",
     type: "",
   });
-  const [scrollTop, setScrollTop] = useState(option.screenHeight);
-  const [rBool, setRBool] = useState(false);
   const [dataInfo, setDataInfo] = useState<any>(undefined);
   const [dataList, setDataList] = useState([
     {
@@ -71,15 +71,17 @@ export default function VideoView() {
     page: 1,
     v_id: 1,
   });
+  const [position, setPosition] = useState({
+    y: 0,
+    top: 0,
+  });
   const [currentInfo, setCurrentInfo] = useState(undefined);
   const [allList, setAllList] = useState([]);
   useLoad(() => {
     const params = router.params;
-    const pages = Taro.getCurrentPages();
     getVideoList({ v_id: params.id });
     let _option = option;
-    _option.title = "第一集";
-    _option.type = 3;
+    _option.title = "";
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.height;
     _option.statusBarHeight = rect.top;
@@ -90,7 +92,11 @@ export default function VideoView() {
         _option.videoHeight = res.screenWidth / 0.72;
       },
     });
-    setScrollTop(_option.screenHeight);
+    setPosition({
+      ...position,
+      y: -2 - _option.screenHeight,
+      top: -2 - _option.screenHeight,
+    });
     setOption({ ..._option });
   });
   const getVideoList = (params) => {
@@ -114,9 +120,11 @@ export default function VideoView() {
           resData.push(list[key][i]);
         }
       }
+      let c_id = info.history_sub_id;
+      let index = resData.findIndex((item) => item.id == c_id);
       setBtnList(arr);
       setAllList(resData);
-      setCurrentInfo(resData[0]);
+      setCurrentInfo(resData[index]);
 
       Taro.useShareAppMessage((res) => {
         if (res.from === "button") {
@@ -130,32 +138,14 @@ export default function VideoView() {
     });
   };
 
-  const positionTo = () => {
-    // 获取目标元素的位置信息
-    const query = Taro.createSelectorQuery();
-    query.select("#targetPosition").boundingClientRect();
-    query.exec((res) => {
-      if (res[0].top > 5 || res[0].top < -5) {
-        let keyPosition = rBool ? option.screenHeight : option.screenHeight + 1;
-        Taro.pageScrollTo({
-          scrollTop: keyPosition,
-          duration: 300,
-        });
-        chooseCurVideo(res[0].bottom);
-        setScrollTop(keyPosition);
-        setRBool(!rBool);
-      }
-    });
-  };
-
-  const chooseCurVideo = (bm) => {
+  const chooseCurVideo = (bool) => {
     let curInfo = currentInfo;
     let index = allList.findIndex((item) => item.id === curInfo.id);
-    if (bm < 50) {
+    if (bool) {
       if (index < allList.length - 1) {
         setCurrentInfo(allList[index + 1]);
       }
-    } else if (bm > 50) {
+    } else {
       if (index > 0) {
         setCurrentInfo(allList[index - 1]);
       }
@@ -163,17 +153,30 @@ export default function VideoView() {
     setShow(false);
   };
 
-  const scrollEnd = () => {
-    positionTo();
+  const handleMovableViewStart = (e) => {
+    let val = e.mpEvent.changedTouches[0].clientY;
+    setPosition({
+      ...position,
+      top: val,
+    });
   };
-  let timer = undefined;
-  const scrollIng = (e) => {
-    // clearTimeout(timer);
-    // timer = null;
-    // timer = setTimeout(() => {
-    //   positionTo();
-    // }, 200);
-    // return true;
+  // 处理 MovableView 的移动事件
+  const handleMovableViewEnd = (e) => {
+    let val = e.mpEvent.changedTouches[0].clientY;
+    let page = val - position.top < 0;
+    let num = -2 - option.screenHeight;
+    let bool = num === position.y;
+    if (bool) {
+      num = -1 - option.screenHeight;
+    }
+    chooseCurVideo(page);
+    setTimeout(() => {
+      setPosition({
+        ...position,
+        y: num,
+      });
+    }, 100);
+    stopPlay();
   };
 
   const naviBack = () => {
@@ -270,15 +273,15 @@ export default function VideoView() {
       v_s_id: currentInfo.id,
     }).then((res) => {});
   };
-  let timePlay = 0;
-  let timerPlay = null;
-  const startPlay = () => {
+  const startPlay = async () => {
+    console.log(123);
+    await getVideoUpdate({ v_s_id: currentInfo.id });
     clearInterval(timePlay);
     timerPlay = null;
-    timerPlay = setInterval(() => {
+    timerPlay = setInterval(async () => {
       timePlay += 1;
-      if (timePlay >= 30) {
-        getVideoUpdate({ v_s_id: currentInfo.id });
+      if (timePlay >= 8) {
+        await getMemberView({ v_id: dataInfo.id, v_s_id: currentInfo.id });
         clearInterval(timerPlay);
         timePlay = 1;
       }
@@ -288,7 +291,6 @@ export default function VideoView() {
     clearInterval(timerPlay);
     timerPlay = null;
   };
-
   return (
     <View className="index">
       <View
@@ -361,19 +363,16 @@ export default function VideoView() {
         </Button>
       </View>
       <View className="index_content">
-        {/*<ScrollView*/}
-        {/*  className="index_content_view"*/}
-        {/*  scrollY*/}
-        {/*  showScrollbar={false}*/}
-        {/*  scrollTop={scrollTop}*/}
-        {/*  scrollWithAnimation={false}*/}
-        {/*  disableScroll={true}*/}
-        {/*  enhanced*/}
-        {/*  onScroll={scrollIng}*/}
-        {/*  onTouchEnd={scrollEnd}*/}
-        {/*>*/}
-        <MovableArea>
-          <MovableView direction="vertical" onDragEnd={scrollEnd}>
+        <MovableArea className="mova">
+          <MovableView
+            className="mova-view"
+            direction="vertical"
+            y={position.y}
+            inertia={false}
+            outOfBounds={true}
+            onTouchEnd={handleMovableViewEnd}
+            onTouchStart={handleMovableViewStart}
+          >
             <View className="before">
               <Image className="before_image" src={dataInfo?.img} />
             </View>
@@ -404,7 +403,6 @@ export default function VideoView() {
               <Image className="after_image" src={dataInfo?.img} />
             </View>
           </MovableView>
-          {/*</ScrollView>*/}
         </MovableArea>
       </View>
       <AtFloatLayout isOpened={show} onClose={handleClose}>

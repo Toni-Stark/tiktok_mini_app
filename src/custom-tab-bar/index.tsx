@@ -1,8 +1,7 @@
-import Taro, { useLoad, getCurrentInstance } from "@tarojs/taro";
-import { CoverView, Text, View } from "@tarojs/components";
-import { useEffect, useMemo, useState } from "react";
+import Taro from "@tarojs/taro";
+import { CoverView } from "@tarojs/components";
+import { useState } from "react";
 import "./index.less";
-// import { getCurrentInstance } from "@tarojs/runtime";
 
 export const PageTabBarEnum = {
   Home: 1, // 首页,
@@ -11,7 +10,7 @@ export const PageTabBarEnum = {
   Mine: 4, // 我的
 };
 
-export default function customTabBar(props) {
+export default function customTabBar() {
   const [option] = useState({
     color: "#b2b5bc", // 字体颜色
     selectedColor: "#ffffff", // 激活的字体颜色
@@ -41,58 +40,39 @@ export default function customTabBar(props) {
     },
   ]);
 
-  useEffect(() => {
-    const router = getCurrentInstance().router;
-    let index = tabList.findIndex((item) => {
-      return item.pagePath.indexOf(router.path) >= 0;
-    });
-    if (index >= 0) {
-      Taro.setStorageSync("role", tabList[index].tabbar);
-      setTabList([...tabList]);
-    }
-  }, []);
-
   const switchTab = (tabData) => {
-    const { pagePath, navigateTo, tabbar } = tabData;
-    if (navigateTo) {
-      Taro.navigateTo({
-        url: pagePath,
-      });
-    } else {
-      Taro.switchTab({
-        url: pagePath,
-        success: () => {
-          Taro.setStorageSync("role", tabbar);
-        },
-      });
-    }
+    const { pagePath } = tabData;
+    Taro.switchTab({
+      url: pagePath,
+      success: () => {
+        setTabList(tabList);
+      },
+    });
   };
-  const renderTabs = useMemo(() => {
-    let tabbar = Taro.getStorageSync("role");
-    return (
-      <>
-        {tabList.map((item, index) => {
-          return (
+  return (
+    <CoverView className="custom-tab">
+      {tabList.map((item) => {
+        const pages = Taro.getCurrentPages();
+        console.log(pages[0].__route__);
+        let index = item.pagePath.indexOf(pages[0].__route__);
+        return (
+          <CoverView
+            className="custom-tab-item"
+            onClick={() => switchTab(item)}
+            data-path={item.pagePath}
+            key={item.tabbar}
+          >
             <CoverView
-              className="custom-tab-item"
-              onClick={() => switchTab(item)}
-              data-path={item.pagePath}
-              key={index}
+              className="custom-tab-item-text"
+              style={{
+                color: index >= 0 ? option.selectedColor : option.color,
+              }}
             >
-              <CoverView
-                className="custom-tab-item-text"
-                style={{
-                  color:
-                    tabbar == item.tabbar ? option.selectedColor : option.color,
-                }}
-              >
-                {item.text}
-              </CoverView>
+              {item.text}
             </CoverView>
-          );
-        })}
-      </>
-    );
-  }, [tabList]);
-  return <CoverView className="custom-tab">{renderTabs}</CoverView>;
+          </CoverView>
+        );
+      })}
+    </CoverView>
+  );
 }

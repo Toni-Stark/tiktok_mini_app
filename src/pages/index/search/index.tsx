@@ -19,6 +19,7 @@ export default function Cate() {
     more: false,
     refresh: false,
     p: 1,
+    confirm: false,
   });
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
@@ -61,26 +62,27 @@ export default function Cate() {
     setOption({ ...option, refresh: true });
     getCurrentList({ kw: value, p: 1 });
   };
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
   const getCurrentList = () => {
+    getCurrentSearch({ kw: value, p: 1 });
     if (value?.length > 0) {
       let list = GetStorageSync("kw");
       if (!list) {
         list = [];
       }
+      let info = list?.find((item) => item === value);
+      if (info) {
+        return;
+      }
       list.push(value);
+      list.splice(9, 1);
       SetStorageSync("kw", list);
-      setKwList(list);
+      setKwList([...list]);
     }
-
-    getCurrentSearch({ kw: value, p: 1 });
   };
   const getCurrentSearch = (params) => {
     getIndexSearch(params).then((res) => {
       setDataList(res.data.list);
-      setOption({ ...option, refresh: false, p: params.p });
+      setOption({ ...option, refresh: false, p: params.p, confirm: true });
     });
   };
   const addScrollList = () => {
@@ -88,6 +90,7 @@ export default function Cate() {
   };
   const setInputValue = (e) => {
     setValue(e.detail.value);
+    setOption({ ...option, confirm: false });
   };
   const addSearch = (title) => {
     setValue(title);
@@ -164,7 +167,13 @@ export default function Cate() {
           </View>
         </View>
       );
-    } else if (kwList.length > 0) {
+    } else if (option.confirm) {
+      return (
+        <View className="placeholder">
+          <NoneView />
+        </View>
+      );
+    } else {
       return (
         <View className="history">
           <View className="history-title">历史搜索</View>
@@ -182,14 +191,8 @@ export default function Cate() {
           </View>
         </View>
       );
-    } else {
-      return (
-        <View className="placeholder">
-          <NoneView />
-        </View>
-      );
     }
-  }, [dataList, kwList]);
+  }, [dataList, kwList, value, option]);
   return (
     <View className="index">
       <HeaderView

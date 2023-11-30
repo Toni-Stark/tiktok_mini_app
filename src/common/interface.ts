@@ -61,6 +61,10 @@ export const getPayOrder = async (params) => {
 export const getVideoUpdate = async (params) => {
   return await cloudPost("video/watching", params);
 };
+export const getMemberView = async (params) => {
+  return await cloudPost("member/view", params);
+};
+
 export const getVideoPay = async (params) => {
   return await cloudPost("video/pay", params);
 };

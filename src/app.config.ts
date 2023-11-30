@@ -19,6 +19,7 @@ export default defineAppConfig({
     "pages/hot/index",
     "pages/hot/theater/index",
     "pages/video/index",
+    "pages/placeholder/index",
   ],
   window: {
     navigationStyle: "custom",
@@ -26,8 +27,9 @@ export default defineAppConfig({
     navigationBarTitleText: "WeChat",
     navigationBarTextStyle: "black",
   },
+  // entryPagePath: "pages/placeholder/index",
   tabBar: {
-    custom: true,
+    custom: false,
     list: [
       {
         pagePath: "pages/index/index",
