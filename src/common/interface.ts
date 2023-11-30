@@ -25,6 +25,10 @@ export const getVideoHistory = async (params) => {
 export const getWalletProducts = async (params) => {
   return await cloudPost("wallet/products", params);
 };
+export const getPayHandle = async (params) => {
+  return await cloudPost("pay/handle-order", params);
+};
+
 export const getIndexBanner = async (params) => {
   return await cloudPost("index/banner", params);
 };

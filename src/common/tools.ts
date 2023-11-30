@@ -1,3 +1,5 @@
+import { GetStorageSync } from "@/store/storage";
+
 export const getFormUrl = (paramObj) => {
   var sdata = [];
   for (var attr in paramObj) {

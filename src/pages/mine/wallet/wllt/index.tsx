@@ -33,7 +33,6 @@ export default function Hot() {
     _option.title = params.title;
     _option.id = params.id;
     const rect = Taro.getMenuButtonBoundingClientRect();
-    console.log(rect, "123");
 
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
@@ -130,25 +129,51 @@ export default function Hot() {
                 } else {
                   count = Number(item.after_score) - Number(item.score);
                 }
-                return (
-                  <View className="navi-data-item">
-                    <View className="conte">
-                      <View className="text">
-                        {item.flow_type_desc}：
-                        <View className="coin">{item.score}</View>
+                if (option.id == 1) {
+                  return (
+                    <View className="navi-data-item">
+                      <View className="conte">
+                        <View className="text">
+                          购买：
+                          <View className="coin">
+                            {item.expire_days}
+                            <View className="val">天</View>
+                          </View>
+                        </View>
+                        <View className="time">{item.created_time}</View>
                       </View>
-                      <View className="time">{item.created_time}</View>
+                      <View className="conte">
+                        <View className="text">
+                          赠送：
+                          <View className="coin">
+                            {item.gift_score}
+                            <View className="eva">积分</View>
+                          </View>
+                        </View>
+                      </View>
                     </View>
-                    <View className="share">
-                      <View className="value">
-                        总数：<View className="eval">{count}</View>
+                  );
+                } else {
+                  return (
+                    <View className="navi-data-item">
+                      <View className="conte">
+                        <View className="text">
+                          {item.flow_type_desc}：
+                          <View className="coin">{item.score}</View>
+                        </View>
+                        <View className="time">{item.created_time}</View>
                       </View>
-                      <View className="value">
-                        余额：<View className="eval">{item.type_desc}</View>
+                      <View className="share">
+                        <View className="value">
+                          总数：<View className="eval">{count}</View>
+                        </View>
+                        <View className="value">
+                          备注：<View className="eval">{item.type_desc}</View>
+                        </View>
                       </View>
                     </View>
-                  </View>
-                );
+                  );
+                }
               })}
             </View>
             {dataList?.length > 0 ? (

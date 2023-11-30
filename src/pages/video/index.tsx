@@ -11,7 +11,7 @@ import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
 import "taro-ui/dist/style/components/float-layout.scss";
 import "./index.less";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import left from "../../static/icon/left.png";
 import top from "../../static/icon/z_top.png";
@@ -99,6 +99,12 @@ export default function VideoView() {
     });
     setOption({ ..._option });
   });
+  useEffect(() => {
+    return () => {
+      clearInterval(timerPlay);
+      timerPlay = null;
+    };
+  }, []);
   const getVideoList = (params) => {
     getVideoIndex(params).then((res) => {
       let btnArr: any = [...dataList];
@@ -122,6 +128,9 @@ export default function VideoView() {
       }
       let c_id = info.history_sub_id;
       let index = resData.findIndex((item) => item.id == c_id);
+      if (index <= 0) {
+        index = 0;
+      }
       setBtnList(arr);
       setAllList(resData);
       setCurrentInfo(resData[index]);
@@ -246,10 +255,12 @@ export default function VideoView() {
     let info = allList.find((item) => item.id === val);
     if (!info.is_pay) {
       getVideoPay({ v_s_id: info.id }).then((res) => {
-        if (res.code !== 200) {
-          TShow(res.code);
-        } else if (res.code == 101) {
+        if (res.code == 101) {
           naviToHotOne();
+          return;
+        } else if (res.code !== 200) {
+          TShow(res.code);
+          return;
         }
         TShow("购买成功");
         getVideoList({ v_id: dataInfo.id });
@@ -274,13 +285,12 @@ export default function VideoView() {
     }).then((res) => {});
   };
   const startPlay = async () => {
-    console.log(123);
     await getVideoUpdate({ v_s_id: currentInfo.id });
     clearInterval(timePlay);
     timerPlay = null;
     timerPlay = setInterval(async () => {
       timePlay += 1;
-      if (timePlay >= 8) {
+      if (timePlay >= 15) {
         await getMemberView({ v_id: dataInfo.id, v_s_id: currentInfo.id });
         clearInterval(timerPlay);
         timePlay = 1;
@@ -447,7 +457,7 @@ export default function VideoView() {
                   }}
                   onClick={() => chooseCurrent(item.id)}
                 >
-                  {item.id}
+                  {item.name}
                   {!item?.is_pay ? (
                     <Image className="layout_list_item_img" src={yuan} />
                   ) : null}

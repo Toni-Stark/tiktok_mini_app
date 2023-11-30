@@ -1,4 +1,4 @@
-import { View, ScrollView, Image, Checkbox, Label } from "@tarojs/components";
+import { View, Image } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
@@ -8,6 +8,7 @@ import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
 import {
   getMemberInfo,
+  getPayHandle,
   getPayOrder,
   getWalletProducts,
 } from "@/common/interface";
@@ -30,11 +31,6 @@ export default function Search() {
       icon: wxPay,
       checked: 1,
     },
-    // {
-    //   title: "蚂蚁豆支付",
-    //   icon: image,
-    //   checked: 2,
-    // },
   ]);
   const [inList, setInList] = useState([]);
   const [info, setInfo] = useState(undefined);
@@ -86,16 +82,36 @@ export default function Search() {
           paySign: data.sign,
           success: function (res) {
             TShow("充值成功");
-            getProList();
+            getPayHandle({
+              order_id: data.order_id,
+              prepay_id: data.prepay_id,
+              act: "ok",
+            }).then((result) => {
+              setInfo({
+                ...info,
+                score: result.data.score,
+                expire_days: result.data.times,
+              });
+            });
+            // getProList();
           },
           fail: function (err) {
-            console.log(err);
-            TShow("充值失败");
+            let str = "fail";
+            if (err.errMsg.indexOf("cancel") >= 0) {
+              str = "cancel";
+            }
+            getPayHandle({
+              order_id: data.order_id,
+              prepay_id: data.prepay_id,
+              act: str,
+            }).then((res) => {
+              TShow(res.msg);
+            });
+            return;
           },
         });
       }
     );
-    // Taro.requestPayment({})
   };
   return (
     <View className="index">
@@ -110,10 +126,7 @@ export default function Search() {
           <View className="index_content_icon_text">
             <View className="text_main">
               <View className="text_main_title">积分</View>
-              <View className="text_main_eval">
-                {info?.score}
-                {/*<View className="text_main_eval_text">蚂蚁券</View>*/}
-              </View>
+              <View className="text_main_eval">{info?.score}</View>
             </View>
             <View className="text_main">
               <View className="text_main_title">会员时长</View>
@@ -199,7 +212,7 @@ export default function Search() {
             <View>
               2、未满18周岁未成年需在监护人的指导、同意下，进行充值操作；
             </View>
-            <View>3、赠送为平台同等金额兑换比例的蚂蚁券，不是现金；</View>
+            <View>3、赠送为平台同等金额兑换比例的积分，不是现金；</View>
             <View>4、遇到问题可在“我的”页面联系客服</View>
           </View>
         </View>

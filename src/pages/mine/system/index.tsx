@@ -30,7 +30,7 @@ export default function System() {
       url: "./log_off/index",
     },
     {
-      title: "关于蚂蚁看看 3.0.4",
+      title: "关于小程序",
       url: "./about/index",
     },
   ]);
