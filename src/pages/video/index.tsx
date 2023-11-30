@@ -35,6 +35,8 @@ import home from "@/static/icon/home.png";
 
 let timePlay = 0;
 let timerPlay = null;
+let scrTop = 0;
+let scrTimer = null;
 export default function VideoView() {
   const pages = Taro.getCurrentPages();
   const router = useRouter();
@@ -147,19 +149,23 @@ export default function VideoView() {
     });
   };
 
-  const chooseCurVideo = (bool) => {
+  const chooseCurVideo = (down, up) => {
     let curInfo = currentInfo;
     let index = allList.findIndex((item) => item.id === curInfo.id);
-    if (bool) {
+    let info: any = undefined;
+    if (down) {
       if (index < allList.length - 1) {
-        setCurrentInfo(allList[index + 1]);
+        info = allList[index + 1];
       }
-    } else {
+    } else if (up) {
       if (index > 0) {
-        setCurrentInfo(allList[index - 1]);
+        info = allList[index - 1];
       }
     }
-    setShow(false);
+    if (info?.id && (down || up)) {
+      chooseCurrent(info.id);
+      setShow(false);
+    }
   };
 
   const handleMovableViewStart = (e) => {
@@ -172,13 +178,14 @@ export default function VideoView() {
   // 处理 MovableView 的移动事件
   const handleMovableViewEnd = (e) => {
     let val = e.mpEvent.changedTouches[0].clientY;
-    let page = val - position.top < 0;
+    let down = val - position.top < -60;
+    let up = val - position.top > 70;
     let num = -2 - option.screenHeight;
     let bool = num === position.y;
     if (bool) {
       num = -1 - option.screenHeight;
     }
-    chooseCurVideo(page);
+    chooseCurVideo(down, up);
     setTimeout(() => {
       setPosition({
         ...position,
@@ -253,22 +260,25 @@ export default function VideoView() {
 
   const chooseCurrent = (val) => {
     let info = allList.find((item) => item.id === val);
-    if (!info.is_pay) {
-      getVideoPay({ v_s_id: info.id }).then((res) => {
-        if (res.code == 101) {
-          naviToHotOne();
-          return;
-        } else if (res.code !== 200) {
-          TShow(res.code);
-          return;
-        }
-        TShow("购买成功");
-        getVideoList({ v_id: dataInfo.id });
-      });
-      return;
-    }
     if (info) {
       setCurrentInfo(info);
+    }
+    if (!info.is_pay) {
+      TShow("积分不足，请充值");
+      setTimeout(() => {
+        getVideoPay({ v_s_id: info.id }).then((res) => {
+          if (res.code == 101) {
+            naviToHotOne();
+            return;
+          } else if (res.code !== 200) {
+            TShow(res.code);
+            return;
+          }
+          TShow("购买成功");
+          getVideoList({ v_id: dataInfo.id });
+        });
+      }, 1400);
+      return;
     }
     setShow(false);
     timePlay = 0;
@@ -284,7 +294,7 @@ export default function VideoView() {
       v_s_id: currentInfo.id,
     }).then((res) => {});
   };
-  const startPlay = async () => {
+  const startPlay = async (e) => {
     await getVideoUpdate({ v_s_id: currentInfo.id });
     clearInterval(timePlay);
     timerPlay = null;
@@ -300,6 +310,26 @@ export default function VideoView() {
   const stopPlay = () => {
     clearInterval(timerPlay);
     timerPlay = null;
+  };
+  const onEnded = () => {
+    clearInterval(scrTimer);
+    scrTimer = null;
+    scrTimer = setInterval(() => {
+      let u = 20;
+      if (scrTop < 100) {
+        scrTop += u;
+        setPosition({ ...position, y: position.y - scrTop });
+      } else {
+        clearInterval(scrTimer);
+        scrTimer = null;
+        scrTop = 0;
+        setTimeout(() => {
+          let num = -2 - option.screenHeight;
+          setPosition({ ...position, y: num });
+          chooseCurVideo(true, false);
+        }, 500);
+      }
+    }, 50);
   };
   return (
     <View className="index">
@@ -378,6 +408,8 @@ export default function VideoView() {
             className="mova-view"
             direction="vertical"
             y={position.y}
+            damping={10}
+            friction={2}
             inertia={false}
             outOfBounds={true}
             onTouchEnd={handleMovableViewEnd}
@@ -389,23 +421,28 @@ export default function VideoView() {
             <View id="targetPosition" />
             <View className="center">
               <View className="center_video">
-                <Video
-                  className="center_video_large"
-                  src={currentInfo?.url}
-                  poster={dataInfo?.img}
-                  initialTime={0}
-                  controls={true}
-                  onPlay={startPlay}
-                  onPause={stopPlay}
-                  showPlayBtn={true}
-                  showFullscreenBtn={false}
-                  autoplay={true}
-                  enablePlayGesture={true}
-                  showCenterPlayBtn={true}
-                  playBtnPosition="center"
-                  loop={true}
-                  objectFit="cover"
-                />
+                {currentInfo?.url ? (
+                  <Video
+                    className="center_video_large"
+                    src={currentInfo?.url}
+                    poster={dataInfo?.img}
+                    initialTime={0}
+                    controls={true}
+                    onPlay={startPlay}
+                    onPause={stopPlay}
+                    onEnded={onEnded}
+                    showPlayBtn={true}
+                    showFullscreenBtn={false}
+                    autoplay={true}
+                    enablePlayGesture={true}
+                    showCenterPlayBtn={true}
+                    playBtnPosition="center"
+                    loop={false}
+                    objectFit="cover"
+                  />
+                ) : (
+                  <Image className="center_video_img" src={dataInfo?.img} />
+                )}
               </View>
               <View className="center_footer" />
             </View>

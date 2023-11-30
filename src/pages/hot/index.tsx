@@ -552,7 +552,7 @@ export default function Hot() {
           <Image className="scroll_top_img" src={top} />
         </View>
       </View>
-      {/*<View className="index_footer" />*/}
+      <View className="index_footer" />
     </View>
   );
 }

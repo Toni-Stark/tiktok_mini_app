@@ -27,7 +27,7 @@ export default defineAppConfig({
     navigationBarTextStyle: "black",
   },
   tabBar: {
-    custom: false,
+    custom: true,
     list: [
       {
         pagePath: "pages/index/index",
