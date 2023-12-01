@@ -15,6 +15,7 @@ import {
   getIndexNews,
   getIndexPopular,
   getIndexRecommend,
+  getIndexRecommendList,
 } from "@/common/interface";
 import { Loading } from "@/components/loading";
 export default function Index() {
@@ -67,6 +68,15 @@ export default function Index() {
         setLoading1(true);
       }, 300);
     });
+    // getIndexRecommendList().then((res)=>{
+    //   setRecommend(res.data);
+    //   if (res.data.length > 0) {
+    //     setHeaderVideo(res.data[0]);
+    //   }
+    //   setTimeout(() => {
+    //     setLoading1(true);
+    //   }, 300);
+    // })
   });
   useDidShow(() => {
     getIndexClassifyList().then((res) => {

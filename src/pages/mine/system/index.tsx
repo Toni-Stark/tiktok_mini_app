@@ -19,20 +19,20 @@ export default function System() {
   const [dataList, setDataList] = useState([
     {
       title: "服务协议",
-      url: "./service /index",
+      url: "./user/index",
     },
     {
       title: "隐私协议",
-      url: "./privacy/index",
+      url: "./pro/index",
     },
-    {
-      title: "注销账号",
-      url: "./log_off/index",
-    },
-    {
-      title: "关于小程序",
-      url: "./about/index",
-    },
+    // {
+    //   title: "注销账号",
+    //   url: "./log_off/index",
+    // },
+    // {
+    //   title: "关于小程序",
+    //   url: "./about/index",
+    // },
   ]);
 
   useLoad(() => {
@@ -65,7 +65,14 @@ export default function System() {
         <View className="index_content_card">
           {dataList.map((item) => {
             return (
-              <View className="index_content_card_item">
+              <View
+                className="index_content_card_item"
+                onClick={() => {
+                  Taro.navigateTo({
+                    url: item.url,
+                  });
+                }}
+              >
                 {item.title}
                 <Image className="index_content_card_item_image" src={right} />
               </View>

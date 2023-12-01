@@ -9,6 +9,7 @@ import { getIndexSearch } from "@/common/interface";
 import { GetStorageSync, SetStorageSync } from "@/store/storage";
 import { NoneView } from "@/components/noneView";
 import { HeaderView } from "@/components/headerView";
+import { Loading } from "@/components/loading";
 
 export default function Cate() {
   const [option, setOption] = useState({
@@ -21,6 +22,7 @@ export default function Cate() {
     p: 1,
     confirm: false,
   });
+  const [loading, setLoading] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [dataList, setDataList] = useState([]);
@@ -63,6 +65,7 @@ export default function Cate() {
     getCurrentList({ kw: value, p: 1 });
   };
   const getCurrentList = () => {
+    setLoading(true);
     getCurrentSearch({ kw: value, p: 1 });
     if (value?.length > 0) {
       let list = GetStorageSync("kw");
@@ -73,8 +76,8 @@ export default function Cate() {
       if (info) {
         return;
       }
-      list.push(value);
-      list.splice(9, 1);
+      list = [value, ...list];
+      list.splice(10, 1);
       SetStorageSync("kw", list);
       setKwList([...list]);
     }
@@ -82,7 +85,10 @@ export default function Cate() {
   const getCurrentSearch = (params) => {
     getIndexSearch(params).then((res) => {
       setDataList(res.data.list);
-      setOption({ ...option, refresh: false, p: params.p, confirm: true });
+      setTimeout(() => {
+        setLoading(false);
+        setOption({ ...option, refresh: false, p: params.p, confirm: true });
+      }, 500);
     });
   };
   const addScrollList = () => {
@@ -101,6 +107,13 @@ export default function Cate() {
     });
   };
   const currentContext = useMemo(() => {
+    if (loading) {
+      return (
+        <View className="loading_pla">
+          <Loading size={60} />
+        </View>
+      );
+    }
     if (dataList.length > 0) {
       return (
         <View className="index_zone">
@@ -173,7 +186,7 @@ export default function Cate() {
           <NoneView />
         </View>
       );
-    } else {
+    } else if (kwList.length > 0) {
       return (
         <View className="history">
           <View className="history-title">历史搜索</View>
@@ -192,7 +205,7 @@ export default function Cate() {
         </View>
       );
     }
-  }, [dataList, kwList, value, option]);
+  }, [dataList, kwList, value, option, loading]);
   return (
     <View className="index">
       <HeaderView

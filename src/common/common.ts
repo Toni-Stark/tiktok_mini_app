@@ -1,13 +1,13 @@
 import Taro from "@tarojs/taro";
-import { Config } from "@/store/config";
 import {
   GetStorageSync,
   RemoveStorageSync,
   SetStorageSync,
 } from "@/store/storage";
+import { env } from "@/store/config";
 
-const checkLoginUrl = Config.baseUri + "member/check-login";
-const loginUrl = Config.baseUri + "member/login";
+const checkLoginUrl = env.BASE_URL + "member/check-login";
+const loginUrl = env.BASE_URL + "member/login";
 
 export const getCheckLogin = () => {
   return new Promise((resolve, reject) => {

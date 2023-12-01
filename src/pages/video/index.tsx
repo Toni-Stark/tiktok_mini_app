@@ -356,7 +356,9 @@ export default function VideoView() {
               onClick={naviHome}
             />
           )}
-          <View className="index_header_view_text">{currentInfo?.name}</View>
+          <View className="index_header_view_text">
+            第{currentInfo?.name}集
+          </View>
         </View>
       </View>
       <View className="index_footer" onClick={openLayout}>

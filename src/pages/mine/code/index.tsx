@@ -39,30 +39,30 @@ export default function Code() {
       start_color: "#ececec",
       end_color: "#ababab",
     },
-    {
-      title: "普通剧推官",
-      status: "未达成",
-      status_desc: "尚未达到升级条件",
-      main: "可享受邀请会员消费15%的奖励",
-      count: 3,
-      num: 0,
-      icon: two,
-      color: "#7289b5",
-      start_color: "#eff0f2",
-      end_color: "#cbdaef",
-    },
-    {
-      title: "金牌剧推官",
-      status: "未达成",
-      status_desc: "尚未达到升级条件",
-      main: "可享受邀请会员消费20%的奖励",
-      count: 100,
-      num: 0,
-      icon: three,
-      color: "#ff7d01",
-      start_color: "#ffe8d6",
-      end_color: "#ffb167",
-    },
+    // {
+    //   title: "普通剧推官",
+    //   status: "未达成",
+    //   status_desc: "尚未达到升级条件",
+    //   main: "可享受邀请会员消费15%的奖励",
+    //   count: 3,
+    //   num: 0,
+    //   icon: two,
+    //   color: "#7289b5",
+    //   start_color: "#eff0f2",
+    //   end_color: "#cbdaef",
+    // },
+    // {
+    //   title: "金牌剧推官",
+    //   status: "未达成",
+    //   status_desc: "尚未达到升级条件",
+    //   main: "可享受邀请会员消费20%的奖励",
+    //   count: 100,
+    //   num: 0,
+    //   icon: three,
+    //   color: "#ff7d01",
+    //   start_color: "#ffe8d6",
+    //   end_color: "#ffb167",
+    // },
   ]);
   useLoad(() => {
     let _option = option;
@@ -144,9 +144,11 @@ export default function Code() {
             indicatorColor="#999"
             indicatorActiveColor="#333"
             circular
-            autoplay
-            previousMargin="15px"
-            nextMargin="15px"
+            // autoplay
+            current={0}
+            disableTouch={true}
+            previousMargin="10px"
+            nextMargin="10px"
           >
             {list.map((res) => {
               let item: any = res;
@@ -219,23 +221,23 @@ export default function Code() {
             </View>
           </View>
         </View>
-        <View className="index_content_desc">
-          <View className="title">剧推官权益说明</View>
-          <View className="desc">
-            <View>
-              1、用户等级分为普通会员、普通剧推官、金牌剧推官、钻石剧推官四个等级，注册登录后自动成为普通会员；
-            </View>
-            <View>
-              2、分享剧推码给好友，好友扫码下载APP并注册后，即成功邀请好友，达到一定数量等级将自动升级；
-            </View>
-            <View>
-              3、被邀请人在平台消费，你将获得一定奖励，不同等级剧推官获得奖励不同，等级越高奖励越多。
-            </View>
-            <View>普通剧推官：邀请3-99人</View>
-            <View>金牌剧推官：邀请100人</View>
-            <View>钻石剧推官：邀请500人</View>
-          </View>
-        </View>
+        {/*<View className="index_content_desc">*/}
+        {/*  <View className="title">剧推官权益说明</View>*/}
+        {/*  <View className="desc">*/}
+        {/*    <View>*/}
+        {/*      1、用户等级分为普通会员、普通剧推官、金牌剧推官、钻石剧推官四个等级，注册登录后自动成为普通会员；*/}
+        {/*    </View>*/}
+        {/*    <View>*/}
+        {/*      2、分享剧推码给好友，好友扫码下载APP并注册后，即成功邀请好友，达到一定数量等级将自动升级；*/}
+        {/*    </View>*/}
+        {/*    <View>*/}
+        {/*      3、被邀请人在平台消费，你将获得一定奖励，不同等级剧推官获得奖励不同，等级越高奖励越多。*/}
+        {/*    </View>*/}
+        {/*    <View>普通剧推官：邀请3-99人</View>*/}
+        {/*    <View>金牌剧推官：邀请100人</View>*/}
+        {/*    <View>钻石剧推官：邀请500人</View>*/}
+        {/*  </View>*/}
+        {/*</View>*/}
       </View>
     </View>
   );

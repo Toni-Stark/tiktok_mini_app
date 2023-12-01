@@ -4,6 +4,9 @@ import { cloudPost } from "@/store/request";
 export const getIndexRecommend = async (params) => {
   return await cloudPost("index/recommend", params);
 };
+export const getIndexRecommendList = async (params) => {
+  return await cloudPost("index/recommend-list", params);
+};
 export const getIndexClassify = async (params) => {
   return await cloudPost("index/classify", params);
 };

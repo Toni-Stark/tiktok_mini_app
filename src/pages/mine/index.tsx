@@ -115,6 +115,12 @@ export default function Mine() {
       }
     });
   };
+  const naviToWllt = () => {
+    let val = "./wallet/wllt/index?id=" + 2 + "&title=积分记录";
+    Taro.navigateTo({
+      url: val,
+    });
+  };
   return (
     <View className="index">
       <View className="index_body">
@@ -160,7 +166,10 @@ export default function Mine() {
                 </View>
               </View>
               <View className="content-wel-mon-people">
-                <View className="content-wel-mon-people-value">
+                <View
+                  className="content-wel-mon-people-value"
+                  onClick={naviToWllt}
+                >
                   {option.score}
                   <View className="content-wel-mon-coin-content-value-text">
                     积分

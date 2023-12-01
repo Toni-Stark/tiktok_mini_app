@@ -92,6 +92,7 @@ export default function Search() {
                 score: result.data.score,
                 expire_days: result.data.times,
               });
+              Taro.navigateBack();
             });
             // getProList();
           },

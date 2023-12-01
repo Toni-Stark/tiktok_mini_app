@@ -19,9 +19,12 @@ export default defineAppConfig({
     "pages/hot/index",
     "pages/hot/theater/index",
     "pages/video/index",
+    "pages/mine/system/user/index",
+    "pages/mine/system/pro/index",
   ],
   window: {
     navigationStyle: "custom",
+    navigationBarBackgroundColor: "#ffffff",
     backgroundTextStyle: "light",
     navigationBarTitleText: "WeChat",
     navigationBarTextStyle: "black",

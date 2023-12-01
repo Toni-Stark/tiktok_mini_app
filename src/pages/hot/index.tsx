@@ -20,6 +20,7 @@ import {
 } from "@/common/interface";
 import { HeaderView } from "@/components/headerView";
 import { NoneView } from "@/components/noneView";
+import { Loading } from "@/components/loading";
 
 export default function Hot() {
   const [option, setOption] = useState({
@@ -168,35 +169,42 @@ export default function Hot() {
           })}
           <View className="button-pad" />
         </View>
-        <View className="navi-data">
-          {currentData?.map((item) => {
-            return (
-              <View
-                className="navi-data-item"
-                onClick={() => {
-                  naviToVideo(item.id);
-                }}
-              >
-                <Image src={item.img} className="navi-data-item-img" />
-                <View className="navi-data-item-view">
-                  <View className="navi-data-item-view-content">
-                    <View className="navi-data-item-view-content-main">
-                      {item.name}
+        {loading ? (
+          <View className="navi-data">
+            {currentData?.map((item) => {
+              return (
+                <View
+                  className="navi-data-item"
+                  onClick={() => {
+                    naviToVideo(item.id);
+                  }}
+                >
+                  <Image src={item.img} className="navi-data-item-img" />
+                  <View className="navi-data-item-view">
+                    <View className="navi-data-item-view-content">
+                      <View className="navi-data-item-view-content-main">
+                        {item.name}
+                      </View>
+                      <View className="navi-data-item-view-content-eval">
+                        {item.describe}
+                      </View>
                     </View>
-                    <View className="navi-data-item-view-content-eval">
-                      {item.describe}
+                    <View className="navi-data-item-view-eval">
+                      <View>{item.watching}人正在看</View>
+                      <View>更新至第{item.updated_eps}集</View>
                     </View>
-                  </View>
-                  <View className="navi-data-item-view-eval">
-                    <View>{item.watching}人正在看</View>
-                    <View>更新至第{item.updated_eps}集</View>
                   </View>
                 </View>
-              </View>
-            );
-          })}
-        </View>
-        {currentData?.length <= 0 ? (
+              );
+            })}
+          </View>
+        ) : (
+          <View className="loading_pla">
+            <Loading size={60} />
+          </View>
+        )}
+
+        {currentData?.length && loading <= 0 ? (
           <View
             style={{
               height: "50Vh",
@@ -235,311 +243,6 @@ export default function Hot() {
           <View id="top" />
           <View className="index_zone_view_content">
             {currentSwiper}
-            {/*<View className="navi-list">*/}
-            {/*  <View className="button-pad" />*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(0)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(1)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(2)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(3)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(4)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="navi-list-item" onClick={() => naviToTheater(5)}>*/}
-            {/*    <Image*/}
-            {/*      mode="widthFix"*/}
-            {/*      src={naviBar}*/}
-            {/*      className="navi-list-item-img"*/}
-            {/*    />*/}
-            {/*    <Text className="navi-list-item-text">真得鹿剧场</Text>*/}
-            {/*  </View>*/}
-            {/*  <View className="button-pad" />*/}
-            {/*</View>*/}
-            {/*<View className="hot-res">*/}
-            {/*  <View className="hot-res-title">热门推荐</View>*/}
-            {/*  <View className="hot-res-swiper">*/}
-            {/*    <Swiper*/}
-            {/*      className="hot-res-swiper-data"*/}
-            {/*      indicatorColor="#999"*/}
-            {/*      indicatorActiveColor="#333"*/}
-            {/*      circular*/}
-            {/*      nextMargin="80px"*/}
-            {/*    >*/}
-            {/*      <SwiperItem className="swiper-items">*/}
-            {/*        <View className="card">*/}
-            {/*          <View className="card-title">*/}
-            {/*            男频热推*/}
-            {/*            <View*/}
-            {/*              className="card-title-catch"*/}
-            {/*              onClick={() => {*/}
-            {/*                naviToCateOne(2, "男频热推");*/}
-            {/*              }}*/}
-            {/*            >*/}
-            {/*              查看全部*/}
-            {/*              <Image*/}
-            {/*                mode="widthFix"*/}
-            {/*                className="card-title-catch-img"*/}
-            {/*                src={right}*/}
-            {/*              />*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*        </View>*/}
-            {/*      </SwiperItem>*/}
-            {/*      <SwiperItem className="swiper-items">*/}
-            {/*        <View className="card">*/}
-            {/*          <View className="card-title">*/}
-            {/*            古装精品*/}
-            {/*            <View*/}
-            {/*              className="card-title-catch"*/}
-            {/*              onClick={() => {*/}
-            {/*                naviToCateOne(2, "古装精品");*/}
-            {/*              }}*/}
-            {/*            >*/}
-            {/*              查看全部*/}
-            {/*              <Image*/}
-            {/*                mode="widthFix"*/}
-            {/*                className="card-title-catch-img"*/}
-            {/*                src={right}*/}
-            {/*              />*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*        </View>*/}
-            {/*      </SwiperItem>*/}
-            {/*      <SwiperItem className="swiper-items">*/}
-            {/*        <View className="card">*/}
-            {/*          <View className="card-title">*/}
-            {/*            现代都市*/}
-            {/*            <View*/}
-            {/*              className="card-title-catch"*/}
-            {/*              onClick={() => {*/}
-            {/*                naviToCateOne(2, "现代都市");*/}
-            {/*              }}*/}
-            {/*            >*/}
-            {/*              查看全部*/}
-            {/*              <Image*/}
-            {/*                mode="widthFix"*/}
-            {/*                className="card-title-catch-img"*/}
-            {/*                src={right}*/}
-            {/*              />*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*          <View className="card-item">*/}
-            {/*            <Image*/}
-            {/*              mode="widthFix"*/}
-            {/*              src={card}*/}
-            {/*              className="card-item-img"*/}
-            {/*            />*/}
-            {/*            <View className="card-item-view">*/}
-            {/*              <View className="card-item-view-content">*/}
-            {/*                <View className="card-item-view-content-main">*/}
-            {/*                  替身的诱惑*/}
-            {/*                </View>*/}
-            {/*                <View className="card-item-view-content-eval">*/}
-            {/*                  互换身份身陷阴谋*/}
-            {/*                </View>*/}
-            {/*              </View>*/}
-            {/*              <View className="card-item-view-eval">*/}
-            {/*                316人正在看 更新至第78集*/}
-            {/*              </View>*/}
-            {/*            </View>*/}
-            {/*          </View>*/}
-            {/*        </View>*/}
-            {/*      </SwiperItem>*/}
-            {/*    </Swiper>*/}
-            {/*  </View>*/}
-            {/*</View>*/}
             {currentContent}
           </View>
           <View className=".button-pad" />

@@ -1,9 +1,8 @@
 import Taro from "@tarojs/taro";
-import { Config } from "@/store/config";
 import { GetStorageSync, SetStorage, SetStorageSync } from "@/store/storage";
 import { getCheckLogin } from "@/common/common";
 import { getFormUrl } from "@/common/tools";
-
+import { env } from "@/store/config";
 let isRefreshing = false;
 let requests = [];
 let ajaxtimes = 0;
@@ -12,7 +11,7 @@ function cloudRequest(paramsList) {
   let header = {};
   let storageToken = GetStorageSync("token");
   ajaxtimes++;
-  params.url = Config.baseUri + params.url;
+  params.url = env.BASE_URL + params.url;
   if (!params.data) params.data = {};
   if (!params.header) params.header = header;
   if (params.data.token) {
