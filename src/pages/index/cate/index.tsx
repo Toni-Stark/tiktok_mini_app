@@ -8,6 +8,7 @@ import { AtButton } from "taro-ui";
 import { getIndexClassify, getIndexClassifyList } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
 import { HeaderView } from "@/components/headerView";
+import { Loading } from "@/components/loading";
 
 export default function Search() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Search() {
     type: "",
     p: 1,
   });
+  const [loading, setLoading] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [btnList, setBtnList] = useState([]);
@@ -33,8 +35,8 @@ export default function Search() {
   useLoad(() => {
     const params = router.params;
     let _option = option;
-    _option.title = params.title;
-    _option.type = params.type;
+    _option.title = params?.title;
+    _option.type = params?.type;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
@@ -44,7 +46,6 @@ export default function Search() {
         _option.screenHeight = res.screenHeight;
       },
     });
-
     setOption({ ..._option });
     getIndexClassList();
   });
@@ -67,6 +68,9 @@ export default function Search() {
       }
       setDataList(list);
       setOption({ ...option, active: id, p, refresh: false });
+      setTimeout(() => {
+        setLoading(true);
+      }, 500);
     });
   };
   const setActive = (id) => {
@@ -97,7 +101,7 @@ export default function Search() {
       <HeaderView
         barHeight={option.barHeight}
         height={option.statusBarHeight}
-        text="更多分类"
+        text={option?.title || "更多分类"}
       />
       {option.type == "1" ? (
         <View className="index_buttons">
@@ -137,56 +141,62 @@ export default function Search() {
           onScroll={onScroll}
         >
           <View id="top" />
-          <View className="index_zone_view_content">
-            <View className="navi-data">
-              {dataList.map((item) => {
-                return (
-                  <View
-                    className="navi-data-item"
-                    onClick={() => {
-                      naviToVideo(item.id);
-                    }}
-                  >
-                    <Image src={item.img} className="navi-data-item-img" />
-                    <View className="navi-data-item-view">
-                      <View className="navi-data-item-view-content">
-                        <View className="navi-data-item-view-content-main">
-                          {item.name}
+          {loading ? (
+            <View className="index_zone_view_content">
+              <View className="navi-data">
+                {dataList.map((item) => {
+                  return (
+                    <View
+                      className="navi-data-item"
+                      onClick={() => {
+                        naviToVideo(item.id);
+                      }}
+                    >
+                      <Image src={item.img} className="navi-data-item-img" />
+                      <View className="navi-data-item-view">
+                        <View className="navi-data-item-view-content">
+                          <View className="navi-data-item-view-content-main">
+                            {item.name}
+                          </View>
+                          <View className="navi-data-item-view-content-eval">
+                            {item.describe}
+                          </View>
                         </View>
-                        <View className="navi-data-item-view-content-eval">
-                          {item.describe}
+                        <View className="navi-data-item-view-eval">
+                          <View>{item.watching}人正在看</View>
+                          <View>更新至第{item.episode}集</View>
                         </View>
-                      </View>
-                      <View className="navi-data-item-view-eval">
-                        <View>{item.watching}人正在看</View>
-                        <View>更新至第{item.episode}集</View>
                       </View>
                     </View>
-                  </View>
-                );
-              })}
+                  );
+                })}
+              </View>
+              {dataList.length > 0 ? (
+                <View className="index-footer">
+                  {option.more ? (
+                    <View className="index-footer-view">加载中...</View>
+                  ) : (
+                    <View className="index-footer-view">暂无更多</View>
+                  )}
+                </View>
+              ) : (
+                <View
+                  style={{
+                    height: "35Vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <NoneView />
+                </View>
+              )}
             </View>
-            {dataList.length > 0 ? (
-              <View className="index-footer">
-                {option.more ? (
-                  <View className="index-footer-view">加载中...</View>
-                ) : (
-                  <View className="index-footer-view">暂无更多</View>
-                )}
-              </View>
-            ) : (
-              <View
-                style={{
-                  height: "35Vh",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <NoneView />
-              </View>
-            )}
-          </View>
+          ) : (
+            <View className="loading_pla">
+              <Loading size={80} />
+            </View>
+          )}
         </ScrollView>
         <View
           className="scroll_top"

@@ -81,3 +81,6 @@ export const TShow = (text, icon = "none", duration = 1500) => {
     });
   });
 };
+export const THide = () => {
+  Taro.hideLoading();
+};

@@ -6,7 +6,7 @@ import {
   MovableArea,
   MovableView,
 } from "@tarojs/components";
-import Taro, { useLoad, useRouter } from "@tarojs/taro";
+import Taro, { useDidShow, useLoad, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
 import "taro-ui/dist/style/components/loading.scss";
 import "taro-ui/dist/style/components/float-layout.scss";
@@ -30,7 +30,7 @@ import {
   getVideoPay,
   getVideoUpdate,
 } from "@/common/interface";
-import { TShow } from "@/common/common";
+import { THide, TShow } from "@/common/common";
 import home from "@/static/icon/home.png";
 
 let timePlay = 0;
@@ -70,8 +70,13 @@ export default function VideoView() {
   const [show, setShow] = useState(false);
   const [btnList, setBtnList] = useState([]);
   const [current, setCurrent] = useState({
-    page: 1,
+    page: 0,
     v_id: 1,
+    b_list: [],
+  });
+  const [posInfo, setPosInfo] = useState({
+    f_id: "",
+    l_id: "",
   });
   const [position, setPosition] = useState({
     y: 0,
@@ -79,7 +84,8 @@ export default function VideoView() {
   });
   const [currentInfo, setCurrentInfo] = useState(undefined);
   const [allList, setAllList] = useState([]);
-  useLoad(() => {
+
+  useDidShow(() => {
     const params = router.params;
     getVideoList({ v_id: params.id });
     let _option = option;
@@ -111,6 +117,24 @@ export default function VideoView() {
     getVideoIndex(params).then((res) => {
       let btnArr: any = [...dataList];
       const { info, list } = res.data;
+      // let list = {
+      //   "1-4": [
+      //     { id: "24", name: "1", video_id: "1" },
+      //     { id: "25", name: "2", video_id: "2" },
+      //     { id: "21", name: "3", video_id: "3" },
+      //   ],
+      //   "1-5": [
+      //     { id: "29", name: "4", video_id: "4" },
+      //     { id: "26", name: "5", video_id: "5" },
+      //     { id: "22", name: "6", video_id: "6" },
+      //   ],
+      //   "1-6": [
+      //     { id: "28", name: "7", video_id: "7" },
+      //     { id: "27", name: "8", video_id: "8" },
+      //     { id: "20", name: "9", video_id: "9" },
+      //   ],
+      // };
+
       btnArr[0].value = info.like;
       btnArr[1].value = info.collect;
       btnArr[0].check = info?.is_liked ? 2 : 1;
@@ -120,22 +144,31 @@ export default function VideoView() {
       let arr = [];
       let resData = [];
       for (let key in list) {
+        let c_id = params?.current || info?.history_sub_id || list[key][0].id;
         arr.push({
           title: key,
-          id: arr.length + 1,
+          list: list[key],
         });
         for (let i in list[key]) {
-          resData.push(list[key][i]);
+          let v_info = list[key][i];
+          resData.push(v_info);
+          if (c_id == v_info.id) {
+            setCurrentInfo(v_info);
+            setCurrent({
+              ...current,
+              b_list: list[key],
+              page: key,
+              v_id: v_info.id,
+            });
+          }
         }
       }
-      let c_id = info.history_sub_id;
-      let index = resData.findIndex((item) => item.id == c_id);
-      if (index <= 0) {
-        index = 0;
-      }
+      setPosInfo({
+        f_id: resData[0].id,
+        l_id: resData[resData.length - 1].id,
+      });
       setBtnList(arr);
       setAllList(resData);
-      setCurrentInfo(resData[index]);
 
       Taro.useShareAppMessage((res) => {
         if (res.from === "button") {
@@ -225,16 +258,8 @@ export default function VideoView() {
     }).then((res) => {});
   };
   const openLayout = () => {
-    let list = [];
-    let info = btnList.find((item) => item.id === current.page);
-    let key = info.title.split("-");
-    for (let i = key[0]; i <= key[1]; i++) {
-      list.push({
-        val: i,
-        imp: i > 10 ? 1 : 0,
-      });
-    }
-    setCurrent({ ...current, data: list });
+    let info = btnList.find((item) => item.title === current.page);
+    setCurrent({ ...current, b_list: info.list });
     setShow(true);
   };
   const handleClose = () => {
@@ -242,15 +267,8 @@ export default function VideoView() {
   };
   const currentListInfo = (id) => {
     let list = [];
-    let info = btnList.find((item) => item.id === id);
-    let key = info.title.split("-");
-    for (let i = key[0]; i <= key[1]; i++) {
-      list.push({
-        val: i,
-        imp: i > 10 ? 1 : 0,
-      });
-    }
-    setCurrent({ ...current, page: id, data: list });
+    let info = btnList.find((item) => item.title === id);
+    setCurrent({ ...current, b_list: info.list, page: id, data: list });
   };
   const naviToHotOne = () => {
     Taro.navigateTo({
@@ -262,20 +280,23 @@ export default function VideoView() {
     let info = allList.find((item) => item.id === val);
     if (info) {
       setCurrentInfo(info);
+      setCurrent({ ...current, v_id: info.id });
     }
     if (!info.is_pay) {
-      TShow("积分不足，请充值");
+      TShow("解锁中", "loading", 2000);
       setTimeout(() => {
         getVideoPay({ v_s_id: info.id }).then((res) => {
           if (res.code == 101) {
             naviToHotOne();
             return;
-          } else if (res.code !== 200) {
-            TShow(res.code);
+          } else if (res.code == 200) {
+            THide();
+            TShow("购买成功");
+            getVideoList({ v_id: dataInfo.id, current: info.id });
             return;
           }
-          TShow("购买成功");
-          getVideoList({ v_id: dataInfo.id });
+          THide();
+          TShow(res.code);
         });
       }, 1400);
       return;
@@ -417,9 +438,13 @@ export default function VideoView() {
             onTouchEnd={handleMovableViewEnd}
             onTouchStart={handleMovableViewStart}
           >
-            <View className="before">
-              <Image className="before_image" src={dataInfo?.img} />
-            </View>
+            {current.v_id != posInfo.f_id ? (
+              <View className="before">
+                <Image className="before_image" src={dataInfo?.img} />
+              </View>
+            ) : (
+              <View className="before" />
+            )}
             <View id="targetPosition" />
             <View className="center">
               <View className="center_video">
@@ -448,9 +473,13 @@ export default function VideoView() {
               </View>
               <View className="center_footer" />
             </View>
-            <View className="after">
-              <Image className="after_image" src={dataInfo?.img} />
-            </View>
+            {current.v_id != posInfo.l_id ? (
+              <View className="after">
+                <Image className="after_image" src={dataInfo?.img} />
+              </View>
+            ) : (
+              <View className="after" />
+            )}
           </MovableView>
         </MovableArea>
       </View>
@@ -469,12 +498,12 @@ export default function VideoView() {
             {btnList.map((item, index) => {
               return (
                 <AtButton
-                  className={item.id === current.page ? "active" : ""}
+                  className={item.title === current.page ? "active" : ""}
                   key={index}
                   type="primary"
                   size="normal"
                   onClick={() => {
-                    currentListInfo(item.id);
+                    currentListInfo(item.title);
                   }}
                 >
                   {item.title}
@@ -484,7 +513,7 @@ export default function VideoView() {
             <View className="button-pad" />
           </View>
           <View className="layout_list">
-            {allList.map((item) => {
+            {current.b_list.map((item) => {
               return (
                 <View
                   className="layout_list_item"

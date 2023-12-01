@@ -23,9 +23,10 @@ export default function Mine() {
     expire_days: 0,
     spread: 0,
     is_signed: 0,
-    id: "123456",
+    id: "",
     sn: "",
     loading: false,
+    my_kf: "",
   });
 
   const [list, setList] = useState([
@@ -83,7 +84,7 @@ export default function Mine() {
   const naviTo = (item) => {
     if (item.url == "ke") {
       Taro.makePhoneCall({
-        phoneNumber: "18716855210",
+        phoneNumber: option.my_kf,
         phoneNucompleteber: function (res) {
           console.log(res);
         },
@@ -101,12 +102,11 @@ export default function Mine() {
   };
   const naviToRecharge = () => {
     Taro.navigateTo({
-      url: "./wallet/recharge/index",
+      url: "./wallet/recharge/index?type=2",
     });
   };
   const currentLocat = () => {
     getMemberSign().then((res) => {
-      console.log(res);
       if (res.code === 200) {
         setOption({
           ...option,

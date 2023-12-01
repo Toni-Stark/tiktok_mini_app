@@ -10,6 +10,13 @@ export const getIndexRecommendList = async (params) => {
 export const getIndexClassify = async (params) => {
   return await cloudPost("index/classify", params);
 };
+export const getIndexTags = async (params) => {
+  return await cloudPost("index/tags", params);
+};
+export const getIndexTagsVideo = async (params) => {
+  return await cloudPost("index/tags-video", params);
+};
+
 export const setMember = async (params) => {
   return await cloudPost("member/set", params);
 };

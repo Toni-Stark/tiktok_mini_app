@@ -16,8 +16,13 @@ import {
   getIndexPopular,
   getIndexRecommend,
   getIndexRecommendList,
+  getIndexTags,
+  getIndexTagsVideo,
+  getIndexTagVideo,
 } from "@/common/interface";
 import { Loading } from "@/components/loading";
+import { IndexCard } from "@/components/indexCard";
+import { IndexVideo } from "@/components/IndexVideo";
 export default function Index() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
@@ -30,8 +35,6 @@ export default function Index() {
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [loading3, setLoading3] = useState(false);
-  const [loading4, setLoading4] = useState(false);
-  const [loading5, setLoading5] = useState(false);
 
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
@@ -39,9 +42,7 @@ export default function Index() {
   const [headerVideo, setHeaderVideo] = useState<any>(undefined);
   const [btnList, setBtnList] = useState([]);
   const [reComm, setReCmm] = useState([]);
-  const [newData, setNewData] = useState([]);
-  const [hotData, setHotData] = useState([]);
-  const [popData, setPopData] = useState([]);
+  const [tagsData, setTagsData] = useState([]);
 
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
@@ -60,61 +61,85 @@ export default function Index() {
       },
     });
     getIndexRecommend().then((res) => {
-      setRecommend(res.data);
-      if (res.data.length > 0) {
-        setHeaderVideo(res.data[0]);
+      let arr = res.data;
+      setRecommend(arr);
+      if (arr.length > 0) {
+        setHeaderVideo(arr[0]);
       }
       setTimeout(() => {
         setLoading1(true);
       }, 300);
     });
-    // getIndexRecommendList().then((res)=>{
-    //   setRecommend(res.data);
-    //   if (res.data.length > 0) {
-    //     setHeaderVideo(res.data[0]);
-    //   }
-    //   setTimeout(() => {
-    //     setLoading1(true);
-    //   }, 300);
-    // })
-  });
-  useDidShow(() => {
-    getIndexClassifyList().then((res) => {
-      setBtnList([...res.data]);
-      if (res.data.length > 0) {
-        currentList({ classify: res.data[0].id, p: 1 });
-      }
-      setTimeout(() => {
-        setLoading2(true);
-      }, 300);
-    });
-    getIndexNews({ p: 1 }).then((res) => {
-      setNewData(res.data.list);
-      setTimeout(() => {
-        setLoading3(true);
-      }, 300);
-    });
-    getIndexHot({ p: 1 }).then((res) => {
-      setHotData(res.data.list);
-      setTimeout(() => {
-        setLoading4(true);
-      }, 300);
-    });
-    getIndexPopular({ p: 1 }).then((res) => {
-      setPopData(res.data.list);
-      setTimeout(() => {
-        setLoading5(true);
-      }, 300);
-    });
   });
 
+  const currentFraList = async (list, callback) => {
+    let arr = [];
+    async function getInfo(li, nu) {
+      if (nu >= li.length) {
+        callback(arr);
+        return;
+      }
+      let result = await getIndexTagsVideo({ tag_id: li[nu].id });
+      li[nu].video_list = result.data.video_list;
+      arr.push(li[nu]);
+      await getInfo(li, nu + 1);
+    }
+    await getInfo(list, 0);
+  };
+
+  useDidShow(() => {
+    currentRecommendList(88).then(() => {
+      getIndexClassifyList().then((res) => {
+        setBtnList([...res.data]);
+        setTimeout(() => {
+          setLoading2(true);
+        }, 300);
+      });
+    });
+    getIndexTags({ is_main: "1" }).then(async (res) => {
+      let arr = res.data.tag_list;
+      currentFraList(arr, (data) => {
+        setTagsData(data);
+        setTimeout(() => {
+          setLoading3(true);
+        }, 300);
+      });
+    });
+    // getIndexNews({ p: 1 }).then((res) => {
+    //   setNewData(res.data.list);
+    //   setTimeout(() => {
+    //     setLoading3(true);
+    //   }, 300);
+    // });
+    // getIndexHot({ p: 1 }).then((res) => {
+    //   setHotData(res.data.list);
+    //   setTimeout(() => {
+    //     setLoading4(true);
+    //   }, 300);
+    // });
+    // getIndexPopular({ p: 1 }).then((res) => {
+    //   setPopData(res.data.list);
+    //   setTimeout(() => {
+    //     setLoading5(true);
+    //   }, 300);
+    // });
+  });
+  const currentRecommendList = async (id) => {
+    let result = await getIndexRecommendList();
+    setReCmm(result.data.video_list);
+    setOption({ ...option, active: id });
+  };
   const currentList = async ({ classify, p }) => {
     let result = await getIndexClassify({ class_id: classify, p });
     setReCmm(result.data.list);
     setOption({ ...option, active: classify });
   };
   const setActive = (id) => {
-    currentList({ classify: id, p: 1 });
+    if (id == 88) {
+      currentRecommendList({ classify: id });
+    } else {
+      currentList({ classify: id, p: 1 });
+    }
   };
   const onScroll = (e) => {
     if (scrollOpacity === 0 && e.detail.scrollTop >= option.screenHeight) {
@@ -128,22 +153,6 @@ export default function Index() {
   const naviToCateOne = (type, title) => {
     Taro.navigateTo({
       url: "./cate/index?type=" + type + "&title=" + title,
-    });
-  };
-  const naviToPopuOne = (type, title) => {
-    Taro.navigateTo({
-      url: "./popular/index?type=" + type + "&title=" + title,
-    });
-  };
-  const naviToHotOne = () => {
-    Taro.navigateTo({
-      url: "./hot/index",
-    });
-  };
-
-  const naviToNewOne = () => {
-    Taro.navigateTo({
-      url: "./new/index",
     });
   };
 
@@ -209,6 +218,16 @@ export default function Index() {
       return (
         <>
           <View className="components-video-buttons">
+            <AtButton
+              className={88 === option.active ? "active" : ""}
+              type="primary"
+              size="normal"
+              onClick={() => {
+                setActive(88);
+              }}
+            >
+              推荐
+            </AtButton>
             {btnList.map((item, index) => {
               return (
                 <AtButton
@@ -230,136 +249,52 @@ export default function Index() {
       );
     }
   }, [btnList, loading2, option.active]);
-
   const currentTeTContent = useMemo(() => {
-    if (!loading3) {
+    if (!loading2) {
       return (
         <View className="loading_lar">
           <Loading size={40} />
         </View>
       );
     } else {
-      return (
-        <>
-          <View className="components-video-scroll">
-            <ScrollView scrollX>
-              <View className="scroll-list">
-                {reComm.map((item, index) => {
-                  return (
-                    <View
-                      key={index}
-                      className="scroll-list-item"
-                      onClick={() => {
-                        naviToVideo(item.id);
-                      }}
-                    >
-                      <Image src={item.img} className="scroll-list-item-img" />
-                      <Text numberOfLines={1} className="scroll-list-item-text">
-                        {item.name}
-                      </Text>
-                    </View>
-                  );
-                })}
-                <View className="button-pad" />
-              </View>
-            </ScrollView>
-          </View>
-        </>
-      );
-    }
-  }, [reComm, loading3]);
-  const currentFouContent = useMemo(() => {
-    if (!loading4) {
-      return (
-        <View className="loading_lar">
-          <Loading size={40} />
-        </View>
-      );
-    } else {
-      return (
-        <>
-          <View className="components-video-lar">
-            <Text className="components-video-lar-text">
-              N剧刷不腻！宝藏热剧爆款出圈
-            </Text>
-            <View
-              className="components-video-lar-link"
-              onClick={() => {
-                naviToPopuOne();
-              }}
-            >
-              最近流行
-              <Image
-                mode="widthFix"
-                className="components-video-lar-link-icon"
-                src={right}
-              />
-            </View>
-          </View>
-          <View className="components-video-list">
-            {popData.map((item) => {
-              return (
-                <View
-                  className="components-video-list-item"
-                  onClick={() => naviToVideo(item.id)}
-                >
-                  <Image className="image" src={item.img} />
-                  <Text className="text">{item.name}</Text>
-                  <Text className="eval">{item.describe}</Text>
+      if (reComm.length > 0) {
+        return (
+          <>
+            <View className="components-video-scroll">
+              <ScrollView scrollX>
+                <View className="scroll-list">
+                  {reComm.map((item, index) => {
+                    return (
+                      <View
+                        key={index}
+                        className="scroll-list-item"
+                        onClick={() => {
+                          naviToVideo(item.id);
+                        }}
+                      >
+                        <Image
+                          src={item.img}
+                          className="scroll-list-item-img"
+                        />
+                        <Text
+                          numberOfLines={1}
+                          className="scroll-list-item-text"
+                        >
+                          {item.name}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                  <View className="button-pad" />
                 </View>
-              );
-            })}
-          </View>
-        </>
-      );
-    }
-  }, [popData, loading4]);
-  const currentFieContent = useMemo(() => {
-    if (!loading5) {
-      return (
-        <View className="loading_lar">
-          <Loading size={40} />
-        </View>
-      );
-    } else {
-      return (
-        <>
-          <View className="components-video-lar">
-            <Text className="components-video-lar-text">
-              最新短剧速递 精彩内容抢先看
-            </Text>
-            <View
-              className="components-video-lar-link"
-              onClick={() => {
-                naviToHotOne();
-              }}
-            >
-              热播新剧
-              <Image
-                mode="widthFix"
-                className="components-video-lar-link-icon"
-                src={right}
-              />
+              </ScrollView>
             </View>
-          </View>
-          <View className="components-video-list">
-            {newData.map((item) => {
-              return (
-                <View
-                  className="components-video-list-item"
-                  onClick={() => naviToVideo(item.id)}
-                >
-                  <Image className="image" src={item.img} />
-                  <Text className="text">{item.name}</Text>
-                  <Text className="eval">{item.describe}</Text>
-                </View>
-              );
-            })}
-          </View>
-        </>
-      );
+          </>
+        );
+      }
     }
-  }, [newData, loading5]);
+  }, [reComm, loading2]);
+
   return (
     <View className="index">
       <View className="index_zone">
@@ -409,86 +344,23 @@ export default function Index() {
               </View>
               {currentLarContent}
               {currentTeTContent}
-              {currentFouContent}
-              {currentFieContent}
+              {tagsData.length > 0 ? (
+                <IndexCard data={tagsData[0]} loading={loading3} />
+              ) : null}
               {recommend.length >= 2 ? (
-                <View
-                  className="components-video-large"
-                  onClick={() => naviToVideo(recommend[1].id)}
-                >
-                  <Video
-                    className="components-video-large-video"
-                    style={{ height: option.screenWidth + "px" }}
-                    src={recommend[1].url}
-                    poster={recommend[1].img}
-                    initialTime={0}
-                    controls={false}
-                    autoplay={true}
-                    loop={true}
-                    muted={true}
-                    objectFit="cover"
-                  />
-                  <text className="components-video-large-desc">
-                    {recommend[1].describe}
-                  </text>
-                </View>
+                <IndexVideo height={option.screenWidth} data={recommend[1]} />
               ) : null}
-
-              {currentFieContent}
+              {tagsData.length > 1 ? (
+                <IndexCard data={tagsData[1]} loading={loading3} />
+              ) : null}
               {recommend.length >= 3 ? (
-                <View
-                  className="components-video-large"
-                  onClick={() => naviToVideo(recommend[2].id)}
-                >
-                  <Video
-                    className="components-video-large-video"
-                    style={{ height: option.screenWidth + "px" }}
-                    src={recommend[2].url}
-                    poster={recommend[2].img}
-                    initialTime={0}
-                    controls={false}
-                    autoplay={true}
-                    loop={true}
-                    muted={true}
-                    objectFit="cover"
-                  />
-                  <text className="components-video-large-desc">
-                    {recommend[2].describe}
-                  </text>
-                </View>
+                <IndexVideo height={option.screenWidth} data={recommend[2]} />
               ) : null}
-              <View className="components-video-lar">
-                <Text className="components-video-lar-text">
-                  女生必看！高甜短剧让你心动
-                </Text>
-                <View
-                  className="components-video-lar-link"
-                  onClick={() => {
-                    naviToNewOne();
-                  }}
-                >
-                  最新更新
-                  <Image
-                    mode="widthFix"
-                    className="components-video-lar-link-icon"
-                    src={right}
-                  />
-                </View>
-              </View>
-              <View className="components-video-list">
-                {hotData.map((item) => {
-                  return (
-                    <View
-                      className="components-video-list-item"
-                      onClick={() => naviToVideo(item.id)}
-                    >
-                      <Image className="image" src={item.img} />
-                      <Text className="text">{item.name}</Text>
-                      <Text className="eval">{item.describe}</Text>
-                    </View>
-                  );
-                })}
-              </View>
+              {tagsData.map((item, index) => {
+                if (index > 1) {
+                  return <IndexCard data={item} loading={loading3} />;
+                }
+              })}
               <View className="zone_footer" />
             </View>
           </View>

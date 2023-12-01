@@ -8,7 +8,6 @@ import "taro-ui/dist/style/components/list.scss";
 
 function App({ children }: PropsWithChildren<any>) {
   useLaunch(() => {
-    Taro.setStorageSync("role", 1);
     const updateManager = Taro.getUpdateManager();
     // 请求完新版本信息的回调
     updateManager.onCheckForUpdate((res) => {

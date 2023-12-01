@@ -1,5 +1,5 @@
 import { View, Image } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
@@ -14,9 +14,10 @@ import {
 } from "@/common/interface";
 import { GetStorageSync } from "@/store/storage";
 import { HeaderView } from "@/components/headerView";
-import { TShow } from "@/common/common";
+import { THide, TShow } from "@/common/common";
 
 export default function Search() {
+  const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
@@ -24,6 +25,7 @@ export default function Search() {
     screenHeight: 0,
     active: 1,
     bar: 1,
+    type: 1,
   });
   const [list, setList] = useState([
     {
@@ -36,7 +38,11 @@ export default function Search() {
   const [info, setInfo] = useState(undefined);
 
   useLoad(() => {
+    const params = router.params;
     let _option = option;
+    if (params?.type) {
+      _option.type = params?.type;
+    }
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
@@ -67,10 +73,12 @@ export default function Search() {
     setOption({ ...option, bar: e });
   };
   const payOrder = () => {
+    TShow("", "loading", 10000);
     let allJson = GetStorageSync("allJson");
     getPayOrder({ openid: allJson.openid, product_id: option.bar }).then(
       (res) => {
         if (res.code !== 200) {
+          THide();
           return TShow(res.msg);
         }
         let data = res.data.json_params;
@@ -81,6 +89,7 @@ export default function Search() {
           signType: "RSA",
           paySign: data.sign,
           success: function (res) {
+            THide();
             TShow("充值成功");
             getPayHandle({
               order_id: data.order_id,
@@ -92,11 +101,13 @@ export default function Search() {
                 score: result.data.score,
                 expire_days: result.data.times,
               });
-              Taro.navigateBack();
+              if (option.type == 1) {
+                Taro.navigateBack();
+              }
             });
-            // getProList();
           },
           fail: function (err) {
+            THide();
             let str = "fail";
             if (err.errMsg.indexOf("cancel") >= 0) {
               str = "cancel";

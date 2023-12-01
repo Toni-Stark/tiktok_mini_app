@@ -4,9 +4,10 @@ import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
 import top from "../../../static/icon/top.png";
-import { getIndexHot } from "@/common/interface";
+import { getIndexHot, getIndexTagsVideo } from "@/common/interface";
 import { NoneView } from "@/components/noneView";
 import { HeaderView } from "@/components/headerView";
+import { Loading } from "@/components/loading";
 
 export default function Hot() {
   const router = useRouter();
@@ -20,7 +21,9 @@ export default function Hot() {
     title: "",
     type: "",
     p: 1,
+    id: "",
   });
+  const [loading, setLoading] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
   const [scrollOpacity, setScrollOpacity] = useState(0);
   const [dataList, setDataList] = useState([]);
@@ -31,7 +34,7 @@ export default function Hot() {
     const params = router.params;
     let _option = option;
     _option.title = params.title;
-    _option.type = params.type;
+    _option.id = params.id;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
@@ -49,15 +52,18 @@ export default function Hot() {
     getDataList(1);
   };
   const getDataList = (p) => {
-    getIndexHot({ p }).then((res) => {
+    getIndexTagsVideo({ tag_id: option.id, p }).then((res) => {
       let list = [...dataList];
       if (p == 1) {
-        list = res.data.list;
+        list = res.data.video_list;
       } else {
-        list = list.concat(res.data.list);
+        list = list.concat(res.data.video_list);
       }
       setDataList(list);
       setOption({ ...option, p, refresh: false });
+      setTimeout(() => {
+        setLoading(true);
+      }, 500);
     });
   };
   const onScroll = (e) => {
@@ -75,10 +81,6 @@ export default function Hot() {
     setOption({ ...option, refresh: true });
     getDataList(1);
   };
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
-
   const naviToVideo = (id) => {
     Taro.navigateTo({
       url: "../../video/index?id=" + id,
@@ -89,7 +91,7 @@ export default function Hot() {
       <HeaderView
         barHeight={option.barHeight}
         height={option.statusBarHeight}
-        text="热播新剧"
+        text={option.title}
       />
       <View className="index_zone">
         <ScrollView
@@ -108,56 +110,62 @@ export default function Hot() {
           onScroll={onScroll}
         >
           <View id="top" />
-          <View className="index_zone_view_content">
-            <View className="navi-data">
-              {dataList.map((item) => {
-                return (
-                  <View
-                    className="navi-data-item"
-                    onClick={() => {
-                      naviToVideo(item.id);
-                    }}
-                  >
-                    <Image src={item.img} className="navi-data-item-img" />
-                    <View className="navi-data-item-view">
-                      <View className="navi-data-item-view-content">
-                        <View className="navi-data-item-view-content-main">
-                          {item.name}
+          {loading ? (
+            <View className="index_zone_view_content">
+              <View className="navi-data">
+                {dataList.map((item) => {
+                  return (
+                    <View
+                      className="navi-data-item"
+                      onClick={() => {
+                        naviToVideo(item.id);
+                      }}
+                    >
+                      <Image src={item.img} className="navi-data-item-img" />
+                      <View className="navi-data-item-view">
+                        <View className="navi-data-item-view-content">
+                          <View className="navi-data-item-view-content-main">
+                            {item.name}
+                          </View>
+                          <View className="navi-data-item-view-content-eval">
+                            {item.describe}
+                          </View>
                         </View>
-                        <View className="navi-data-item-view-content-eval">
-                          {item.describe}
+                        <View className="navi-data-item-view-eval">
+                          <View>{item.watching}人正在看</View>
+                          <View>更新至第{item.episode}集</View>
                         </View>
-                      </View>
-                      <View className="navi-data-item-view-eval">
-                        <View>{item.watching}人正在看</View>
-                        <View>更新至第{item.episode}集</View>
                       </View>
                     </View>
-                  </View>
-                );
-              })}
+                  );
+                })}
+              </View>
+              {dataList.length > 0 ? (
+                <View className="index-footer">
+                  {option.more ? (
+                    <View className="index-footer-view">加载中...</View>
+                  ) : (
+                    <View className="index-footer-view">暂无更多</View>
+                  )}
+                </View>
+              ) : (
+                <View
+                  style={{
+                    height: "35Vh",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <NoneView />
+                </View>
+              )}
             </View>
-            {dataList.length > 0 ? (
-              <View className="index-footer">
-                {option.more ? (
-                  <View className="index-footer-view">加载中...</View>
-                ) : (
-                  <View className="index-footer-view">暂无更多</View>
-                )}
-              </View>
-            ) : (
-              <View
-                style={{
-                  height: "35Vh",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <NoneView />
-              </View>
-            )}
-          </View>
+          ) : (
+            <View className="loading_pla">
+              <Loading size={80} />
+            </View>
+          )}
         </ScrollView>
         <View
           className="scroll_top"
