@@ -85,6 +85,9 @@ export const getVideoPay = async (params) => {
 export const getMemberShare = async (params) => {
   return await cloudPost("member/share", params);
 };
+export const getPayStatus = async (params) => {
+  return await cloudPost("pay/order-status", params);
+};
 
 // type 1 // 购买会员时长 expire_days gift_score（赠送的
 //  type 2 // 购买积分 score(积分数）

@@ -296,7 +296,6 @@ export default function VideoView() {
             return;
           }
           THide();
-          TShow(res.code);
         });
       }, 1400);
       return;
@@ -434,7 +433,7 @@ export default function VideoView() {
             damping={10}
             friction={2}
             inertia={false}
-            outOfBounds={true}
+            outOfBounds={false}
             onTouchEnd={handleMovableViewEnd}
             onTouchStart={handleMovableViewStart}
           >

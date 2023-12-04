@@ -1,10 +1,10 @@
 import { View, ScrollView, Image } from "@tarojs/components";
-import Taro, { useLoad } from "@tarojs/taro";
+import Taro, { useDidShow, useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useState } from "react";
 import right from "../../../static/icon/right.png";
-import { getMemberInfo, getWalletProducts } from "@/common/interface";
+import { getMemberInfo } from "@/common/interface";
 import { HeaderView } from "@/components/headerView";
 
 export default function Wallet() {
@@ -14,7 +14,7 @@ export default function Wallet() {
   });
   const [info, setInfo] = useState(undefined);
 
-  useLoad(() => {
+  useDidShow(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect?.top;
@@ -27,7 +27,7 @@ export default function Wallet() {
   });
   const naviToDetail = () => {
     Taro.navigateTo({
-      url: "./recharge/index",
+      url: "./recharge/index?type=2",
     });
   };
 

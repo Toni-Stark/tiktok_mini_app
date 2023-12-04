@@ -100,6 +100,8 @@ export default function Cate() {
   };
   const addSearch = (title) => {
     setValue(title);
+    setLoading(true);
+    getCurrentSearch({ kw: title, p: 1 });
   };
   const naviToVideo = (id) => {
     Taro.navigateTo({

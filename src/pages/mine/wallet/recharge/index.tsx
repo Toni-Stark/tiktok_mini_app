@@ -10,12 +10,14 @@ import {
   getMemberInfo,
   getPayHandle,
   getPayOrder,
+  getPayStatus,
   getWalletProducts,
 } from "@/common/interface";
 import { GetStorageSync } from "@/store/storage";
 import { HeaderView } from "@/components/headerView";
 import { THide, TShow } from "@/common/common";
 
+let timer = null;
 export default function Search() {
   const router = useRouter();
   const [option, setOption] = useState({
@@ -56,10 +58,18 @@ export default function Search() {
     setOption({ ..._option });
   });
 
-  const getProList = () => {
+  const currentMemberInfo = (bool) => {
     getMemberInfo().then((res) => {
       setInfo(res.data);
+      setTimeout(() => {
+        if (option.type == 1 || bool) {
+          Taro.navigateBack();
+        }
+      }, 1500);
     });
+  };
+  const getProList = () => {
+    currentMemberInfo(false);
     getWalletProducts().then((res) => {
       setInList(res.data.product_list);
       setOption({ ...option, bar: res.data.product_list[0].id });
@@ -72,6 +82,28 @@ export default function Search() {
   const checkTab = (e) => {
     setOption({ ...option, bar: e });
   };
+
+  const payStatus = (id) => {
+    let bool = false;
+    clearInterval(timer);
+    timer = null;
+    timer = setInterval(() => {
+      if (bool == true) return;
+      getPayStatus({ order_id: id }).then((res) => {
+        if (res.code !== 1) {
+          THide();
+          clearInterval(timer);
+          timer = null;
+          return TShow(res.msg);
+        }
+        THide();
+        TShow("充值成功");
+        bool = true;
+        currentMemberInfo(true);
+      });
+    }, 400);
+  };
+
   const payOrder = () => {
     TShow("", "loading", 10000);
     let allJson = GetStorageSync("allJson");
@@ -90,21 +122,14 @@ export default function Search() {
           paySign: data.sign,
           success: function (res) {
             THide();
-            TShow("充值成功");
-            getPayHandle({
-              order_id: data.order_id,
-              prepay_id: data.prepay_id,
-              act: "ok",
-            }).then((result) => {
-              setInfo({
-                ...info,
-                score: result.data.score,
-                expire_days: result.data.times,
-              });
-              if (option.type == 1) {
-                Taro.navigateBack();
-              }
-            });
+            payStatus(data.order_id);
+            // getPayHandle({
+            //   order_id: data.order_id,
+            //   prepay_id: data.prepay_id,
+            //   act: "ok",
+            // }).then((result) => {
+            //
+            // });
           },
           fail: function (err) {
             THide();
@@ -112,13 +137,23 @@ export default function Search() {
             if (err.errMsg.indexOf("cancel") >= 0) {
               str = "cancel";
             }
-            getPayHandle({
-              order_id: data.order_id,
-              prepay_id: data.prepay_id,
-              act: str,
-            }).then((res) => {
-              TShow(res.msg);
-            });
+            // getPayHandle({
+            //   order_id: data.order_id,
+            //   prepay_id: data.prepay_id,
+            //   act: str,
+            // }).then((res) => {
+            //   setInfo({
+            //     ...info,
+            //     score: res.data.score,
+            //     expire_days: res.data.times,
+            //   });
+            if (str == "cancel") {
+              TShow("取消支付");
+            }
+            if (str == "fail") {
+              TShow("支付失败");
+            }
+            // });
             return;
           },
         });

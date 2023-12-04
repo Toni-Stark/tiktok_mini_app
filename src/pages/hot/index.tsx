@@ -17,6 +17,7 @@ import {
   getIndexBanner,
   getIndexClassify,
   getIndexClassifyList,
+  getIndexRecommendList,
   getIndexTags,
   getIndexTagsVideo,
 } from "@/common/interface";
@@ -28,7 +29,7 @@ export default function Hot() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    active: 1,
+    active: 88,
     screenWidth: 0,
     screenHeight: 0,
     p: 1,
@@ -61,11 +62,13 @@ export default function Hot() {
         setBannerList(res.data);
       }
     });
-    getIndexClassifyList().then((res) => {
-      setBtnList(res.data);
-      if (res.data.length > 0) {
-        currentList({ classify: res.data[0].id, p: 1 });
-      }
+    currentRecommendList({ classify: 88, p: 1 }).then(() => {
+      getIndexClassifyList().then((res) => {
+        setBtnList(res.data);
+        // if (res.data.length > 0) {
+        //   currentList({ classify: res.data[0].id, p: 1 });
+        // }
+      });
     });
     getIndexTags({ is_main: "0" }).then(async (res) => {
       let arr = res.data.tag_list;
@@ -77,9 +80,27 @@ export default function Hot() {
       });
     });
   });
-  useDidShow(() => {});
+
+  const currentRecommendList = async ({ classify, p }) => {
+    let arr: any;
+    if (p !== 1) {
+      arr = [...currentData];
+    } else {
+      arr = [];
+    }
+    let result = await getIndexRecommendList({ p });
+    arr = arr.concat(result.data.video_list);
+    setCurrentList([...arr]);
+    setOption({ ...option, p, active: classify });
+    setLoading(true);
+  };
   const setActive = (id) => {
-    currentList({ classify: id, p: 1 });
+    if (id == 88) {
+      currentRecommendList({ classify: 88, p: 1 });
+    } else {
+      currentList({ classify: id, p: 1 });
+    }
+    setOption({ ...option, active: id });
   };
   const currentFraList = async (list, callback) => {
     let arr = [];
@@ -128,7 +149,11 @@ export default function Hot() {
     setLoading(true);
   };
   const addScrollList = () => {
-    currentList({ classify: option.active, p: option.p + 1 });
+    if (option.active == 88) {
+      currentRecommendList({ classify: 88, p: option.p + 1 });
+    } else {
+      currentList({ classify: option.active, p: option.p + 1 });
+    }
   };
   const refreshList = () => {
     currentList({ classify: option.active, p: 1 });
@@ -174,6 +199,16 @@ export default function Hot() {
           </View>
         </View>
         <View className="navi-buttons">
+          <AtButton
+            className={88 === option.active ? "active" : ""}
+            type="primary"
+            size="normal"
+            onClick={() => {
+              setActive(88);
+            }}
+          >
+            推荐
+          </AtButton>
           {btnList.map((item, index) => {
             return (
               <AtButton
@@ -240,7 +275,7 @@ export default function Hot() {
         ) : null}
       </>
     );
-  }, [refresh, btnList, currentData, loading]);
+  }, [refresh, btnList, currentData, option, loading]);
   const currentTagsView = useMemo(() => {
     if (tagsData.length <= 0) {
       return null;
@@ -276,29 +311,54 @@ export default function Hot() {
                         />
                       </View>
                     </View>
-                    {item.video_list.map((it, idx) => {
-                      if (idx < 3) {
-                        return (
-                          <View className="card-item">
-                            <Image src={it.img} className="card-item-img" />
-                            <View className="card-item-view">
-                              <View className="card-item-view-content">
-                                <View className="card-item-view-content-main">
-                                  {it.name}
-                                </View>
-                                <View className="card-item-view-content-eval">
-                                  {it.describe}
+                    {loading1 ? (
+                      <>
+                        {item.video_list.map((it, idx) => {
+                          if (idx < 3) {
+                            return (
+                              <View
+                                className="card-item"
+                                onClick={() => {
+                                  naviToVideo(it.id);
+                                }}
+                              >
+                                <Image src={it.img} className="card-item-img" />
+                                <View className="card-item-view">
+                                  <View className="card-item-view-content">
+                                    <View className="card-item-view-content-main">
+                                      {it.name}
+                                    </View>
+                                    <View className="card-item-view-content-eval">
+                                      {it.describe}
+                                    </View>
+                                  </View>
+                                  <View className="card-item-view-eval">
+                                    {it.views}人正在看 更新至第
+                                    {it.updated_eps}集
+                                  </View>
                                 </View>
                               </View>
-                              <View className="card-item-view-eval">
-                                {it.views}人正在看 更新至第
-                                {it.updated_eps}集
-                              </View>
-                            </View>
-                          </View>
-                        );
-                      }
-                    })}
+                            );
+                          }
+                        })}
+                      </>
+                    ) : (
+                      <View className="loading_lar">
+                        <Loading size={40} />
+                      </View>
+                    )}
+                    {loading1 && item.video_list.length <= 0 ? (
+                      <View
+                        style={{
+                          height: "350Px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <NoneView />
+                      </View>
+                    ) : null}
                   </View>
                 </SwiperItem>
               );
@@ -307,7 +367,7 @@ export default function Hot() {
         </View>
       </View>
     );
-  }, [tagsData]);
+  }, [tagsData, loading1]);
   return (
     <View className="index">
       <HeaderView

@@ -29,6 +29,9 @@ export const IndexCard = (props: Props) => {
       </View>
     );
   } else {
+    if (data?.video_list <= 0) {
+      return null;
+    }
     return (
       <>
         <View className="ssview-lar">
@@ -39,7 +42,7 @@ export const IndexCard = (props: Props) => {
               naviToList(data.name, data.id);
             }}
           >
-            {data.name}
+            热门独播
             <Image
               mode="widthFix"
               className="ssview-lar-link-icon"

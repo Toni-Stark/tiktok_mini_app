@@ -100,6 +100,7 @@ export default function Index() {
       let arr = res.data.tag_list;
       currentFraList(arr, (data) => {
         setTagsData(data);
+        console.log(data);
         setTimeout(() => {
           setLoading3(true);
         }, 300);
