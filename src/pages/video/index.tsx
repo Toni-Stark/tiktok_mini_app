@@ -154,6 +154,7 @@ export default function VideoView() {
           resData.push(v_info);
           if (c_id == v_info.id) {
             setCurrentInfo(v_info);
+            getVideoUpdate({ v_s_id: v_info.id });
             setCurrent({
               ...current,
               b_list: list[key],
@@ -169,7 +170,6 @@ export default function VideoView() {
       });
       setBtnList(arr);
       setAllList(resData);
-
       Taro.useShareAppMessage((res) => {
         if (res.from === "button") {
           console.log(res.target);
@@ -211,8 +211,8 @@ export default function VideoView() {
   // 处理 MovableView 的移动事件
   const handleMovableViewEnd = (e) => {
     let val = e.mpEvent.changedTouches[0].clientY;
-    let down = val - position.top < -60;
-    let up = val - position.top > 70;
+    let down = val - position.top < -100;
+    let up = val - position.top > 100;
     let num = -2 - option.screenHeight;
     let bool = num === position.y;
     if (bool) {
@@ -279,7 +279,10 @@ export default function VideoView() {
   const chooseCurrent = (val) => {
     let info = allList.find((item) => item.id === val);
     if (info) {
-      setCurrentInfo(info);
+      getVideoUpdate({ v_s_id: info.id }).then((res) => {
+        info.url = res.data?.url;
+        setCurrentInfo(info);
+      });
       setCurrent({ ...current, v_id: info.id });
     }
     if (!info.is_pay) {
@@ -315,8 +318,7 @@ export default function VideoView() {
     }).then((res) => {});
   };
   const startPlay = async (e) => {
-    await getVideoUpdate({ v_s_id: currentInfo.id });
-    clearInterval(timePlay);
+    clearInterval(timerPlay);
     timerPlay = null;
     timerPlay = setInterval(async () => {
       timePlay += 1;
@@ -330,6 +332,7 @@ export default function VideoView() {
   const stopPlay = () => {
     clearInterval(timerPlay);
     timerPlay = null;
+    timePlay = 1;
   };
   const onEnded = () => {
     clearInterval(scrTimer);

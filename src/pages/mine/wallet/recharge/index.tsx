@@ -18,6 +18,7 @@ import { HeaderView } from "@/components/headerView";
 import { THide, TShow } from "@/common/common";
 
 let timer = null;
+let times = 0;
 export default function Search() {
   const router = useRouter();
   const [option, setOption] = useState({
@@ -62,8 +63,10 @@ export default function Search() {
     getMemberInfo().then((res) => {
       setInfo(res.data);
       setTimeout(() => {
-        if (option.type == 1 || bool) {
-          Taro.navigateBack();
+        if (option.type == 1) {
+          if (bool) {
+            Taro.navigateBack();
+          }
         }
       }, 1500);
     });
@@ -92,9 +95,13 @@ export default function Search() {
       getPayStatus({ order_id: id }).then((res) => {
         if (res.code !== 1) {
           THide();
-          clearInterval(timer);
-          timer = null;
-          return TShow(res.msg);
+          times = times + 1;
+          if (times >= 3) {
+            clearInterval(timer);
+            timer = null;
+            TShow(res.msg);
+          }
+          return;
         }
         THide();
         TShow("充值成功");
@@ -123,13 +130,6 @@ export default function Search() {
           success: function (res) {
             THide();
             payStatus(data.order_id);
-            // getPayHandle({
-            //   order_id: data.order_id,
-            //   prepay_id: data.prepay_id,
-            //   act: "ok",
-            // }).then((result) => {
-            //
-            // });
           },
           fail: function (err) {
             THide();
@@ -137,16 +137,6 @@ export default function Search() {
             if (err.errMsg.indexOf("cancel") >= 0) {
               str = "cancel";
             }
-            // getPayHandle({
-            //   order_id: data.order_id,
-            //   prepay_id: data.prepay_id,
-            //   act: str,
-            // }).then((res) => {
-            //   setInfo({
-            //     ...info,
-            //     score: res.data.score,
-            //     expire_days: res.data.times,
-            //   });
             if (str == "cancel") {
               TShow("取消支付");
             }

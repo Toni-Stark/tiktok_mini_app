@@ -20,7 +20,6 @@ function cloudRequest(paramsList) {
     header["Authorization"] = storageToken;
   }
 
-  // header["Authorization"] = "5566abc";
   header["Content-Type"] = "application/x-www-form-urlencoded";
   return new Promise((resolve, reject) => {
     Taro.request({

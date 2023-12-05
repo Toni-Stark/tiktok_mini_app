@@ -222,7 +222,7 @@ export default function Mine() {
           </View>
         </View>
       </View>
-      <View className="index_footer" />
+      {/*<View className="index_footer" />*/}
     </View>
   );
 }

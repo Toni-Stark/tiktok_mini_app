@@ -47,7 +47,8 @@ export default function List() {
   ]);
   const [newData, setNewData] = useState<any>([]);
   const [videoDefault, setVideoDefault] = useState(undefined);
-  useLoad(async () => {
+
+  useDidShow(async () => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
@@ -62,7 +63,6 @@ export default function List() {
     setOption({ ..._option });
     await getDefaultList();
   });
-  useDidShow(async () => {});
   const videoFavorite = (params) => {
     return new Promise((resolve) => {
       getFavorite(params).then((res) => {
@@ -303,7 +303,7 @@ export default function List() {
           <Image className="scroll_top_img" src={top} />
         </View>
       </View>
-      <View className="index_footer" />
+      {/*<View className="index_footer" />*/}
     </View>
   );
 }

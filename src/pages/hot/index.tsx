@@ -29,7 +29,7 @@ export default function Hot() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    active: 88,
+    active: 999,
     screenWidth: 0,
     screenHeight: 0,
     p: 1,
@@ -62,7 +62,7 @@ export default function Hot() {
         setBannerList(res.data);
       }
     });
-    currentRecommendList({ classify: 88, p: 1 }).then(() => {
+    currentRecommendList({ classify: 999, p: 1 }).then(() => {
       getIndexClassifyList().then((res) => {
         setBtnList(res.data);
         // if (res.data.length > 0) {
@@ -81,22 +81,28 @@ export default function Hot() {
     });
   });
 
-  const currentRecommendList = async ({ classify, p }) => {
+  const currentRecommendList = async ({ classify, p, refresh }) => {
     let arr: any;
     if (p !== 1) {
       arr = [...currentData];
     } else {
       arr = [];
     }
-    let result = await getIndexRecommendList({ p });
+    let params: any = {
+      p,
+    };
+    if (refresh) {
+      params.refresh = refresh;
+    }
+    let result = await getIndexRecommendList(params);
     arr = arr.concat(result.data.video_list);
     setCurrentList([...arr]);
     setOption({ ...option, p, active: classify });
     setLoading(true);
   };
   const setActive = (id) => {
-    if (id == 88) {
-      currentRecommendList({ classify: 88, p: 1 });
+    if (id == 999) {
+      currentRecommendList({ classify: 999, p: 1 });
     } else {
       currentList({ classify: id, p: 1 });
     }
@@ -135,28 +141,40 @@ export default function Hot() {
       url: "../index/cate/index?type=" + type + "&title=" + title,
     });
   };
-  const currentList = async ({ classify, p }) => {
+  const currentList = async ({ classify, p, refresh }) => {
     let arr: any;
     if (option.active === classify && p !== 1) {
       arr = [...currentData];
     } else {
       arr = [];
     }
-    let result = await getIndexClassify({ class_id: classify, p });
+
+    let params: any = {
+      p,
+      class_id: classify,
+    };
+    if (refresh) {
+      params.refresh = refresh;
+    }
+    let result = await getIndexClassify(params);
     arr = arr.concat(result.data.list);
     setCurrentList([...arr]);
     setOption({ ...option, p, active: classify });
     setLoading(true);
   };
   const addScrollList = () => {
-    if (option.active == 88) {
-      currentRecommendList({ classify: 88, p: option.p + 1 });
+    if (option.active == 999) {
+      currentRecommendList({ classify: 999, p: option.p + 1 });
     } else {
       currentList({ classify: option.active, p: option.p + 1 });
     }
   };
   const refreshList = () => {
-    currentList({ classify: option.active, p: 1 });
+    if (option.active == 999) {
+      currentRecommendList({ classify: 999, p: 1, refresh: 1 });
+    } else {
+      currentList({ classify: option.active, p: 1, refresh: 1 });
+    }
   };
   const currentSwiper = useMemo(() => {
     if (bannerList.length <= 0) {
@@ -200,11 +218,11 @@ export default function Hot() {
         </View>
         <View className="navi-buttons">
           <AtButton
-            className={88 === option.active ? "active" : ""}
+            className={999 === option.active ? "active" : ""}
             type="primary"
             size="normal"
             onClick={() => {
-              setActive(88);
+              setActive(999);
             }}
           >
             推荐
@@ -405,7 +423,7 @@ export default function Hot() {
           <Image className="scroll_top_img" src={top} />
         </View>
       </View>
-      <View className="index_footer" />
+      {/*<View className="index_footer" />*/}
     </View>
   );
 }

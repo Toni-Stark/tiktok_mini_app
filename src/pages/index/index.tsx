@@ -11,18 +11,15 @@ import { AtButton } from "taro-ui";
 import {
   getIndexClassify,
   getIndexClassifyList,
-  getIndexHot,
-  getIndexNews,
-  getIndexPopular,
   getIndexRecommend,
   getIndexRecommendList,
   getIndexTags,
   getIndexTagsVideo,
-  getIndexTagVideo,
 } from "@/common/interface";
 import { Loading } from "@/components/loading";
 import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
+import { setInterFun, setTimerFun } from "@/common/tools";
 export default function Index() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
@@ -31,6 +28,7 @@ export default function Index() {
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
+    refresh: false,
   });
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
@@ -60,6 +58,13 @@ export default function Index() {
         setOption({ ..._option });
       },
     });
+    refreshReList();
+    setInterFun(() => {
+      refreshReList();
+    });
+  });
+
+  const refreshReList = () => {
     getIndexRecommend().then((res) => {
       let arr = res.data;
       setRecommend(arr);
@@ -70,7 +75,7 @@ export default function Index() {
         setLoading1(true);
       }, 300);
     });
-  });
+  };
 
   const currentFraList = async (list, callback) => {
     let arr = [];
@@ -100,31 +105,43 @@ export default function Index() {
       let arr = res.data.tag_list;
       currentFraList(arr, (data) => {
         setTagsData(data);
-        console.log(data);
         setTimeout(() => {
           setLoading3(true);
         }, 300);
       });
     });
-    // getIndexNews({ p: 1 }).then((res) => {
-    //   setNewData(res.data.list);
-    //   setTimeout(() => {
-    //     setLoading3(true);
-    //   }, 300);
-    // });
-    // getIndexHot({ p: 1 }).then((res) => {
-    //   setHotData(res.data.list);
-    //   setTimeout(() => {
-    //     setLoading4(true);
-    //   }, 300);
-    // });
-    // getIndexPopular({ p: 1 }).then((res) => {
-    //   setPopData(res.data.list);
-    //   setTimeout(() => {
-    //     setLoading5(true);
-    //   }, 300);
-    // });
   });
+  const refreshChange = () => {
+    setOption({ ...option, refresh: true });
+    getIndexRecommend().then((res) => {
+      let arr = res.data;
+      setRecommend(arr);
+      if (arr.length > 0) {
+        setHeaderVideo(arr[0]);
+      }
+      setTimeout(() => {
+        setLoading1(true);
+      }, 300);
+    });
+    currentRecommendList(88).then(() => {
+      getIndexClassifyList().then((res) => {
+        setBtnList([...res.data]);
+        setTimeout(() => {
+          setLoading2(true);
+        }, 300);
+      });
+    });
+    getIndexTags({ is_main: "1" }).then(async (res) => {
+      let arr = res.data.tag_list;
+      currentFraList(arr, (data) => {
+        setTagsData(data);
+        setTimeout(() => {
+          setLoading3(true);
+          setOption({ ...option, refresh: false });
+        }, 300);
+      });
+    });
+  };
   const currentRecommendList = async (id) => {
     let result = await getIndexRecommendList();
     setReCmm(result.data.video_list);
@@ -167,6 +184,7 @@ export default function Index() {
       url: "../video/index?id=" + id,
     });
   };
+
   const currentHeader = useMemo(() => {
     if (!loading1) {
       return (
@@ -306,6 +324,10 @@ export default function Index() {
           scrollWithAnimation={true}
           enhanced
           onScroll={onScroll}
+          refresherEnabled={true}
+          refresherTriggered={option.refresh}
+          refresherBackground="#1e212a"
+          onRefresherRefresh={refreshChange}
         >
           <View
             className="index_zone_view_header"
@@ -374,7 +396,7 @@ export default function Index() {
           <Image className="scroll_top_img" src={top} />
         </View>
       </View>
-      <View className="index_footer" />
+      {/*<View className="index_footer" />*/}
     </View>
   );
 }

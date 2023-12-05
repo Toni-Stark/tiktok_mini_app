@@ -28,3 +28,21 @@ export const getSex = (str) => {
   let arr = ["未知", "男", "女"];
   return arr[str];
 };
+
+let timer = null;
+export const setTimerFun = (callback) => {
+  clearTimeout(timer);
+  timer = null;
+  timer = setTimeout(() => {
+    callback();
+  }, 420000);
+};
+
+let inter = null;
+export const setInterFun = (callback) => {
+  clearInterval(inter);
+  inter = null;
+  inter = setInterval(() => {
+    callback();
+  }, 420000);
+};
