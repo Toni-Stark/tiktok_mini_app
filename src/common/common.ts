@@ -46,13 +46,14 @@ export const getCheckLogin = () => {
 };
 
 export const getLogin = (option) => {
-  let iv = GetStorageSync("iv");
+  let iv = GetStorageSync("sn");
   let params: any = {
     openid: option.openid,
   };
   if (iv) {
     params.iv = iv;
   }
+  console.log(iv, "sn");
   return new Promise((resolve, reject) => {
     Taro.request({
       url: loginUrl,

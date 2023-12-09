@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Image, Video } from "@tarojs/components";
-import Taro, { useDidShow, useLoad } from "@tarojs/taro";
+import Taro, { useDidShow, useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
@@ -20,7 +20,9 @@ import { Loading } from "@/components/loading";
 import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
 import { setInterFun, setTimerFun } from "@/common/tools";
+import { SetStorageSync } from "@/store/storage";
 export default function Index() {
+  const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
@@ -46,6 +48,11 @@ export default function Index() {
     setScrollTop(scrollTop ? 0 : 1);
   };
   useLoad(() => {
+    const params = router.params;
+    if (params?.scene) {
+      let sn = decodeURIComponent(params.scene);
+      SetStorageSync("sn", sn.split("=")[1]);
+    }
     Taro.getSystemInfoAsync({
       success: (res) => {
         let _option = option;

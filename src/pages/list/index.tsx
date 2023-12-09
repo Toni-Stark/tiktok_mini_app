@@ -4,7 +4,11 @@ import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useMemo, useState } from "react";
 import top from "../../static/icon/top.png";
-import { getFavorite, getVideoHistory } from "@/common/interface";
+import {
+  getFavorite,
+  getIndexRecommend,
+  getVideoHistory,
+} from "@/common/interface";
 import { Loading } from "@/components/loading";
 import { HeaderView } from "@/components/headerView";
 import { NoneView } from "@/components/noneView";
@@ -76,7 +80,26 @@ export default function List() {
     return new Promise((resolve) => {
       getVideoHistory(params).then((res) => {
         if (res.code === 200) {
-          resolve({ list: res.data.history_list, count: res.data.count });
+          if (res.data?.history_list.length > 0) {
+            resolve({
+              list: res.data.history_list,
+              count: res.data.count || 1,
+            });
+          } else {
+            getIndexRecommend().then((result) => {
+              let arr = [];
+              let data = result.data[0];
+              arr.push({
+                video_url: data.url,
+                video_img: data.img,
+                video_id: data.id,
+                class_name: data.describe,
+                video_name: data.name,
+                watching: data.view,
+              });
+              resolve({ list: arr, count: arr.length });
+            });
+          }
         }
       });
     });
@@ -147,11 +170,6 @@ export default function List() {
     getDefaultList();
   };
 
-  const naviToCateOne = (type) => {
-    Taro.navigateTo({
-      url: "../index/search/index?type=" + type,
-    });
-  };
   const naviToVideo = (id) => {
     Taro.navigateTo({
       url: "../video/index?id=" + id,
