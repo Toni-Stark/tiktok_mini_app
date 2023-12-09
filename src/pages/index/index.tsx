@@ -21,6 +21,7 @@ import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
 import { setInterFun, setTimerFun } from "@/common/tools";
 import { SetStorageSync } from "@/store/storage";
+
 export default function Index() {
   const router = useRouter();
   const [option, setOption] = useState({
@@ -209,9 +210,9 @@ export default function Index() {
             poster={headerVideo?.img}
             initialTime={0}
             controls={false}
-            autoplay={true}
-            muted={true}
-            loop={true}
+            autoplay
+            muted
+            loop
             onClick={() => naviToVideo(headerVideo?.id)}
             objectFit="cover"
           />
@@ -328,10 +329,10 @@ export default function Index() {
           className="index_zone_view"
           scrollY
           scrollTop={scrollTop}
-          scrollWithAnimation={true}
+          scrollWithAnimation
           enhanced
           onScroll={onScroll}
-          refresherEnabled={true}
+          refresherEnabled
           refresherTriggered={option.refresh}
           refresherBackground="#1e212a"
           onRefresherRefresh={refreshChange}

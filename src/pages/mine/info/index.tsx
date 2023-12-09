@@ -1,21 +1,16 @@
-import {
-  View,
-  Image,
-  Picker,
-  PickerView,
-  PickerViewColumn,
-} from "@tarojs/components";
-import Taro, { useLoad, useRouter, useDidShow } from "@tarojs/taro";
+import { View, Image, PickerView, PickerViewColumn } from "@tarojs/components";
+import Taro, { useDidShow } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
 import { useEffect, useState } from "react";
-import left from "../../../static/icon/left.png";
 import header from "../../../static/source/header.png";
 import { getMemberInfo, setMember } from "@/common/interface";
 import { getSex } from "@/common/tools";
 import { AtFloatLayout, AtList, AtListItem } from "taro-ui";
 import { TShow } from "@/common/common";
 import { HeaderView } from "@/components/headerView";
+import { VIEW } from "@tarojs/runtime";
+
 const selector = ["男", "女"];
 
 export default function Info() {

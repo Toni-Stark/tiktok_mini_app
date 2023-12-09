@@ -25,9 +25,9 @@ export const IndexVideo = (props: Props) => {
         poster={data.img}
         initialTime={0}
         controls={false}
-        autoplay={true}
-        loop={true}
-        muted={true}
+        autoplay
+        loop
+        muted
         objectFit="cover"
       />
       <text className="vvview-large-desc">{data.describe}</text>

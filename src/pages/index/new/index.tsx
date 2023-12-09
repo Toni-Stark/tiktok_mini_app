@@ -93,8 +93,8 @@ export default function New() {
           id="scroll_view"
           scrollY
           scrollTop={scrollTop}
-          scrollWithAnimation={true}
-          refresherEnabled={true}
+          scrollWithAnimation
+          refresherEnabled
           refresherTriggered={option.refresh}
           refresherBackground="#1e212a"
           onRefresherRefresh={refreshChange}

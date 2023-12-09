@@ -199,9 +199,9 @@ export default function List() {
               poster={videoDefault?.video_img}
               initialTime={0}
               controls={false}
-              autoplay={true}
-              loop={true}
-              muted={true}
+              autoplay
+              loop
+              muted
               objectFit="cover"
             />
             <View className="components-video-large-content">
@@ -253,7 +253,7 @@ export default function List() {
       <HeaderView
         barHeight={option.barHeight}
         height={option.statusBarHeight}
-        search={true}
+        search
         text="追剧"
         url="../index/search/index"
       />
@@ -261,8 +261,8 @@ export default function List() {
         <ScrollView
           className="index_zone_view"
           scrollY
-          scrollWithAnimation={true}
-          refresherEnabled={true}
+          scrollWithAnimation
+          refresherEnabled
           refresherTriggered={option.refresh}
           refresherBackground="#1e212a"
           onRefresherRefresh={refreshChange}

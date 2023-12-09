@@ -391,7 +391,7 @@ export default function Hot() {
       <HeaderView
         barHeight={option.barHeight}
         height={option.statusBarHeight}
-        search={true}
+        search
         text="热播剧"
         url="../index/search/index"
       />
@@ -401,7 +401,7 @@ export default function Hot() {
           id="scroll_view"
           scrollY
           scrollTop={scrollTop}
-          scrollWithAnimation={true}
+          scrollWithAnimation
           enhanced
           onScroll={onScroll}
           lowerThreshold={30}

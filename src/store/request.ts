@@ -3,6 +3,7 @@ import { GetStorageSync, SetStorage, SetStorageSync } from "@/store/storage";
 import { getCheckLogin } from "@/common/common";
 import { getFormUrl } from "@/common/tools";
 import { env } from "@/store/config";
+
 let isRefreshing = false;
 let requests = [];
 let ajaxtimes = 0;

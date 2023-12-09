@@ -168,8 +168,8 @@ export default function Code() {
           className="scroll_view"
           id="scroll_view"
           scrollY
-          scrollWithAnimation={true}
-          refresherEnabled={true}
+          scrollWithAnimation
+          refresherEnabled
           refresherTriggered={refresh}
           refresherBackground="#1e212a"
           onRefresherRefresh={refreshChange}
@@ -182,7 +182,7 @@ export default function Code() {
               indicatorActiveColor="#333"
               circular
               current={current}
-              disableTouch={true}
+              disableTouch
               previousMargin="10px"
               nextMargin="10px"
             >

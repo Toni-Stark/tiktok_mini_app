@@ -185,7 +185,7 @@ export default function VideoView() {
   const chooseCurVideo = (down, up) => {
     let curInfo = currentInfo;
     let index = allList.findIndex((item) => item.id === curInfo.id);
-    let info: any = undefined;
+    let info: any;
     if (down) {
       if (index < allList.length - 1) {
         info = allList[index + 1];
@@ -456,15 +456,15 @@ export default function VideoView() {
                     src={currentInfo?.url}
                     poster={dataInfo?.img}
                     initialTime={0}
-                    controls={true}
+                    controls
                     onPlay={startPlay}
                     onPause={stopPlay}
                     onEnded={onEnded}
-                    showPlayBtn={true}
+                    showPlayBtn
                     showFullscreenBtn={false}
-                    autoplay={true}
-                    enablePlayGesture={true}
-                    showCenterPlayBtn={true}
+                    autoplay
+                    enablePlayGesture
+                    showCenterPlayBtn
                     playBtnPosition="center"
                     loop={false}
                     objectFit="cover"
