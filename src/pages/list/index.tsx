@@ -200,9 +200,14 @@ export default function List() {
               initialTime={0}
               controls={false}
               autoplay
-              loop
               muted
-              objectFit="cover"
+              showPlayBtn
+              showFullscreenBtn={false}
+              enablePlayGesture
+              showCenterPlayBtn
+              playBtnPosition="center"
+              loop={false}
+              objectFit="fill"
             />
             <View className="components-video-large-content">
               <View className="large-content-main">

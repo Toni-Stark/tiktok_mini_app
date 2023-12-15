@@ -5,7 +5,7 @@ import left from "@/static/icon/left.png";
 import home from "@/static/icon/home.png";
 import searchImg from "@/static/icon/search.png";
 import Taro from "@tarojs/taro";
-import { useMemo } from "react";
+import {useEffect, useMemo, useState} from "react";
 
 type Props = {
   barHeight: number;
@@ -17,6 +17,7 @@ type Props = {
 export const HeaderView = (props: Partial<Props>) => {
   const pages = Taro.getCurrentPages();
   const { barHeight, height, text, search, url } = props;
+  const [UA, setUA] = useState(true);
 
   const naviBack = () => {
     Taro.navigateBack();
@@ -31,7 +32,21 @@ export const HeaderView = (props: Partial<Props>) => {
       url: "/pages/index/index",
     });
   };
-
+  useEffect(() => {
+    Taro.getSystemInfo({
+      success: function (res) {
+        // 判断设备类型
+        if (res.platform === "mac" || res.platform === "windows") {
+          // 电脑端
+          console.log("当前为电脑端");
+          setUA(false);
+        } else {
+          // 判断 User Agent 是否包含关键字 'Macintosh'
+          setUA(true);
+        }
+      },
+    });
+  }, []);
   const currentImage = useMemo(() => {
     if (search) {
       return (
@@ -62,7 +77,6 @@ export const HeaderView = (props: Partial<Props>) => {
       />
     );
   }, [pages, search, url, text]);
-
   return (
     <View className="he_view">
       <View

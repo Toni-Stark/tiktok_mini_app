@@ -265,7 +265,7 @@ export default function Hot() {
                       </View>
                     </View>
                     <View className="navi-data-item-view-eval">
-                      <View>{item.watching}人正在看</View>
+                      <View>{item.views}人正在看</View>
                       <View>更新至第{item.updated_eps}集</View>
                     </View>
                   </View>

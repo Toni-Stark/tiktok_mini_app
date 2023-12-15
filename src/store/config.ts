@@ -12,8 +12,8 @@ const envConf = {
     mode: "dev",
     DEBUG: false,
     VCONSOLE: true,
-    // appid: "wx2b63e1935c7fa58f",
-    appid: "wx83e87715053b44fb",
+    // appid: "长城：wx529fadf983b0b19e dskafdsl",千港：wx83e87715053b44fb dsadfs
+    appid: "wx529fadf983b0b19e",
     // BASE_URL: "http://dev.shortvideo.ink/api/abc123/",
     BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
   },
@@ -23,7 +23,7 @@ const envConf = {
     DEBUG: false,
     VCONSOLE: false,
     // appid: "wx2b63e1935c7fa58f",
-    appid: "wx83e87715053b44fb",
+    appid: "wx529fadf983b0b19e",
     BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
   },
   // 正式版-正式环境
@@ -32,7 +32,7 @@ const envConf = {
     DEBUG: false,
     VCONSOLE: false,
     // appid: "wx2b63e1935c7fa58f",
-    appid: "wx83e87715053b44fb",
+    appid: "wx529fadf983b0b19e",
     BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
   },
 };

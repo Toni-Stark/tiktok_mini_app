@@ -203,9 +203,12 @@
       height: 100vh;
       background: #282b32;
       width: 100%;
+      display: flex;
+      flex-direction: column;
       &_image {
         height: 100%;
         width: 100%;
+        flex: 1;
       }
     }
     .after {
@@ -215,7 +218,6 @@
       width: 100%;
       color: #454545;
       font-size: 14Px;
-      padding: 20Px;
       text-align: center;
       box-sizing: border-box;
       &_image {
@@ -243,7 +245,9 @@
         }
       }
       &_footer {
-        height: 73Px;
+        //height: 73Px;
+
+        height: 86Px;
         background: #282b32;
       }
     }

@@ -69,7 +69,7 @@ export default function VideoView() {
   ]);
   const [show, setShow] = useState(false);
   const [btnList, setBtnList] = useState([]);
-  const [current, setCurrent] = useState({
+  const [current, setCurrent] = useState<any>({
     page: 0,
     v_id: 1,
     b_list: [],
@@ -442,13 +442,14 @@ export default function VideoView() {
           >
             {current.v_id != posInfo.f_id ? (
               <View className="before">
-                <Image className="before_image" src={dataInfo?.img} />
+                <View className="center_footer" />
+                <Image mode="aspectFill" className="before_image" src={dataInfo?.img} />
               </View>
             ) : (
               <View className="before" />
             )}
             <View id="targetPosition" />
-            <View className="center">
+            <View className="center" style={{height: option.screenHeight+3}}>
               <View className="center_video">
                 {currentInfo?.url ? (
                   <Video
@@ -467,7 +468,7 @@ export default function VideoView() {
                     showCenterPlayBtn
                     playBtnPosition="center"
                     loop={false}
-                    objectFit="cover"
+                    objectFit="fill"
                   />
                 ) : (
                   <Image className="center_video_img" src={dataInfo?.img} />
@@ -477,7 +478,7 @@ export default function VideoView() {
             </View>
             {current.v_id != posInfo.l_id ? (
               <View className="after">
-                <Image className="after_image" src={dataInfo?.img} />
+                <Image mode="aspectFill" className="after_image" src={dataInfo?.img} />
               </View>
             ) : (
               <View className="after" />

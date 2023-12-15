@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image, Video } from "@tarojs/components";
+import {View, Text, ScrollView, Image, Video, CoverView} from "@tarojs/components";
 import Taro, { useDidShow, useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
 import "taro-ui/dist/style/components/loading.scss";
@@ -21,18 +21,19 @@ import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
 import { setInterFun, setTimerFun } from "@/common/tools";
 import { SetStorageSync } from "@/store/storage";
+import {HeaderView} from "@/components/headerView";
 
 export default function Index() {
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     active: 1,
     screenWidth: 0,
     screenHeight: 0,
     refresh: false,
   });
+  const [pch, setPch] = useState(0);
   const [loading1, setLoading1] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [loading3, setLoading3] = useState(false);
@@ -62,8 +63,21 @@ export default function Index() {
         _option.statusBarHeight = rect.height;
         _option.screenWidth = res.screenWidth;
         _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
         setOption({ ..._option });
+      },
+    });
+    Taro.getSystemInfo({
+      success: function (result) {
+        const rect = Taro.getMenuButtonBoundingClientRect();
+        if (
+          result.platform === "devtools" ||
+          result.platform === "android" ||
+          result.platform === "ios"
+        ) {
+          setPch(0);
+        } else {
+          setPch(rect.height);
+        }
       },
     });
     refreshReList();
@@ -340,8 +354,8 @@ export default function Index() {
           <View
             className="index_zone_view_header"
             style={{
-              marginTop: option.statusBarHeight + "Px",
-              height: option.barHeight + "Px",
+              marginTop: pch+option.statusBarHeight,
+              height: option.barHeight,
             }}
           >
             <Image
@@ -354,10 +368,10 @@ export default function Index() {
           <View className="index_zone_view_content">
             <View
               className="components-video"
-              style={{ height: option.videoHeight + "Px" }}
             >
               {currentHeader}
-              <View className="components-video-lar">
+            </View>
+            <View className="components-video-lar">
                 <Text className="components-video-lar-text">看你想看</Text>
                 <View
                   className="components-video-lar-link"
@@ -373,27 +387,26 @@ export default function Index() {
                   />
                 </View>
               </View>
-              {currentLarContent}
-              {currentTeTContent}
-              {tagsData.length > 0 ? (
-                <IndexCard data={tagsData[0]} loading={loading3} />
-              ) : null}
-              {recommend.length >= 2 ? (
-                <IndexVideo height={option.screenWidth} data={recommend[1]} />
-              ) : null}
-              {tagsData.length > 1 ? (
-                <IndexCard data={tagsData[1]} loading={loading3} />
-              ) : null}
-              {recommend.length >= 3 ? (
-                <IndexVideo height={option.screenWidth} data={recommend[2]} />
-              ) : null}
-              {tagsData.map((item, index) => {
-                if (index > 1) {
-                  return <IndexCard data={item} loading={loading3} />;
-                }
-              })}
-              <View className="zone_footer" />
-            </View>
+            {currentLarContent}
+            {currentTeTContent}
+            {tagsData.length > 0 ? (
+              <IndexCard data={tagsData[0]} loading={loading3} />
+            ) : null}
+            {recommend.length >= 2 ? (
+              <IndexVideo height={option.screenWidth} data={recommend[1]} />
+            ) : null}
+            {tagsData.length > 1 ? (
+              <IndexCard data={tagsData[1]} loading={loading3} />
+            ) : null}
+            {recommend.length >= 3 ? (
+              <IndexVideo height={option.screenWidth} data={recommend[2]} />
+            ) : null}
+            {tagsData.map((item, index) => {
+              if (index > 1) {
+                return <IndexCard data={item} loading={loading3} />;
+              }
+            })}
+            <View className="zone_footer" />
           </View>
         </ScrollView>
         <View
