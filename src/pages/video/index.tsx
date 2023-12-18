@@ -32,6 +32,7 @@ import {
 } from "@/common/interface";
 import { THide, TShow } from "@/common/common";
 import home from "@/static/icon/home.png";
+import {getSystemInfo} from "@/common/tools";
 
 let timePlay = 0;
 let timerPlay = null;

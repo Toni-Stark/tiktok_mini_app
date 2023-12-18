@@ -1,4 +1,4 @@
-import { GetStorageSync } from "@/store/storage";
+import Taro from "@tarojs/taro";
 
 export const getFormUrl = (paramObj) => {
   var sdata = [];
@@ -46,3 +46,12 @@ export const setInterFun = (callback) => {
     callback();
   }, 420000);
 };
+
+export const getSystemInfo = () => {
+  return new Promise((resolve, rejects)=>{
+    var res = Taro.getSystemInfoSync();
+    if(res.platform == 'ios') return resolve(2);   //ios
+    if(res.platform == 'android') return resolve(1);  //安卓
+    if(res.platform == 'devtools') return resolve(1);  //开发者工具
+  })
+}

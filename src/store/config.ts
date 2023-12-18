@@ -33,6 +33,7 @@ const envConf = {
     VCONSOLE: false,
     // appid: "wx2b63e1935c7fa58f",
     appid: "wx529fadf983b0b19e",
+    // BASE_URL: "http://dev.shortvideo.ink/api/abc123/",
     BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
   },
 };
