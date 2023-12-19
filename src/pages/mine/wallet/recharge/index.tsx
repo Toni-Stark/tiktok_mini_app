@@ -10,13 +10,14 @@ import {
   getMemberInfo,
   getPayHandle,
   getPayOrder,
-  getPayStatus, getPayViOrder,
+  getPayStatus,
+  getPayViOrder,
   getWalletProducts,
 } from "@/common/interface";
 import { GetStorageSync } from "@/store/storage";
 import { HeaderView } from "@/components/headerView";
 import { THide, TShow } from "@/common/common";
-import {getSystemInfo} from "@/common/tools";
+import { getSystemInfo } from "@/common/tools";
 
 let timer = null;
 let times = 0;
@@ -111,24 +112,69 @@ export default function Search() {
       });
     }, 400);
   };
-  const payChoose = () => {
-    getSystemInfo().then((res)=>{
-      if(res === 2) {
-        payOrder()
-      } else {
-        payViOrder()
-      }
-    })
-  }
   const payOrder = () => {
     TShow("", "loading", 10000);
     let allJson = GetStorageSync("allJson");
-    getPayOrder({ openid: allJson.openid, product_id: option.bar }).then(
-      (res) => {
-        if (res.code !== 200) {
-          THide();
-          return TShow(res.msg);
+    let params = {};
+    if (!allJson.is_vir) {
+      params = { openid: allJson.openid, product_id: option.bar, is_vir: 0 };
+      payApiStatus(params);
+    } else {
+      Taro.login({
+        complete: (loginRes) => {
+          if (!loginRes.code) return;
+          params = { code: loginRes.code, product_id: option.bar, is_vir: 1 };
+          payApiStatus(params);
+        },
+      });
+    }
+  };
+  const payApiStatus = (params) => {
+    getPayOrder(params).then((res) => {
+      if (res.code !== 200) {
+        THide();
+        return TShow(res.msg);
+      }
+      if (params.is_vir) {
+        let data = res.data;
+        let sData = res.data.signData;
+        const SDKVersion = Taro.getSystemInfoSync().SDKVersion;
+        if (
+          compareVersion(SDKVersion, "2.19.2") >= 0 ||
+          wx.canIUse("requestVirtualPayment")
+        ) {
+          wx.requestVirtualPayment({
+            signData: JSON.stringify({
+              offerId: sData.offerId,
+              buyQuantity: sData.buyQuantity,
+              env: sData.env,
+              currencyType: sData.currencyType,
+              productId: sData.productId,
+              goodsPrice: sData.goodsPrice,
+              outTradeNo: sData.outTradeNo,
+              attach: sData.attach,
+            }),
+            paySig: data.paySig,
+            signature: data.signature,
+            mode: "short_series_goods",
+            success(res) {
+              payStatus(data.signData.outTradeNo);
+            },
+            fail({ errMsg, errCode }) {
+              console.error(errMsg, errCode);
+              THide();
+              if (errCode == -1) {
+                TShow("支付失败");
+              }
+              if (errCode == -2) {
+                TShow("支付取消");
+              }
+            },
+          });
+        } else {
+          console.log("当前用户的客户端版本不支持 wx.requestVirtualPayment");
         }
+      } else {
         let data = res.data.json_params;
         Taro.requestPayment({
           timeStamp: data.time.toString(),
@@ -159,87 +205,37 @@ export default function Search() {
           },
         });
       }
-    );
+    });
   };
 
   const compareVersion = (_v1, _v2) => {
-    if (typeof _v1 !== 'string' || typeof _v2 !== 'string') return 0
+    if (typeof _v1 !== "string" || typeof _v2 !== "string") return 0;
 
-    const v1 = _v1.split('.')
-    const v2 = _v2.split('.')
-    const len = Math.max(v1.length, v2.length)
+    const v1 = _v1.split(".");
+    const v2 = _v2.split(".");
+    const len = Math.max(v1.length, v2.length);
 
     while (v1.length < len) {
-      v1.push('0')
+      v1.push("0");
     }
     while (v2.length < len) {
-      v2.push('0')
+      v2.push("0");
     }
 
     for (let i = 0; i < len; i++) {
-      const num1 = parseInt(v1[i], 10)
-      const num2 = parseInt(v2[i], 10)
+      const num1 = parseInt(v1[i], 10);
+      const num2 = parseInt(v2[i], 10);
 
       if (num1 > num2) {
-        return 1
+        return 1;
       } else if (num1 < num2) {
-        return -1
+        return -1;
       }
     }
 
-    return 0
-  }
-
-  const payViOrder = () => {
-    TShow("", "loading", 10000);
-    Taro.login({
-      complete: (loginRes) => {
-        if (!loginRes.code) return;
-        getPayViOrder({code: loginRes.code, product_id: option.bar }).then((res) => {
-          if (res.code !== 200) {
-            THide();
-            return TShow(res.msg);
-          }
-          console.log(res);
-          let data = res.data;
-          let sData = res.data.signData;
-          const SDKVersion = Taro.getSystemInfoSync().SDKVersion
-          if (compareVersion(SDKVersion, '2.19.2') >= 0 || wx.canIUse('requestVirtualPayment')) {
-            wx.requestVirtualPayment({
-              signData: JSON.stringify({
-                offerId: sData.offerId,
-                buyQuantity: sData.buyQuantity,
-                env: sData.env,
-                currencyType: sData.currencyType,
-                productId: sData.productId,
-                goodsPrice: sData.goodsPrice,
-                outTradeNo: sData.outTradeNo,
-                attach: sData.attach,
-              }),
-              paySig: data.paySig,
-              signature: data.signature,
-              mode: 'short_series_goods',
-              success(res) {
-                payStatus(data.signData.outTradeNo);
-              },
-              fail({ errMsg, errCode }) {
-                console.error(errMsg, errCode)
-                THide();
-                if (errCode == -1) {
-                  TShow("支付失败");
-                }
-                if (errCode == -2) {
-                  TShow("支付取消");
-                }
-              },
-            })
-          } else {
-            console.log('当前用户的客户端版本不支持 wx.requestVirtualPayment')
-          }
-        });
-      }
-    })
+    return 0;
   };
+
   return (
     <View className="index">
       <HeaderView
@@ -346,7 +342,7 @@ export default function Search() {
         <View
           className="index_content_btn"
           hoverClass="index_content_active"
-          onClick={payChoose}
+          onClick={payOrder}
         >
           确认支付
         </View>

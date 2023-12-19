@@ -14,8 +14,8 @@ const envConf = {
     VCONSOLE: true,
     // appid: "长城：wx529fadf983b0b19e dskafdsl",千港：wx83e87715053b44fb dsadfs
     appid: "wx529fadf983b0b19e",
-    // BASE_URL: "http://dev.shortvideo.ink/api/abc123/",
-    BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
+    BASE_URL: "http://dev.shortvideo.ink/api/abc123/",
+    // BASE_URL: "https://video.test.jixuejima.com/api/dskafdsl/",
   },
   // 体验版-测试环境
   trial: {
