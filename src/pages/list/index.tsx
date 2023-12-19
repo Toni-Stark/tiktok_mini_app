@@ -207,7 +207,7 @@ export default function List() {
               showCenterPlayBtn
               playBtnPosition="center"
               loop={false}
-              objectFit="fill"
+              objectFit="cover"
             />
             <View className="components-video-large-content">
               <View className="large-content-main">

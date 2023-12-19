@@ -1,4 +1,11 @@
-import {View, Text, ScrollView, Image, Video, CoverView} from "@tarojs/components";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  Video,
+  CoverView,
+} from "@tarojs/components";
 import Taro, { useDidShow, useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
 import "taro-ui/dist/style/components/loading.scss";
@@ -21,7 +28,7 @@ import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
 import { setInterFun, setTimerFun } from "@/common/tools";
 import { SetStorageSync } from "@/store/storage";
-import {HeaderView} from "@/components/headerView";
+import { HeaderView } from "@/components/headerView";
 
 export default function Index() {
   const router = useRouter();
@@ -229,6 +236,10 @@ export default function Index() {
             loop
             onClick={() => naviToVideo(headerVideo?.id)}
             objectFit="cover"
+            showFullscreenBtn={false}
+            enablePlayGesture
+            showCenterPlayBtn
+            playBtnPosition="center"
           />
           <View className="components-video-shadow" />
           <View
@@ -354,7 +365,7 @@ export default function Index() {
           <View
             className="index_zone_view_header"
             style={{
-              marginTop: pch+option.statusBarHeight,
+              marginTop: pch + option.statusBarHeight,
               height: option.barHeight,
             }}
           >
@@ -366,27 +377,23 @@ export default function Index() {
             />
           </View>
           <View className="index_zone_view_content">
-            <View
-              className="components-video"
-            >
-              {currentHeader}
-            </View>
+            <View className="components-video">{currentHeader}</View>
             <View className="components-video-lar">
-                <Text className="components-video-lar-text">看你想看</Text>
-                <View
-                  className="components-video-lar-link"
-                  onClick={() => {
-                    naviToCateOne(1, "更多分类");
-                  }}
-                >
-                  更多分类
-                  <Image
-                    mode="widthFix"
-                    className="components-video-lar-link-icon"
-                    src={right}
-                  />
-                </View>
+              <Text className="components-video-lar-text">看你想看</Text>
+              <View
+                className="components-video-lar-link"
+                onClick={() => {
+                  naviToCateOne(1, "更多分类");
+                }}
+              >
+                更多分类
+                <Image
+                  mode="widthFix"
+                  className="components-video-lar-link-icon"
+                  src={right}
+                />
               </View>
+            </View>
             {currentLarContent}
             {currentTeTContent}
             {tagsData.length > 0 ? (
