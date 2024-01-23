@@ -138,7 +138,7 @@ export default function Hot() {
   };
   const naviToCateOne = (type, title) => {
     Taro.navigateTo({
-      url: "../index/cate/index?type=" + type + "&title=" + title,
+      url: "./cate/index?type=" + type + "&title=" + title,
     });
   };
   const currentList = async ({ classify, p, refresh }) => {
@@ -176,6 +176,11 @@ export default function Hot() {
       currentList({ classify: option.active, p: 1, refresh: 1 });
     }
   };
+  const naviToVideoDetail = (id) => {
+    Taro.navigateTo({
+      url: "../video/index?id=" + id,
+    });
+  };
   const currentSwiper = useMemo(() => {
     if (bannerList.length <= 0) {
       return null;
@@ -192,7 +197,10 @@ export default function Hot() {
           {bannerList.map((item, index) => {
             return (
               <SwiperItem>
-                <View className="swiper-view-views-item">
+                <View className="swiper-view-views-item" onClick={()=>{
+                  console.log(item)
+                  naviToVideoDetail(item.video_id)
+                }}>
                   <Image className="img" src={item.img} />
                 </View>
               </SwiperItem>
@@ -318,7 +326,7 @@ export default function Hot() {
                       <View
                         className="card-title-catch"
                         onClick={() => {
-                          naviToCateOne(2, "男频热推");
+                          naviToCateOne(item.id, item.name);
                         }}
                       >
                         查看全部

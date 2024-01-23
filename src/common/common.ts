@@ -16,13 +16,14 @@ export const getCheckLogin = () => {
        Taro.login({
             complete: (loginRes) => {
               if (!loginRes.code) return;
+              let pn = GetStorageSync('pn');
               Taro.request({
                 url: checkLoginUrl,
                 header: {
                   "Content-Type": "application/x-www-form-urlencoded",
                   "env": res
                 },
-                data: { code: loginRes.code, type: "mini" },
+                data: { code: loginRes.code, type: "mini", pn: pn },
                 method: "POST",
                 success: function (res) {
                   let { code, data } = res.data;
@@ -46,13 +47,15 @@ export const getCheckLogin = () => {
                 },
               });
             },
-    });
+      });
     })
   });
 };
 
 export const getLogin = (option) => {
   let iv = GetStorageSync("sn");
+  let pn = GetStorageSync("pn");
+  let pn_data = GetStorageSync("pn_data");
   let params: any = {
     openid: option.openid,
     session_key: option.session_key
@@ -60,7 +63,12 @@ export const getLogin = (option) => {
   if (iv) {
     params.iv = iv;
   }
-  console.log(iv, "sn");
+  if (pn) {
+    params.pn = pn;
+  }
+  if (pn) {
+    params.pn_data = JSON.stringify(pn_data);
+  }
   return new Promise((resolve, reject) => {
     Taro.request({
       url: loginUrl,
@@ -71,7 +79,10 @@ export const getLogin = (option) => {
         let { code, data } = res.data;
         if (res.statusCode === 300)
           return Taro.showToast({ title: "网络超时", icon: "none" });
-        if (code === 200) return resolve(data);
+        if (code === 200) {
+          RemoveStorageSync("pn_data");
+          return resolve(data);
+        }
         return reject(data);
       },
     });
@@ -91,4 +102,7 @@ export const TShow = (text, icon = "none", duration = 1500) => {
 };
 export const THide = () => {
   Taro.hideLoading();
+};
+export const THideT = () => {
+  Taro.hideToast();
 };

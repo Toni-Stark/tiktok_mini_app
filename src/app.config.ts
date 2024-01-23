@@ -17,6 +17,7 @@ export default defineAppConfig({
     "pages/mine/info/edit/index",
     "pages/mine/wallet/wllt/index",
     "pages/hot/index",
+    "pages/hot/cate/index",
     "pages/hot/theater/index",
     "pages/video/index",
     "pages/mine/system/user/index",

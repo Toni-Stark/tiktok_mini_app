@@ -74,6 +74,13 @@ export const cloudGet = (url, params) => {
   let str = getFormUrl(params);
   return cloudRequest({ url: url + "?" + str, method: "GET" });
 };
-export const cloudPost = (url, params) => {
+export const cloudPost = (url, params: any) => {
+  let pn: any = GetStorageSync("pn");
+  if(params && pn){
+    params['pn'] = pn;
+  }
+  if(!params && pn){
+    params = {pn};
+  }
   return cloudRequest({ url, method: "POST", data: params });
 };

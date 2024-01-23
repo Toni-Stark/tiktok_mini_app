@@ -30,9 +30,10 @@ import {
   getVideoPay,
   getVideoUpdate,
 } from "@/common/interface";
-import { THide, TShow } from "@/common/common";
+import {THide, THideT, TShow} from "@/common/common";
 import home from "@/static/icon/home.png";
 import {getSystemInfo} from "@/common/tools";
+import {SetStorage, SetStorageSync} from "@/store/storage";
 
 let timePlay = 0;
 let timerPlay = null;
@@ -85,10 +86,19 @@ export default function VideoView() {
   });
   const [currentInfo, setCurrentInfo] = useState(undefined);
   const [allList, setAllList] = useState([]);
+  const [recording, setRecording] = useState(false);
 
   useDidShow(() => {
-    const params = router.params;
-    getVideoList({ v_id: params.id });
+    const params: any = router.params;
+    if (params?.pn) {
+      SetStorage('pn', params?.pn).then(()=>{
+        SetStorage('pn_data', params).then(()=>{
+          getVideoList({ v_id: params.id, pn_data: JSON.stringify(params) });
+        });
+      });
+    } else {
+      getVideoList({ v_id: params.id });
+    }
     let _option = option;
     _option.title = "";
     const rect = Taro.getMenuButtonBoundingClientRect();
@@ -109,32 +119,29 @@ export default function VideoView() {
     setOption({ ..._option });
   });
   useEffect(() => {
+    Taro.setVisualEffectOnCapture({
+      visualEffect: 'hidden',
+      success: ()=>{
+        console.log('阻止截屏或录屏');
+      }
+    })
+    // Taro.onUserCaptureScreen(function (res) {
+    //   console.log('用户截屏了', res)
+    // })
+    // Taro.onScreenRecordingStateChanged(function (res) {
+    //   console.log('用户录屏了', res);
+    //   setRecording(true);
+    // })
     return () => {
       clearInterval(timerPlay);
       timerPlay = null;
     };
   }, []);
   const getVideoList = (params) => {
+    TShow("加载中...", "loading", 30000);
     getVideoIndex(params).then((res) => {
       let btnArr: any = [...dataList];
       const { info, list } = res.data;
-      // let list = {
-      //   "1-4": [
-      //     { id: "24", name: "1", video_id: "1" },
-      //     { id: "25", name: "2", video_id: "2" },
-      //     { id: "21", name: "3", video_id: "3" },
-      //   ],
-      //   "1-5": [
-      //     { id: "29", name: "4", video_id: "4" },
-      //     { id: "26", name: "5", video_id: "5" },
-      //     { id: "22", name: "6", video_id: "6" },
-      //   ],
-      //   "1-6": [
-      //     { id: "28", name: "7", video_id: "7" },
-      //     { id: "27", name: "8", video_id: "8" },
-      //     { id: "20", name: "9", video_id: "9" },
-      //   ],
-      // };
 
       btnArr[0].value = info.like;
       btnArr[1].value = info.collect;
@@ -154,13 +161,16 @@ export default function VideoView() {
           let v_info = list[key][i];
           resData.push(v_info);
           if (c_id == v_info.id) {
-            setCurrentInfo(v_info);
-            getVideoUpdate({ v_s_id: v_info.id });
-            setCurrent({
-              ...current,
-              b_list: list[key],
-              page: key,
-              v_id: v_info.id,
+            getVideoUpdate({ v_s_id: v_info.id }).then((res)=>{
+              console.log(res.data, '222');
+              setCurrent({
+                ...current,
+                b_list: list[key],
+                page: key,
+                v_id: v_info.id,
+              });
+              v_info.url = res.data.url;
+              setCurrentInfo(v_info);
             });
           }
         }
@@ -171,6 +181,7 @@ export default function VideoView() {
       });
       setBtnList(arr);
       setAllList(resData);
+      THideT()
       Taro.useShareAppMessage((res) => {
         if (res.from === "button") {
           console.log(res.target);
@@ -451,30 +462,34 @@ export default function VideoView() {
             )}
             <View id="targetPosition" />
             <View className="center" style={{height: option.screenHeight+3}}>
-              <View className="center_video">
-                {currentInfo?.url ? (
-                  <Video
-                    className="center_video_large"
-                    src={currentInfo?.url}
-                    poster={dataInfo?.img}
-                    initialTime={0}
-                    controls
-                    onPlay={startPlay}
-                    onPause={stopPlay}
-                    onEnded={onEnded}
-                    showPlayBtn
-                    showFullscreenBtn={false}
-                    autoplay
-                    enablePlayGesture
-                    showCenterPlayBtn
-                    playBtnPosition="center"
-                    loop={false}
-                    objectFit="fill"
-                  />
-                ) : (
-                  <Image className="center_video_img" src={dataInfo?.img} />
-                )}
-              </View>
+              {
+                recording?<View className="center_recording">版权保护，请关闭录屏</View>:(
+                  <View className="center_video">
+                    {currentInfo?.url ? (
+                      <Video
+                        className="center_video_large"
+                        src={currentInfo?.url}
+                        poster={dataInfo?.img}
+                        initialTime={0}
+                        controls
+                        onPlay={startPlay}
+                        onPause={stopPlay}
+                        onEnded={onEnded}
+                        showPlayBtn
+                        showFullscreenBtn={false}
+                        autoplay
+                        enablePlayGesture
+                        showCenterPlayBtn
+                        playBtnPosition="center"
+                        loop={false}
+                        objectFit="fill"
+                      />
+                    ) : (
+                      <Image className="center_video_img" src={dataInfo?.img} />
+                    )}
+                  </View>
+                )
+              }
               <View className="center_footer" />
             </View>
             {current.v_id != posInfo.l_id ? (

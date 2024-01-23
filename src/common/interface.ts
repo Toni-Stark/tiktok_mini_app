@@ -94,6 +94,10 @@ export const getMemberSpread = async (params) => {
 export const getPayViOrder = async (params) => {
   return await cloudPost("pay/add-order-vir", params);
 };
+export const getVideoMessage = async (params) => {
+  return await cloudPost("index/push", params);
+};
+export const getIndexActRecord = (params) => {
+  return cloudPost("index/act-record", params);
+};
 
-// type 1 // 购买会员时长 expire_days gift_score（赠送的
-//  type 2 // 购买积分 score(积分数）

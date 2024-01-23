@@ -78,6 +78,7 @@ export default function Code() {
       end_color: "#6400ff",
     },
   ]);
+  const [desc, setDesc] = useState([]);
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
@@ -97,13 +98,8 @@ export default function Code() {
   });
   const currentMemberSpread = () => {
     getMemberSpread().then((res) => {
-      let { current_spread_num, list } = res.data;
-      let arr = [...dataList];
-      arr[0] = currentArrVal(arr[0], list[0], current_spread_num, 0);
-      arr[1] = currentArrVal(arr[1], list[1], current_spread_num, 1);
-      arr[2] = currentArrVal(arr[2], list[2], current_spread_num, 2);
-      arr[3] = currentArrVal(arr[3], list[3], current_spread_num, 3);
-      setDataList([...arr]);
+      let {list} = res.data;
+      setDesc([...list]);
       setRefresh(false);
     });
   };
@@ -273,18 +269,12 @@ export default function Code() {
               <View>
                 3、被邀请人在平台消费，你将获得一定奖励，不同等级剧推官获得奖励不同，等级越高奖励越多。
               </View>
-              {dataList.map((item, index) => {
-                let start = item.start_num;
-                let end =
-                  index >= dataList.length - 1 ? "" : "-" + item.end_num;
-                if (index > 0) {
+              {desc.map((item) => {
                   return (
                     <View>
-                      {item.title}：邀请{start}
-                      {end}人
+                      {item.describe}
                     </View>
                   );
-                } else return null;
               })}
             </View>
           </View>

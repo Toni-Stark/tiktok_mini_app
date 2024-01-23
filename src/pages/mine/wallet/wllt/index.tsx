@@ -169,7 +169,11 @@ export default function Hot() {
                           <View className="text">
                             赠送：
                             <View className="coin">
-                              <View className="eva">{item.gift_score}</View>
+                              {
+                                item.score !=0 ? (
+                                  <View className="eva">{item.score}</View>
+                                ) : (<View>{item.gift_score}</View>)
+                              }
                               <View className="eva">积分</View>
                             </View>
                           </View>

@@ -4,6 +4,7 @@ import "./index.less";
 import Taro from "@tarojs/taro";
 import { Loading } from "@/components/loading";
 import right from "@/static/icon/right.png";
+import {getIndexActRecord} from "@/common/interface";
 
 type Props = {
   data: any;
@@ -13,6 +14,7 @@ type Props = {
 export const IndexCard = (props: Props) => {
   const { loading, data } = props;
   const naviToList = (title, id) => {
+    getIndexActRecord({frame: '1', act: '2', target_id: id});
     Taro.navigateTo({
       url: "./hot/index?title=" + title + "&id=" + id,
     });

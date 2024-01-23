@@ -19,7 +19,7 @@ export default function System() {
   });
   return (
     <View className="index">
-      <WebView src="https://video.test.jixuejima.com/api/default/server" />
+      <WebView src="https://video.hbcyszw.cn/api/default/server" />
     </View>
   );
 }

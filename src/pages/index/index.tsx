@@ -4,7 +4,7 @@ import {
   ScrollView,
   Image,
   Video,
-  CoverView,
+  CoverView, Swiper, SwiperItem,
 } from "@tarojs/components";
 import Taro, { useDidShow, useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/button.scss";
@@ -16,19 +16,24 @@ import right from "../../static/icon/right.png";
 import top from "../../static/icon/top.png";
 import { AtButton } from "taro-ui";
 import {
+  getIndexActRecord,
+  getIndexBanner,
   getIndexClassify,
   getIndexClassifyList,
   getIndexRecommend,
   getIndexRecommendList,
   getIndexTags,
-  getIndexTagsVideo,
+  getIndexTagsVideo, getVideoMessage,
 } from "@/common/interface";
 import { Loading } from "@/components/loading";
 import { IndexCard } from "@/components/indexCard";
 import { IndexVideo } from "@/components/IndexVideo";
 import { setInterFun, setTimerFun } from "@/common/tools";
-import { SetStorageSync } from "@/store/storage";
+import {GetStorageSync, SetStorageSync} from "@/store/storage";
 import { HeaderView } from "@/components/headerView";
+import {FloatView} from "@/components/floatView";
+import {apis} from "@tarojs/plugin-platform-h5/dist/dist/definition.json";
+import setStorage = apis.setStorage;
 
 export default function Index() {
   const router = useRouter();
@@ -52,6 +57,10 @@ export default function Index() {
   const [btnList, setBtnList] = useState([]);
   const [reComm, setReCmm] = useState([]);
   const [tagsData, setTagsData] = useState([]);
+  const [bannerList, setBannerList] = useState([]);
+
+  const [message, setMessage] = useState<any>(undefined);
+  const [showNew, setShowNew] = useState(false);
 
   const handleScrollTop = () => {
     setScrollTop(scrollTop ? 0 : 1);
@@ -91,6 +100,18 @@ export default function Index() {
     setInterFun(() => {
       refreshReList();
     });
+    getVideoMessage().then((res)=>{
+      let time = GetStorageSync("time");
+      let bool = true;
+      if(time && new Date().getTime()-time<=28800000){
+        bool = false;
+      }
+      if(bool){
+        SetStorageSync("time", new Date().getTime());
+        setMessage(res.data);
+        setShowNew(res.data?.video_id?true:false);
+      }
+    })
   });
 
   const refreshReList = () => {
@@ -139,6 +160,11 @@ export default function Index() {
         }, 300);
       });
     });
+    getIndexBanner().then((res) => {
+      if (res.code === 200) {
+        setBannerList(res.data);
+      }
+    });
   });
   const refreshChange = () => {
     setOption({ ...option, refresh: true });
@@ -183,9 +209,10 @@ export default function Index() {
   };
   const setActive = (id) => {
     if (id == 88) {
-      currentRecommendList({ classify: id });
+      currentRecommendList(88);
     } else {
       currentList({ classify: id, p: 1 });
+      getIndexActRecord({frame: '1', act: '1', target_id: id});
     }
   };
   const onScroll = (e) => {
@@ -209,10 +236,44 @@ export default function Index() {
     });
   };
   const naviToVideo = (id) => {
+    if(!id) return;
     Taro.navigateTo({
       url: "../video/index?id=" + id,
     });
   };
+  const hideShowFun = () => {
+
+  }
+
+  const currentSwiper = useMemo(() => {
+    if (bannerList.length <= 0) {
+      return null;
+    }
+    return (
+      <View className="swiper-view">
+        <Swiper
+          className="swiper-view-views"
+          indicatorColor="#999"
+          indicatorActiveColor="#333"
+          circular
+          autoplay
+        >
+          {bannerList.map((item, index) => {
+            return (
+              <SwiperItem>
+                <View className="swiper-view-views-item" onClick={()=>{
+                  console.log(item)
+                  naviToVideoDetail(item.video_id)
+                }}>
+                  <Image className="img" src={item.img} />
+                </View>
+              </SwiperItem>
+            );
+          })}
+        </Swiper>
+      </View>
+    );
+  }, [bannerList]);
 
   const currentHeader = useMemo(() => {
     if (!loading1) {
@@ -267,6 +328,7 @@ export default function Index() {
         </View>
       );
     } else {
+      console.log('88', option.active)
       return (
         <>
           <View className="components-video-buttons">
@@ -405,6 +467,7 @@ export default function Index() {
             {tagsData.length > 1 ? (
               <IndexCard data={tagsData[1]} loading={loading3} />
             ) : null}
+            {currentSwiper}
             {recommend.length >= 3 ? (
               <IndexVideo height={option.screenWidth} data={recommend[2]} />
             ) : null}
@@ -423,6 +486,15 @@ export default function Index() {
         >
           <Image className="scroll_top_img" src={top} />
         </View>
+        <FloatView
+          show={showNew}
+          naviVideo={(id)=>{naviToVideo(id)}}
+          clickFun={()=>{setShowNew(false)}}
+          img={message?.img}
+          text={message?.video_name}
+          title={message?.title}
+          id={message?.video_id}
+        />
       </View>
       {/*<View className="index_footer" />*/}
     </View>

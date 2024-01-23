@@ -20,7 +20,7 @@ export default function System() {
   });
   return (
     <View className="index">
-      <WebView src="https://video.test.jixuejima.com/api/default/term" />
+      <WebView src="https://video.hbcyszw.cn/api/default/term" />
     </View>
   );
 }
