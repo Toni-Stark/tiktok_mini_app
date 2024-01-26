@@ -6,10 +6,9 @@ import { useEffect, useState } from "react";
 import header from "../../../static/source/header.png";
 import { getMemberInfo, setMember } from "@/common/interface";
 import { getSex } from "@/common/tools";
-import { AtFloatLayout, AtList, AtListItem } from "taro-ui";
+import { AtFloatLayout } from "taro-ui";
 import { TShow } from "@/common/common";
 import { HeaderView } from "@/components/headerView";
-import { VIEW } from "@tarojs/runtime";
 
 const selector = ["男", "女"];
 
@@ -17,8 +16,6 @@ export default function Info() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    screenWidth: 0,
-    screenHeight: 0,
     nick: "匿名用户",
     sex: getSex(0),
     current: [0],
@@ -30,19 +27,12 @@ export default function Info() {
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
-    Taro.getSystemInfo({
-      success: (res) => {
-        _option.screenWidth = res.screenWidth;
-        _option.screenHeight = res.screenHeight;
-      },
-    });
     setOption({ ..._option });
     return () => {};
   }, []);
 
   useDidShow(() => {
     getMemberInfo().then((res) => {
-      console.log(res);
       setOption({
         ...option,
         nick: res.data.nickname,
@@ -51,9 +41,6 @@ export default function Info() {
     });
   });
 
-  const naviBack = () => {
-    Taro.navigateBack();
-  };
   const naviToNick = () => {
     Taro.navigateTo({
       url: "./edit/index",
@@ -72,7 +59,6 @@ export default function Info() {
     });
   };
   const changeVal = (e) => {
-    console.log(e.detail.value[0]);
     setOption({
       ...option,
       current: e.detail.value,

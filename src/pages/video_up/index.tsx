@@ -3,8 +3,8 @@ import {
   Image,
   Video,
   Button,
-  MovableArea,
-  MovableView,
+  Swiper,
+  SwiperItem,
 } from "@tarojs/components";
 import Taro, { useDidShow, useRouter } from "@tarojs/taro";
 import { AtButton, AtFloatLayout } from "taro-ui";
@@ -30,31 +30,26 @@ import {
   getVideoPay,
   getVideoUpdate,
 } from "@/common/interface";
-import {THide, TShow} from "@/common/common";
+import {THide, THideT, TShow} from "@/common/common";
 import home from "@/static/icon/home.png";
-import { GetStorageSync, SetStorage, SetStorageSync} from "@/store/storage";
+import {GetStorageSync, RemoveStorageSync, SetStorage, SetStorageSync} from "@/store/storage";
+import {setTimFun} from "@/common/tools";
 
 let timePlay = 0;
 let timerPlay = null;
-let scrTop = 0;
-let scrTimer = null;
 export default function VideoView() {
   const pages = Taro.getCurrentPages();
   const router = useRouter();
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    videoHeight: 0,
     active: 1,
-    screenWidth: 0,
-    screenHeight: 0,
     more: false,
     refresh: false,
     title: "",
     type: "",
   });
-  const [dataInfo, setDataInfo] = useState<any>(undefined);
-  const [dataList, setDataList] = useState([
+  const [fivList, setFivList] = useState([
     {
       value: 0,
       icon: heart,
@@ -69,26 +64,31 @@ export default function VideoView() {
     },
   ]);
   const [show, setShow] = useState(false);
-  const [btnList, setBtnList] = useState([]);
+  const [dataInfo, setDataInfo] = useState(undefined);
+  const [pageList, setPageList] = useState(undefined);
+  const [allList, setAllList] = useState(undefined);
+
   const [current, setCurrent] = useState<any>({
     page: 0,
     v_id: 1,
     b_list: [],
   });
-  const [posInfo, setPosInfo] = useState({
-    f_id: "",
-    l_id: "",
-  });
-  const [position, setPosition] = useState({
-    y: 0,
-    top: 0,
-  });
   const [currentInfo, setCurrentInfo] = useState(undefined);
-  const [allList, setAllList] = useState([]);
-  const [recording, setRecording] = useState(false);
-
+  const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(false);
+  let userInfo: any = GetStorageSync("allJson");
+  Taro.useShareAppMessage((res) => {
+    if (res.from === "button") {
+      console.log(res.target);
+    }
+    return {
+      title: dataInfo.name,
+      path: "/pages/video_up/index?id="+dataInfo.id+"&iv="+userInfo.sn,
+    };
+  });
   useDidShow(() => {
     const params: any = router.params;
+    console.log(params, 'log');
     if (params?.iv) {
       let sn = decodeURIComponent(params.iv);
       SetStorageSync("sn", sn);
@@ -96,29 +96,20 @@ export default function VideoView() {
     if (params?.pn) {
       SetStorage('pn', params?.pn).then(()=>{
         SetStorage('pn_data', params).then(()=>{
+          setLoading(true)
           getVideoList({ v_id: params.id, pn_data: JSON.stringify(params) });
         });
       });
     } else {
+      setLoading(true)
       getVideoList({ v_id: params.id });
     }
+
     let _option = option;
     _option.title = "";
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.height;
     _option.statusBarHeight = rect.top;
-    Taro.getSystemInfo({
-      success: (res) => {
-        _option.screenWidth = res.screenWidth;
-        _option.screenHeight = res.screenHeight;
-        _option.videoHeight = res.screenWidth / 0.72;
-      },
-    });
-    setPosition({
-      ...position,
-      y: -2 - _option.screenHeight,
-      top: -2 - _option.screenHeight,
-    });
     setOption({ ..._option });
   });
   useEffect(() => {
@@ -128,33 +119,52 @@ export default function VideoView() {
         console.log('阻止截屏或录屏');
       }
     })
-    // Taro.onUserCaptureScreen(function (res) {
-    //   console.log('用户截屏了', res)
-    // })
-    // Taro.onScreenRecordingStateChanged(function (res) {
-    //   console.log('用户录屏了', res);
-    //   setRecording(true);
-    // })
     return () => {
       clearInterval(timerPlay);
       timerPlay = null;
     };
   }, []);
   const getVideoList = (params) => {
-    // TShow("加载中...", "loading", 30000);
     getVideoIndex(params).then((res) => {
-      let btnArr: any = [...dataList];
-      const { info, list } = res.data;
+      const {info, list} = res.data;
 
-      btnArr[0].value = info.like;
-      btnArr[1].value = info.collect;
-      btnArr[0].check = info?.is_liked ? 2 : 1;
-      btnArr[1].check = info.is_collected ? 2 : 1;
+      settingBtn(info)
+
       setDataInfo(info);
-      setDataList([...btnArr]);
-      let arr = [];
-      let resData = [];
+
       let c_id = params?.current || info?.history_sub_id;
+      if (!c_id) {
+        c_id = list[Object.keys(list)[0]][0].id
+      };
+      let b_list = [];
+      let page = undefined
+      for (let item in list) {
+        if (list.hasOwnProperty(item)) {
+          b_list.push({
+            title: item,
+            list: list[item]
+          })
+        }
+      }
+      setPageList(b_list);
+
+      let obj = undefined
+      b_list.find((i) => {
+        let res = i.list.find((j) => {
+          return j.id == c_id;
+        })
+        if (res) {
+          obj = res;
+          page = i.title;
+        }
+      });
+      let r_data = [];
+      b_list.map((a) => {
+        a?.list.map((j) => {
+          r_data.push(j)
+        })
+      })
+      setAllList([...r_data]);
       if(GetStorageSync("currentStatus")){
         if(!params.current && info?.history_sub_id) {
           SetStorageSync("currentStatus", "");
@@ -162,116 +172,73 @@ export default function VideoView() {
         }
       }
       if(GetStorageSync("currentHand")) {
-        SetStorageSync("currentHand", "");
+        RemoveStorageSync("currentHand");
         if (GetStorageSync("nowValPay") == "1") {
           c_id = GetStorageSync("nowVal");
-          SetStorageSync("nowVal", 0)
-          SetStorageSync("nowValPay", 0)
+          RemoveStorageSync("nowVal")
+          RemoveStorageSync("nowValPay")
         }
+      } else {
+        RemoveStorageSync("currentHand");
       }
-      if(!c_id) {c_id = list[Object.keys(list)[0]][0].id};
-      for (let key in list) {
-        arr.push({
-          title: key,
-          list: list[key],
-        });
-        for (let i in list[key]) {
-          let v_info = list[key][i];
-          resData.push(v_info);
-          if (c_id == v_info.id) {
-            if (!v_info.is_pay) {
-              TShow("解锁中", "loading", 2000);
-              setTimeout(() => {
-                getVideoPay({ v_s_id: v_info.id }).then((res) => {
-                  if (res.code == 101) {
-                    naviToHotOne(info);
-                    if(!params.current && info?.history_sub_id) {
-                      SetStorageSync("currentStatus", info?.history_sub_id);
-                    }
-                    return;
-                  } else if (res.code == 200) {
-                    THide();
-                    TShow("购买成功");
-                    getVideoList({ v_id: info.id, current: v_info.id });
-                    return;
-                  }
-                  THide();
-                });
-              }, 1400);
+      RemoveStorageSync("nowVal")
+
+      let ind: any = r_data.findIndex((item) => {
+        return item.id == c_id
+      });
+      let currInfo = r_data[ind];
+
+      if(currInfo.id != c_id) return;
+      if(!currInfo?.is_pay) {
+        TShow("解锁中", "loading", 2000);
+        setTimFun(() => {
+          getVideoPay({v_s_id: currInfo.id}).then((res) => {
+            if (res.code == 101) {
+              THideT()
+              naviToHotOne(info);
+              if (!params.current && info?.history_sub_id) {
+                SetStorageSync("currentStatus", info?.history_sub_id);
+              }
+              return;
+            } else if (res.code == 200) {
+              THideT();
+              TShow("购买成功");
+              getVideoList({v_id: info.id, current: currInfo.id, index: params.index});
               return;
             }
-            getVideoUpdate({ v_s_id: v_info.id }).then((res)=>{
-              setCurrent({
-                ...current,
-                b_list: list[key],
-                page: key,
-                v_id: v_info.id,
-              });
-              v_info.url = res.data?.url;
-              // if(!v_info?.url){
-              //   TShow("请联系");
-              // }
-              setCurrentInfo(v_info);
-            });
-          }
-        }
+            THide();
+          })
+        }, 400)
+        return;
       }
-      setPosInfo({
-        f_id: resData[0].id,
-        l_id: resData[resData.length - 1].id,
+      getVideoUpdate({v_s_id: currInfo.id}).then((res) => {
+        setCurrent({
+          ...current,
+          b_list: list[page],
+          page: page,
+          v_id: currInfo.id,
+        });
+        currInfo.url = res.data?.url;
+        setCurrentInfo(currInfo);
+        setIndex(params?.index||0);
+        setTimFun(() => {
+          setIndex(ind);
+          setLoading(false)
+        },200)
       });
-      setBtnList(arr);
-      setAllList(resData);
-      // THideT()
+      return;
+    })
+  }
 
-    });
-  };
-
-  const chooseCurVideo = (down, up) => {
-    let curInfo = currentInfo;
-    let index = allList.findIndex((item) => item.id === curInfo.id);
-    let info: any;
-    if (down) {
-      if (index < allList.length - 1) {
-        info = allList[index + 1];
-      }
-    } else if (up) {
-      if (index > 0) {
-        info = allList[index - 1];
-      }
-    }
-    if (info?.id && (down || up)) {
-      chooseCurrent(info.id);
-      setShow(false);
-    }
-  };
-
-  const handleMovableViewStart = (e) => {
-    let val = e.mpEvent.changedTouches[0].clientY;
-    setPosition({
-      ...position,
-      top: val,
-    });
-  };
-  // 处理 MovableView 的移动事件
-  const handleMovableViewEnd = (e) => {
-    let val = e.mpEvent.changedTouches[0].clientY;
-    let down = val - position.top < -100;
-    let up = val - position.top > 100;
-    let num = -2 - option.screenHeight;
-    let bool = num === position.y;
-    if (bool) {
-      num = -1 - option.screenHeight;
-    }
-    chooseCurVideo(down, up);
-    setTimeout(() => {
-      setPosition({
-        ...position,
-        y: num,
-      });
-    }, 100);
-    stopPlay();
-  };
+  // 设置点赞收藏按钮
+  const settingBtn = (info) => {
+    let btnArr: any = [...fivList];
+    btnArr[0].value = info.like;
+    btnArr[1].value = info.collect;
+    btnArr[0].check = info?.is_liked ? 2 : 1;
+    btnArr[1].check = info.is_collected ? 2 : 1;
+    setFivList([...btnArr]);
+  }
 
   const naviBack = () => {
     Taro.navigateBack();
@@ -282,8 +249,9 @@ export default function VideoView() {
     });
   };
 
+
   const clickItemValue = (index, value) => {
-    let list: any = dataList;
+    let list: any = fivList;
     let bool = value == 1 ? 2 : 1;
     if (value) {
       list[index].check = bool;
@@ -292,7 +260,7 @@ export default function VideoView() {
       } else {
         list[index].value = Number(list[index].value) - 1;
       }
-      setDataList([...list]);
+      setFivList([...list]);
     }
     currentVideoFavorite(index, bool);
   };
@@ -303,36 +271,39 @@ export default function VideoView() {
     }).then((res) => {});
 
   };
-  const openLayout = () => {
-    let info = btnList.find((item) => item.title === current.page);
-    setCurrent({ ...current, b_list: info.list });
-    setShow(true);
-  };
+
   const handleClose = () => {
     setShow(false);
   };
-  const currentListInfo = (id) => {
-    let list = [];
-    let info = btnList.find((item) => item.title === id);
-    setCurrent({ ...current, b_list: info.list, page: id, data: list });
-  };
+
   const naviToHotOne = (info?: any) => {
     SetStorageSync("nowVal", info?.id);
     Taro.navigateTo({
       url: "../mine/wallet/recharge/index?is_pay="+(info?.spend_score ||dataInfo.spend_score),
     });
   };
-
+  const openLayout = () => {
+    let info = pageList.find((item) => item.title === current.page);
+    setCurrent({ ...current, b_list: info.list });
+    setShow(true);
+  };
   const chooseCurrent = (val) => {
     let info = allList.find((item) => item.id === val);
+    let ind = allList.findIndex((item) => item.id === val);
+    if(ind-index>=2||ind-index<=-2){
+      setLoading(true)
+    }
     if (info) {
       getVideoUpdate({ v_s_id: info.id }).then((res) => {
         info.url = res.data?.url;
         setCurrentInfo(info);
+        setIndex(ind);
+        setLoading(false)
       });
       setCurrent({ ...current, v_id: info.id });
     }
     if (!info.is_pay) {
+      setLoading(true)
       TShow("解锁中", "loading", 3000);
       setTimeout(() => {
         getVideoPay({ v_s_id: info.id }).then((res) => {
@@ -343,12 +314,12 @@ export default function VideoView() {
           } else if (res.code == 200) {
             THide();
             TShow("购买成功");
-            getVideoList({ v_id: dataInfo.id, current: info.id });
+            getVideoList({ v_id: dataInfo.id, current: info.id, index: ind });
             return;
           }
           THide();
         });
-      }, 1400);
+      }, 500);
       return;
     }
     setShow(false);
@@ -367,6 +338,7 @@ export default function VideoView() {
   };
   const startPlay = async (e) => {
     clearInterval(timerPlay);
+    // 15秒发送一次请求更新观看次数
     timerPlay = null;
     timerPlay = setInterval(async () => {
       timePlay += 1;
@@ -378,30 +350,24 @@ export default function VideoView() {
     }, 1000);
   };
   const stopPlay = () => {
-    clearInterval(timerPlay);
-    timerPlay = null;
-    timePlay = 1;
   };
   const onEnded = () => {
-    clearInterval(scrTimer);
-    scrTimer = null;
-    scrTimer = setInterval(() => {
-      let u = 20;
-      if (scrTop < 100) {
-        scrTop += u;
-        setPosition({ ...position, y: position.y - scrTop });
-      } else {
-        clearInterval(scrTimer);
-        scrTimer = null;
-        scrTop = 0;
-        setTimeout(() => {
-          let num = -2 - option.screenHeight;
-          setPosition({ ...position, y: num });
-          chooseCurVideo(true, false);
-        }, 500);
-      }
-    }, 50);
+    if(index >= allList.length) return;
+    let info = allList[index+1];
+    getVideoList({ v_id: dataInfo.id, current: info.id, index: index+1 });
   };
+  const swiperChange = (e) => {
+    let val = e.detail.current;
+    let info = allList[val];
+    if(info.id == currentInfo.id || loading) return;
+    // getVideoList({ v_id: dataInfo.id, current: info.id, index: val });
+    chooseCurrent(info.id)
+  }
+  const currentChange = (id) => {
+    let list = [];
+    let info = pageList?.find((item) => item.title === id);
+    setCurrent({ ...current, b_list: info.list, page: id, data: list });
+  }
   // 返回按钮
   const backBtnView = useMemo(() => {
     return (
@@ -413,66 +379,68 @@ export default function VideoView() {
       />
     )
   }, [pages])
-  // 视频前置图片
-  const currentViewEven = useMemo(() => {
-    if(current.v_id != posInfo.f_id) {
-      return (
-        <View className="before">
-          <View className="center_footer"/>
-          <Image mode="aspectFill" className="before_image" src={dataInfo?.img}/>
-        </View>
-      );
-    } else {
-      return (<View className="before" />);
-    }
-  }, [current.v_id, posInfo.f_id, dataInfo?.img]);
-  // 视频组件
-  const currentVideo = useMemo(() => {
-    if(recording) {
-      return (<View className="center_recording">版权保护，请关闭录屏</View>)
-    } else {
-      return (
-        <View className="center_video">
-          {currentInfo?.url ? (
-            <Video
-              className="center_video_large"
-              src={currentInfo?.url}
-              poster={dataInfo?.img}
-              initialTime={0}
-              controls
-              onPlay={startPlay}
-              onPause={stopPlay}
-              onEnded={onEnded}
-              showPlayBtn
-              showFullscreenBtn={false}
-              autoplay
-              enablePlayGesture
-              showCenterPlayBtn
-              playBtnPosition="center"
-              loop={false}
-              objectFit="fill"
-            />
-          ) : (
-            <Image className="center_video_img" src={dataInfo?.img} />
-          )}
-        </View>
-      )
-    }
-  }, [recording, dataInfo?.img, currentInfo?.url])
-  // 视频后置图片
-  const currentViewNext = useMemo(()=>{
-    if(current.v_id != posInfo.l_id){
-      return (
-        <View className="after">
-          <Image mode="aspectFill" className="after_image" src={dataInfo?.img} />
-        </View>
-      )
-    } else {
-      return (
-        <View className="after" />
-      )
-    }
-  }, [current.v_id, posInfo.l_id, dataInfo?.img])
+
+  const currentViewVideo = (ind, index) => {
+    let bool = index === ind && currentInfo?.url;
+    return (
+      <>
+        {bool ?
+          <Video
+            className="center_video_large"
+            src={currentInfo?.url}
+            poster={dataInfo?.img}
+            style={{opacity: bool ? 1 : 0, zIndex:500}}
+            initialTime={0}
+            controls
+            onPlay={startPlay}
+            onPause={stopPlay}
+            onEnded={onEnded}
+            showPlayBtn
+            showFullscreenBtn={false}
+            enableProgressGesture={true}
+            autoplay={true}
+            enablePlayGesture
+            showCenterPlayBtn
+            playBtnPosition="center"
+            loop={false}
+            objectFit="fill"
+          /> : null}
+        <Image className="center_video_img" src={dataInfo?.img} style={{opacity: bool ? 0 : 1, zIndex: bool ? 0 : 10000}}/>
+      </>
+    )
+  }
+
+  const currentSwiper = useMemo(()=>{
+    return (
+      <Swiper
+        className='swiper_view'
+        indicatorColor='#999'
+        indicatorActiveColor='#333'
+        current={index}
+        duration={loading?0:500}
+        scrollWithAnimation={false}
+        skipHiddenItemLayout={true}
+        enablePassive={true}
+        onChange={swiperChange}
+        vertical>
+        {
+          allList?.map((item, ind)=>{
+            return (
+              <SwiperItem>
+                <View className='swiper_item'>
+                  <View className="center_video">
+                    {currentViewVideo(ind, index)}
+                  </View>
+                  <View className='swiper_item_footer' />
+                </View>
+              </SwiperItem>
+            )
+          })
+        }
+      </Swiper>
+    )
+  }, [index,loading, allList, currentInfo, dataInfo])
+
   // 弹窗视频列表
   const currentListContext = useMemo(()=>{
     return (
@@ -488,7 +456,7 @@ export default function VideoView() {
             />
           </View>
           <View className="layout_button">
-            {btnList.map((item, index) => {
+            {pageList?.map((item, index) => {
               return (
                 <AtButton
                   className={item.title === current.page ? "active" : ""}
@@ -496,7 +464,7 @@ export default function VideoView() {
                   type="primary"
                   size="normal"
                   onClick={() => {
-                    currentListInfo(item.title);
+                    currentChange(item.title);
                   }}
                 >
                   {item.title}
@@ -530,7 +498,7 @@ export default function VideoView() {
         </View>
       </AtFloatLayout>
     )
-  }, [show, dataInfo, btnList, current, currentInfo])
+  }, [show, dataInfo, pageList, current, currentInfo]);
   return (
     <View className="index">
       {/* 返回按钮和标题 */}
@@ -557,7 +525,7 @@ export default function VideoView() {
       </View>
       {/* 点赞收藏框 */}
       <View className="index_label">
-        {dataList.map((item, index) => {
+        {fivList.map((item, index) => {
           return (
             <View
               className="index_label_view"
@@ -594,28 +562,7 @@ export default function VideoView() {
       </View>
       {/* 视频滑动模块 */}
       <View className="index_content">
-        <MovableArea className="movable">
-          <MovableView
-            className="movable-view"
-            direction="vertical"
-            y={position.y}
-            damping={10}
-            friction={2}
-            inertia={false}
-            outOfBounds={false}
-            onTouchEnd={handleMovableViewEnd}
-            onTouchStart={handleMovableViewStart}
-          >
-            {currentViewEven}
-            {/* 滚动定位位置 */}
-            <View id="targetPosition" />
-            <View className="center" style={{height: option.screenHeight+3}}>
-              {currentVideo}
-              <View className="center_footer" />
-            </View>
-            {currentViewNext}
-          </MovableView>
-        </MovableArea>
+        {currentSwiper}
       </View>
       {currentListContext}
     </View>

@@ -5,15 +5,13 @@ import {
   SetStorageSync,
 } from "@/store/storage";
 import { env } from "@/store/config";
-import {getSystemInfo} from "@/common/tools";
 
 const checkLoginUrl = env.BASE_URL + "member/check-login";
 const loginUrl = env.BASE_URL + "member/login";
 
 export const getCheckLogin = () => {
   return new Promise((resolve, reject) => {
-    getSystemInfo().then((res)=>{
-       Taro.login({
+    Taro.login({
             complete: (loginRes) => {
               if (!loginRes.code) return;
               let pn = GetStorageSync('pn');
@@ -21,14 +19,13 @@ export const getCheckLogin = () => {
                 url: checkLoginUrl,
                 header: {
                   "Content-Type": "application/x-www-form-urlencoded",
-                  "env": res
                 },
                 data: { code: loginRes.code, type: "mini", pn: pn },
                 method: "POST",
                 success: function (res) {
                   let { code, data } = res.data;
                   if (res.statusCode === 300)
-                    return Taro.showToast({ title: "网络超时", icon: "none" });
+                    return Taro.showToast({ title: "网络超时",	mask:true, icon: "none" });
                   if (code === 200) return resolve(data);
                   if (code === 401) {
                     let params = {
@@ -48,7 +45,6 @@ export const getCheckLogin = () => {
               });
             },
       });
-    })
   });
 };
 
@@ -62,6 +58,7 @@ export const getLogin = (option) => {
   };
   if (iv) {
     params.iv = iv;
+    RemoveStorageSync("sn");
   }
   if (pn) {
     params.pn = pn;
@@ -72,13 +69,13 @@ export const getLogin = (option) => {
   return new Promise((resolve, reject) => {
     Taro.request({
       url: loginUrl,
-      header: { "Content-Type": "application/x-www-form-urlencoded" },
+      header: { "Content-Type": "application/x-www-form-urlencoded"},
       data: params,
       method: "POST",
       success: function (res) {
         let { code, data } = res.data;
         if (res.statusCode === 300)
-          return Taro.showToast({ title: "网络超时", icon: "none" });
+          return Taro.showToast({ title: "网络超时",	mask:true, icon: "none" });
         if (code === 200) {
           RemoveStorageSync("pn_data");
           return resolve(data);
@@ -93,6 +90,7 @@ export const TShow = (text, icon = "none", duration = 1500) => {
   return new Promise((resolve) => {
     Taro.showToast({
       title: text,
+      mask:true,
       icon,
       duration,
     }).then(() => {

@@ -2,8 +2,8 @@ import {
   View,
   ScrollView,
   Image,
-  Swiper,
-  SwiperItem,
+
+   Button,
 } from "@tarojs/components";
 import Taro, { useLoad } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
@@ -18,80 +18,36 @@ import share from "../../../static/icon/share.png";
 import { getMemberInfo, getMemberSpread } from "@/common/interface";
 import { TShow } from "@/common/common";
 import { HeaderView } from "@/components/headerView";
+import {GetStorageSync} from "@/store/storage";
 
 export default function Code() {
   const [option, setOption] = useState({
     statusBarHeight: 0,
     barHeight: 0,
-    screenWidth: 0,
-    screenHeight: 0,
     more: false,
   });
+  let userInfo: any = GetStorageSync("allJson");
+  Taro.useShareAppMessage(res => {
+    if (res.from === 'button') {
+      console.log(res.target)
+    }
+    return {
+      title: '长城传奇影视数字文化',
+      path: '/pages/index/index?iv='+userInfo.sn,
+    }
+  })
   const [refresh, setRefresh] = useState(false);
-  const [current, setCurrent] = useState(0);
   const [info, setInfo] = useState(undefined);
-  const [dataList, setDataList] = useState<any>([
-    {
-      title: "普通会员",
-      status: "已达成",
-      status_desc: "您已达成该等级",
-      icon: one,
-      color: "#333333",
-      start_color: "#ececec",
-      end_color: "#ababab",
-    },
-    {
-      title: "普通剧推官",
-      status: "未达成",
-      status_desc: "尚未达到升级条件",
-      main: "可享受邀请会员消费15%的奖励",
-      count: 0,
-      num: 0,
-      icon: two,
-      color: "#7289b5",
-      start_color: "#eff0f2",
-      end_color: "#cbdaef",
-    },
-    {
-      title: "金牌剧推官",
-      status: "未达成",
-      status_desc: "尚未达到升级条件",
-      main: "可享受邀请会员消费20%的奖励",
-      count: 0,
-      num: 0,
-      icon: three,
-      color: "#ff7d01",
-      start_color: "#ffe8d6",
-      end_color: "#ffb167",
-    },
-    {
-      title: "钻石剧推官",
-      status: "未达成",
-      status_desc: "尚未达到升级条件",
-      main: "可享受邀请会员消费20%的奖励",
-      count: 0,
-      num: 0,
-      icon: four,
-      code_color: "#6400ff",
-      color: "#ffffff",
-      start_color: "#bcc5ff",
-      end_color: "#6400ff",
-    },
-  ]);
   const [desc, setDesc] = useState([]);
   useLoad(() => {
     let _option = option;
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
-    Taro.getSystemInfo({
-      success: (res) => {
-        _option.screenWidth = res.screenWidth;
-        _option.screenHeight = res.screenHeight;
-      },
-    });
+
     getMemberInfo().then((res) => {
       setInfo(res.data);
+
       currentMemberSpread();
     });
     setOption({ ..._option });
@@ -103,47 +59,36 @@ export default function Code() {
       setRefresh(false);
     });
   };
-  const currentArrVal = (data, info, num, index) => {
-    let tLe = num >= info.start_num;
-    data.title = info.name;
-    data.status = tLe ? "已达成" : "未达成";
-    data.status_desc = tLe ? "您已达成该等级" : "尚未达到升级条件";
-    if (!tLe) {
-      data.main = info.describe;
-    }
-    data.status = tLe ? "已达成" : "未达成";
-    data.bool = tLe;
-    data.num = num;
-    data.start_num = info.start_num;
-    data.end_num = info.end_num;
-    data.num = num;
-    if (!tLe) {
-      data.count = info.start_num;
-    }
-    if (info?.is_reach) {
-      setCurrent(index);
-    }
-    return data;
-  };
   const saveImage = () => {
-    Taro.saveImageToPhotosAlbum({
+    TShow('保存中', 'loading')
+    Taro.downloadFile({
       url: info.spread_qrcode,
-      success: (res) => {
-        TShow("保存成功");
-      },
-      fail: (res) => {
-        TShow("保存失败");
-      },
+      success: function (res) {
+        console.log(res.tempFilePath)
+        if (res.statusCode === 200) {
+          Taro.saveImageToPhotosAlbum({
+            filePath: res.tempFilePath,
+            success: (res) => {
+              TShow("保存成功");
+            },
+            fail: (res) => {
+              // TShow("微信权限申请中，暂时无法使用");
+            },
+          });
+        }
+      }
     });
   };
   const shareImage = () => {
-    console.log(info);
     Taro.downloadFile({
       url: info.spread_qrcode,
       success: (res) => {
         Taro.showShareImageMenu({
           path: res.tempFilePath,
         });
+      },
+      fail: (res) => {
+        TShow("微信权限申请中，暂时无法使用");
       },
     });
   };
@@ -171,6 +116,7 @@ export default function Code() {
           onRefresherRefresh={refreshChange}
           enhanced
         >
+
           {/*<View className="header">*/}
           {/*  <Swiper*/}
           {/*    className="swiper_view"*/}
@@ -255,20 +201,19 @@ export default function Code() {
                 <Image className="control_view_img" src={share} />
                 分享好友
               </View>
+              {/*<Button*/}
+              {/*  className="control_view"*/}
+              {/*  openType="share"*/}
+              {/*  hoverClass="index_label_active"*/}
+              {/*>*/}
+              {/*  <Image className="control_view_img" src={share} />*/}
+              {/*  分享好友*/}
+              {/*</Button>*/}
             </View>
           </View>
           <View className="desc">
             <View className="title">剧推官权益说明</View>
             <View className="desc">
-              <View>
-                1、用户等级分为普通会员、普通剧推官、金牌剧推官、钻石剧推官四个等级，注册登录后自动成为普通会员；
-              </View>
-              <View>
-                2、分享剧推码给好友，好友扫码下载APP并注册后，即成功邀请好友，达到一定数量等级将自动升级；
-              </View>
-              <View>
-                3、被邀请人在平台消费，你将获得一定奖励，不同等级剧推官获得奖励不同，等级越高奖励越多。
-              </View>
               {desc.map((item) => {
                   return (
                     <View>

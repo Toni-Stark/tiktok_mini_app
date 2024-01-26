@@ -2,25 +2,20 @@ import { View, Image } from "@tarojs/components";
 import Taro, { useLoad, useRouter } from "@tarojs/taro";
 import "taro-ui/dist/style/components/loading.scss";
 import "./index.less";
-import { useState } from "react";
+import {useMemo, useState} from "react";
 import wxPay from "../../../../static/icon/wx_pay.png";
 import con from "../../../../static/icon/_con.png";
 import dis from "../../../../static/icon/_dis.png";
 import {
   getMemberInfo,
-  getPayHandle,
   getPayOrder,
   getPayStatus,
-  getPayViOrder,
   getWalletProducts,
 } from "@/common/interface";
-import { GetStorageSync } from "@/store/storage";
+import {GetStorageSync, SetStorage, SetStorageSync} from "@/store/storage";
 import { HeaderView } from "@/components/headerView";
-import { THide, TShow } from "@/common/common";
-import { getSystemInfo } from "@/common/tools";
+import {getCheckLogin, THide, TShow} from "@/common/common";
 
-let timer = null;
-let times = 0;
 export default function Search() {
   const router = useRouter();
   const [option, setOption] = useState({
@@ -31,6 +26,7 @@ export default function Search() {
     active: 1,
     bar: 1,
     type: 1,
+    is_pay: 0
   });
   const [list, setList] = useState([
     {
@@ -48,6 +44,9 @@ export default function Search() {
     if (params?.type) {
       _option.type = params?.type;
     }
+    if (params?.is_pay) {
+      _option.is_pay = params?.is_pay;
+    }
     const rect = Taro.getMenuButtonBoundingClientRect();
     _option.barHeight = rect.top;
     _option.statusBarHeight = rect.height;
@@ -57,8 +56,8 @@ export default function Search() {
         _option.screenHeight = res.screenHeight;
       },
     });
-    getProList();
     setOption({ ..._option });
+    getProList();
   });
 
   const currentMemberInfo = (bool) => {
@@ -89,11 +88,8 @@ export default function Search() {
   };
 
   const payStatus = (id) => {
-    let bool = false;
-    clearInterval(timer);
-    timer = null;
-    timer = setInterval(() => {
-      if (bool == true) return;
+    let times = 0;
+    let timer = setInterval(() => {
       getPayStatus({ order_id: id }).then((res) => {
         if (res.code !== 1) {
           THide();
@@ -107,27 +103,40 @@ export default function Search() {
         }
         THide();
         TShow("充值成功");
-        bool = true;
+        SetStorageSync("nowValPay", '1');
         currentMemberInfo(true);
+        times = 0;
+        clearInterval(timer)
       });
     }, 400);
   };
   const payOrder = () => {
-    TShow("", "loading", 10000);
-    let allJson = GetStorageSync("allJson");
-    let params = {};
-    if (!allJson.is_vir) {
-      params = { openid: allJson.openid, product_id: option.bar, is_vir: 0 };
-      payApiStatus(params);
-    } else {
-      Taro.login({
-        complete: (loginRes) => {
-          if (!loginRes.code) return;
-          params = { code: loginRes.code, product_id: option.bar, is_vir: 1 };
-          payApiStatus(params);
-        },
-      });
+    if(!inList||inList?.length<=0){
+      return;
     }
+    TShow("", "loading", 10000);
+    // let allJson = GetStorageSync("allJson");
+    // let params = {};
+    // if (!allJson.is_vir) {
+    //   params = { openid: allJson.openid, product_id: option.bar };
+    //   payApiStatus(params);
+    // } else {
+    //   Taro.login({
+    //     complete: (loginRes) => {
+    //       if (!loginRes.code) return;
+    //       params = { code: loginRes.code, product_id: option.bar };
+    //
+    //     },
+    //   });
+    // }
+
+    getCheckLogin().then((result) => {
+      let {token} = result;
+      SetStorageSync("allJson", result);
+      SetStorage("token", token).then(() => {
+        payApiStatus({ product_id: option.bar });
+      });
+    });
   };
   const payApiStatus = (params) => {
     getPayOrder(params).then((res) => {
@@ -135,7 +144,7 @@ export default function Search() {
         THide();
         return TShow(res.msg);
       }
-      if (params.is_vir) {
+      if (res.data.is_vir) {
         let data = res.data;
         let sData = res.data.signData;
         const SDKVersion = Taro.getSystemInfoSync().SDKVersion;
@@ -235,7 +244,101 @@ export default function Search() {
 
     return 0;
   };
-
+  const currentContext = useMemo(() => {
+    return (
+      <View className="index_content_icon">
+        <View className="index_content_icon_text">
+          <View className="text_main">
+            <View className="text_main_title">积分</View>
+            <View className="text_main_eval">{info?.score}</View>
+          </View>
+          <View className="text_main">
+            <View className="text_main_title">会员时长</View>
+            <View className="text_main_eval">
+              {info?.expire_days}
+              <View className="text_main_eval_text">天</View>
+            </View>
+          </View>
+        </View>
+      </View>
+    )
+  }, [info])
+  const coinContext = useMemo(() => {
+    return (
+      <View className="index_content_list">
+        {inList.map((res) => {
+          let item: any = { ...res };
+          let cName = "item";
+          if (item.intro) {
+            cName = cName + " super";
+          }
+          if (item.id === option.bar) {
+            cName = cName + " active";
+          }
+          return (
+            <View className={cName} onClick={() => checkTab(item.id)}>
+              {item?.intro ? (
+                <View className="item_tips">{item.intro}</View>
+              ) : null}
+              <View className="item_value">
+                <View>
+                  {item.expire_days > 0 ? (
+                    <View className="item_value_score_day">
+                      {item.expire_days}
+                      <View className="day">天</View>
+                    </View>
+                  ) : null}
+                  {item.type == 2 ? (
+                    <View className="item_value_score_day">
+                      {item.score}
+                      <View className="day">积分</View>
+                    </View>
+                  ) : null}
+                </View>
+                <View className="item_value_score">
+                  {item.gift_score > 0 ? (
+                    <View className="item_value_score_text">
+                      （送{item.gift_score}积分）
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+              <View className="item_desc">
+                {item.name}
+                <View className="item_desc_price">{item.price}</View>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    )
+  }, [inList, option])
+  const payContext = useMemo(()=>{
+    return (
+      <View className="index_content_label">
+        {list.map((item) => {
+          return (
+            <View className="label" onClick={() => checkType(item.checked)}>
+              <View className="label_item">
+                <Image
+                  mode="widthFix"
+                  className="label_item_icon"
+                  src={item.icon}
+                />
+                <View className="label_item_text">{item.title}</View>
+              </View>
+              <View className="label_btn">
+                <Image
+                  className="label_btn_img"
+                  src={item.checked == option.active ? con : dis}
+                />
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    )
+  }, [list, option])
   return (
     <View className="index">
       <HeaderView
@@ -244,90 +347,16 @@ export default function Search() {
         text="充值"
       />
       <View className="index_content">
-        <View className="index_content_banner">创作不易，感谢您的支持</View>
-        <View className="index_content_icon">
-          <View className="index_content_icon_text">
-            <View className="text_main">
-              <View className="text_main_title">积分</View>
-              <View className="text_main_eval">{info?.score}</View>
-            </View>
-            <View className="text_main">
-              <View className="text_main_title">会员时长</View>
-              <View className="text_main_eval">
-                {info?.expire_days}
-                <View className="text_main_eval_text">天</View>
-              </View>
-            </View>
-          </View>
+        <View className="index_content_banner">
+          <View>创作不易，感谢您的支持</View>
+          {option.is_pay?<View>解锁当前剧集需要{option.is_pay}积分</View>:null}
         </View>
-        <View className="index_content_list">
-          {inList.map((res) => {
-            let item: any = { ...res };
-            let cName = "item";
-            if (item.intro) {
-              cName = cName + " super";
-            }
-            if (item.id === option.bar) {
-              cName = cName + " active";
-            }
-            return (
-              <View className={cName} onClick={() => checkTab(item.id)}>
-                {item?.intro ? (
-                  <View className="item_tips">{item.intro}</View>
-                ) : null}
-                <View className="item_value">
-                  <View>
-                    {item.expire_days > 0 ? (
-                      <View className="item_value_score_day">
-                        {item.expire_days}
-                        <View className="day">天</View>
-                      </View>
-                    ) : null}
-                    {item.type == 2 ? (
-                      <View className="item_value_score_day">
-                        {item.score}
-                        <View className="day">积分</View>
-                      </View>
-                    ) : null}
-                  </View>
-                  <View className="item_value_score">
-                    {item.gift_score > 0 ? (
-                      <View className="item_value_score_text">
-                        （送{item.gift_score}积分）
-                      </View>
-                    ) : null}
-                  </View>
-                </View>
-                <View className="item_desc">
-                  {item.name}
-                  <View className="item_desc_price">{item.price}</View>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-        <View className="index_content_label">
-          {list.map((item) => {
-            return (
-              <View className="label" onClick={() => checkType(item.checked)}>
-                <View className="label_item">
-                  <Image
-                    mode="widthFix"
-                    className="label_item_icon"
-                    src={item.icon}
-                  />
-                  <View className="label_item_text">{item.title}</View>
-                </View>
-                <View className="label_btn">
-                  <Image
-                    className="label_btn_img"
-                    src={item.checked == option.active ? con : dis}
-                  />
-                </View>
-              </View>
-            );
-          })}
-        </View>
+        {/*用户账户*/}
+        {currentContext}
+        {/*积分列表*/}
+        {coinContext}
+        {/*支付方式列表*/}
+        {payContext}
         <View className="index_content_desc">
           <View className="title">充值须知</View>
           <View className="desc">
@@ -340,8 +369,7 @@ export default function Search() {
           </View>
         </View>
         <View
-          className="index_content_btn"
-          hoverClass="index_content_active"
+          className={inList&&inList.length>0?"index_content_btn":"index_content_btn_gray"}
           onClick={payOrder}
         >
           确认支付

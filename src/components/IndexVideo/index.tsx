@@ -9,28 +9,30 @@ type Props = {
 };
 
 export const IndexVideo = (props: Props) => {
-  const { data, height } = props;
+  const { data, height, id } = props;
 
-  const naviToVideo = (id) => {
+  const naviToVideoUp = (id) => {
     Taro.navigateTo({
-      url: "../video/index?id=" + id,
+      url: "../video_up/index?id=" + id,
     });
   };
   return (
-    <View className="vvview-large" onClick={() => naviToVideo(data.id)}>
+    <View className="mini-view-large" onClick={() => naviToVideoUp(data.id)}>
       <Video
-        className="vvview-large-video"
+        className="mini-view-large-video"
         style={{ height: height + "px" }}
         src={data.url}
         poster={data.img}
         initialTime={0}
         controls={false}
-        autoplay
+        enable-progress-gesture={false}
+        autoplay={false}
         loop
         muted
         objectFit="cover"
+        id={id}
       />
-      <text className="vvview-large-desc">{data.describe}</text>
+      <text className="mini-view-large-desc">{data.describe}</text>
     </View>
   );
 };

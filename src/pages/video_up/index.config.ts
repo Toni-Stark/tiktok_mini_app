@@ -1,4 +1,4 @@
 export default definePageConfig({
   navigationBarTitleText: "   ",
-  enableShareAppMessage: true,
+  enableShareAppMessage: true
 });
